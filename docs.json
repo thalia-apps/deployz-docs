@@ -12,26 +12,120 @@
     "dark": "/images/favicon.ico"
   },
   "navigation": {
-    "pages": [
+    "tabs": [
       {
-        "group": "Getting Started",
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": [
+              "index",
+              "how-it-works",
+              "concepts",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Prepare your application",
+            "pages": [
+              "prepare/requirements",
+              "prepare/not-supported",
+              "prepare/environment-variables",
+              "prepare/migrations"
+            ]
+          },
+          {
+            "group": "Releases",
+            "pages": [
+              "releases/create",
+              "releases/build-failures"
+            ]
+          },
+          {
+            "group": "Test and share",
+            "pages": [
+              "share/test-deployment",
+              "share/install-links",
+              "share/invitations",
+              "share/sizes-and-cost",
+              "share/regions"
+            ]
+          },
+          {
+            "group": "Operate deployments",
+            "pages": [
+              "operate/deployment-status",
+              "operate/deploy-update",
+              "operate/rollback",
+              "operate/restart",
+              "operate/configuration",
+              "operate/custom-domains",
+              "operate/connector",
+              "operate/remove"
+            ]
+          },
+          {
+            "group": "Account",
+            "pages": [
+              "account/billing"
+            ]
+          },
+          {
+            "group": "Troubleshooting",
+            "pages": [
+              "troubleshooting/overview",
+              "troubleshooting/analysis",
+              "troubleshooting/install",
+              "troubleshooting/startup-and-health",
+              "troubleshooting/connector",
+              "troubleshooting/https-and-domains"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "reference/failure-codes",
+              "reference/aws-resources",
+              "reference/glossary"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Customer guide",
+        "groups": [
+          {
+            "group": "Customer guide",
+            "pages": [
+              "customers/overview",
+              "customers/before-you-install",
+              "customers/install",
+              "customers/security",
+              "customers/costs",
+              "customers/custom-domain-dns",
+              "customers/remove"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Changelog",
         "pages": [
-          "index",
-          "quickstart"
+          "changelog"
         ]
       }
     ],
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "Dashboard",
+          "href": "https://app.deployz.dev",
+          "icon": "gauge"
         },
         {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "Support",
+          "href": "https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur",
+          "icon": "life-ring"
         }
       ]
     }
@@ -45,11 +139,7 @@
     "links": [
       {
         "href": "https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur",
-        "label": "Contact"
-      },
-      {
-        "href": "/changelog",
-        "label": "Changelog"
+        "label": "Support"
       }
     ],
     "primary": {
@@ -70,7 +160,7 @@
       "vscode"
     ]
   },
-  "description": "Documentation Site for Deployz.dev",
+  "description": "Run your web application in your customers' own AWS accounts. Guides for software vendors and their customers.",
   "appearance": {
     "strict": true
   }

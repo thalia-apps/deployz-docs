@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deployz docs strategy</title>
+<style>
+:root{
+  --bg:#fafaf9;--surface:#ffffff;--text:#1c1c1a;--muted:#5f5f5a;--line:#e4e4df;
+  --accent:#2f5bd3;--accent-soft:#e8eefc;--good:#1f7a4d;--good-soft:#e5f4ec;
+  --warn:#9a5b00;--warn-soft:#fdf1dc;--risk:#b42318;--risk-soft:#fde8e6;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141413;--surface:#1d1d1b;--text:#ecece8;--muted:#a3a39c;--line:#33332f;
+    --accent:#8aa8ff;--accent-soft:#1f2a47;--good:#6fd29f;--good-soft:#173326;
+    --warn:#f0b75a;--warn-soft:#3a2b12;--risk:#ff8a80;--risk-soft:#3d1a17;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141413;--surface:#1d1d1b;--text:#ecece8;--muted:#a3a39c;--line:#33332f;
+  --accent:#8aa8ff;--accent-soft:#1f2a47;--good:#6fd29f;--good-soft:#173326;
+  --warn:#f0b75a;--warn-soft:#3a2b12;--risk:#ff8a80;--risk-soft:#3d1a17;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:960px;margin:0 auto;padding:40px 16px 80px}
+h1{font-size:2rem;line-height:1.2;margin:0 0 8px}
+h2{font-size:1.35rem;margin:56px 0 6px;padding-top:8px}
+h3{font-size:1.05rem;margin:0 0 6px}
+p{margin:0 0 12px}
+.lede{font-size:1.1rem;color:var(--muted);max-width:68ch}
+.meta{font-size:.85rem;color:var(--muted);margin-bottom:24px}
+.sub{color:var(--muted);margin-bottom:20px;max-width:70ch}
+code{font:.88em ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--accent-soft);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
+nav.toc{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 0}
+nav.toc a{font-size:.85rem;color:var(--accent);text-decoration:none;border:1px solid var(--line);background:var(--surface);padding:4px 10px;border-radius:999px}
+nav.toc a:hover{border-color:var(--accent)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
+.card p:last-child,.card ul:last-child{margin-bottom:0}
+.card ul{margin:0;padding-left:18px}
+.card li{margin:4px 0}
+.tag{display:inline-block;font-size:.72rem;font-weight:600;letter-spacing:.03em;text-transform:uppercase;padding:2px 8px;border-radius:999px;margin-bottom:8px}
+.t-accent{background:var(--accent-soft);color:var(--accent)}
+.t-good{background:var(--good-soft);color:var(--good)}
+.t-warn{background:var(--warn-soft);color:var(--warn)}
+.t-risk{background:var(--risk-soft);color:var(--risk)}
+.big{font-size:1.05rem;font-weight:600;margin-bottom:6px}
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;margin:8px 0 4px}
+.step{flex:1 1 150px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px}
+.step b{display:block;font-size:.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.who{font-size:.8rem;color:var(--accent);font-weight:600}
+.tabs{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.group{border-top:1px solid var(--line);padding:10px 0}
+.group:first-of-type{border-top:0;padding-top:0}
+.group h4{margin:0 0 4px;font-size:.92rem}
+.group p{font-size:.88rem;color:var(--muted);margin:0}
+.pri{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.pri ol{margin:0;padding-left:20px}
+.pri li{margin:5px 0}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+.tablewrap{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow-x:auto}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.78rem;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);font-weight:600}
+tr:last-child td{border-bottom:0}
+.no{color:var(--risk);text-decoration:line-through;text-decoration-thickness:1px}
+.callout{border-left:4px solid var(--accent);background:var(--accent-soft);padding:14px 16px;border-radius:0 10px 10px 0;margin:14px 0}
+.regions{display:flex;flex-wrap:wrap;gap:6px}
+.regions span{font-size:.82rem;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:3px 8px}
+.regions span em{font-style:normal;color:var(--muted);font-family:ui-monospace,Consolas,monospace;font-size:.78rem;margin-left:4px}
+footer{margin-top:56px;font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <span class="tag t-accent">Draft for review</span>
+  <h1>Deployz documentation strategy</h1>
+  <p class="lede">A plain-language plan for what the public Deployz docs site should contain, who it's for, how it's organized, and how it stays accurate.</p>
+  <p class="meta">Prepared 2026-10-20 · Based on the <code>deployz</code> app code at commit <code>76a4b779</code> · Full detail in <code>planning/content-strategy.md</code></p>
+  <nav class="toc" aria-label="Sections">
+    <a href="#today">Where we are</a><a href="#product">The product in one picture</a><a href="#readers">Who reads the docs</a>
+    <a href="#goals">Goals</a><a href="#structure">Site structure</a><a href="#priorities">What to write first</a>
+    <a href="#rules">Writing rules</a><a href="#words">Words to use</a><a href="#decisions">Decisions made</a>
+    <a href="#security">Security page review</a><a href="#open">More decisions</a><a href="#next">Next steps</a>
+  </nav>
+</header>
+
+<section id="today">
+  <h2>1. Where we are today</h2>
+  <p class="sub">The product is well understood internally, but almost nothing is written for users yet.</p>
+  <div class="grid g2">
+    <div class="card"><span class="tag t-risk">Gap</span><p class="big">The docs site is an empty starter</p><p>It has two placeholder pages. The header links point to Mintlify's own docs and blog, and the Changelog link goes to a page that doesn't exist.</p></div>
+    <div class="card"><span class="tag t-good">Strength</span><p class="big">Strong internal source material</p><p>The app repository has about 8,400 lines of engineering docs, checked against the code. They're written for engineers, so we use them as raw input, not as finished copy.</p></div>
+    <div class="card"><span class="tag t-warn">Opportunity</span><p class="big">The app doesn't link to any docs</p><p>The <b>Contact Deployz support</b> button has no destination. Linking error screens to the docs would bring readers in at the moment they need help.</p></div>
+    <div class="card"><span class="tag t-accent">Scope</span><p class="big">No API reference needed</p><p>Deployz has no public API: no API keys and no API spec. The dashboard's own routes are internal, so we don't document them.</p></div>
+  </div>
+</section>
+
+<section id="product">
+  <h2>2. The product in one picture</h2>
+  <p class="sub">Deployz lets a software company (the <b>vendor</b>) run its web application inside each of its <b>customers'</b> own AWS accounts.</p>
+  <div class="flow" role="list">
+    <div class="step" role="listitem"><b>Step 1</b>Connect a GitHub repository<div class="who">Vendor</div></div>
+    <div class="step" role="listitem"><b>Step 2</b>Deployz analyzes it and builds a release<div class="who">Deployz</div></div>
+    <div class="step" role="listitem"><b>Step 3</b>Vendor sends an install link<div class="who">Vendor</div></div>
+    <div class="step" role="listitem"><b>Step 4</b>Customer reviews the plan and cost, then approves one AWS stack<div class="who">Customer</div></div>
+    <div class="step" role="listitem"><b>Step 5</b>Vendor runs every deployment from one dashboard<div class="who">Vendor</div></div>
+  </div>
+  <p class="sub" style="margin-top:16px">Three things about the product shape the docs:</p>
+  <div class="grid g3">
+    <div class="card"><h3>It's opinionated</h3><p>It supports one application shape. Anything else is rejected with an explanation. So the docs must answer "does my app fit?" early and clearly.</p></div>
+    <div class="card"><h3>Two people act, only one has an account</h3><p>The vendor uses the dashboard. The customer never signs in and works only on the install page and in their AWS console. Every task must say who does it.</p></div>
+    <div class="card"><h3>It runs in someone else's AWS account</h3><p>Many install problems come from the customer's AWS settings. Vendors need pages they can forward to their customer's IT or security team.</p></div>
+  </div>
+</section>
+
+<section id="readers">
+  <h2>3. Who reads the docs</h2>
+  <div class="grid g2">
+    <div class="card"><span class="tag t-accent">Primary</span><h3>Vendor: evaluator</h3><p>A founder or lead developer at a 5–20 person SaaS company. Knows Docker, may not know AWS well.</p><p><b>Needs:</b> does my app fit, what will it cost, and the fastest path to a working test.</p></div>
+    <div class="card"><span class="tag t-accent">Primary</span><h3>Vendor: operator</h3><p>The same person after going live, or a teammate.</p><p><b>Needs:</b> deploy, roll back, change settings, add domains, remove deployments, fix failures.</p></div>
+    <div class="card"><span class="tag t-good">Secondary</span><h3>Vendor team member</h3><p>Someone invited to the organization as an admin or member.</p><p><b>Needs:</b> what their role can do, and how to get started.</p></div>
+    <div class="card"><span class="tag t-warn">Secondary, but critical</span><h3>Customer: approver</h3><p>The IT, cloud or security person at the vendor's customer who approves the AWS stack.</p><p><b>Needs:</b> what's created, what access Deployz has, what it costs, and how to revoke it and remove it.</p></div>
+  </div>
+  <div class="callout"><b>Not for the public site:</b> Deployz's own internal operations (the support console, how Deployz deploys itself, CI, configuration settings, test tools). That stays in the app repository.</div>
+</section>
+
+<section id="goals">
+  <h2>4. What success looks like</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Goal</th><th>How we'll know</th></tr></thead>
+    <tbody>
+      <tr><td>Vendors learn whether their app fits <b>before</b> signing up</td><td>Visits to the requirements page; fewer apps marked "not compatible"</td></tr>
+      <tr><td>Vendors reach a working test deployment without help</td><td>Quickstart completion in docs analytics and the product funnel</td></tr>
+      <tr><td>Customers approve installs without a long security back-and-forth</td><td>Vendors sharing the customer guide; fewer permission questions</td></tr>
+      <tr><td>Failures get fixed from the docs</td><td>One troubleshooting entry per error, linked from the app's error screen</td></tr>
+      <tr><td>Support effort stays low</td><td>Support minutes per active deployment per month</td></tr>
+    </tbody>
+  </table></div>
+  <p class="sub" style="margin-top:12px">Also check docs searches with no results every month. It's the cheapest way to spot missing pages.</p>
+</section>
+
+<section id="structure">
+  <h2>5. Site structure</h2>
+  <p class="sub">Two tabs, because vendors and customers have different jobs. Customers get a clean page set they can be sent to, with no vendor tasks mixed in.</p>
+  <div class="tabs">
+    <div class="card">
+      <span class="tag t-accent">Tab 1</span><h3>Documentation (for vendors)</h3>
+      <div class="group"><h4>Get started</h4><p>What is Deployz · How it works · Quickstart · Key concepts</p></div>
+      <div class="group"><h4>Prepare your application</h4><p>Requirements · What's not supported · Read the analysis · Fix findings with a coding agent · Environment variables · Databases, cache and storage · Migrations · Workers, queues and schedules (Preview)</p></div>
+      <div class="group"><h4>Releases</h4><p>Create a release · Fix a failed build</p></div>
+      <div class="group"><h4>Test and share</h4><p>Test deployment · Install links · Invitations · Sizes and AWS cost · AWS Regions</p></div>
+      <div class="group"><h4>Operate deployments</h4><p>Status and health · Deploy an update · Roll back · Restart · Customer configuration · Custom domains · Reconnect the connector · Remove a deployment</p></div>
+      <div class="group"><h4>Account</h4><p>Organization, team and roles · Connect GitHub · Pricing and billing</p></div>
+      <div class="group"><h4>Troubleshooting</h4><p>Diagnose a failure · Analysis · Install · Startup and health · Connector · HTTPS and domains</p></div>
+      <div class="group"><h4>Reference</h4><p>Error codes · AWS resources created · Limits · Glossary</p></div>
+    </div>
+    <div class="card">
+      <span class="tag t-warn">Tab 2</span><h3>Customer guide (vendors link here)</h3>
+      <div class="group"><h4>Install an application with Deployz</h4><p>What's happening and what to expect, in a neutral tone, since the customer didn't choose Deployz</p></div>
+      <div class="group"><h4>Before you install</h4><p>AWS account checks: permissions, organization policies, quotas, Region</p></div>
+      <div class="group"><h4>Install steps</h4><p>The install page and the AWS console, with the step names as the screen shows them</p></div>
+      <div class="group"><h4>Security and AWS access</h4><p>What's created, what access Deployz has, what data it sees and never sees, how secrets are handled, how to revoke access. This is the page a security reviewer reads.</p></div>
+      <div class="group"><h4>Costs in your account</h4><p>What runs and the estimated monthly AWS cost</p></div>
+      <div class="group"><h4>Custom domain DNS</h4><p>The two DNS records to create</p></div>
+      <div class="group"><h4>Removing the application</h4><p>What's deleted, what stays (and keeps costing money), and how to clean up</p></div>
+    </div>
+  </div>
+  <p class="sub" style="margin-top:14px">Site settings are updated too: Dashboard and Support links in the header, a Changelog tab, and a proper site description.</p>
+</section>
+
+<section id="priorities">
+  <h2>6. What to write first</h2>
+  <div class="pri">
+    <div class="card"><span class="tag t-risk">Must have before launch</span>
+      <ol>
+        <li>What is Deployz, how it works, key concepts</li>
+        <li>Quickstart: sign up → connect GitHub → add application → create a release → test deployment → open the app</li>
+        <li>Requirements and what's not supported</li>
+        <li>Customer guide: security, install steps, before you install, costs</li>
+        <li>Pricing and billing</li>
+        <li>Error codes, plus install and startup troubleshooting</li>
+        <li>Removing a deployment (vendor and customer sides)</li>
+      </ol>
+    </div>
+    <div class="card"><span class="tag t-warn">First month after launch</span>
+      <ol><li>The rest of Operate deployments, Releases, Test and share</li><li>Environment variables, migrations, custom domains, the connector</li><li>Remaining troubleshooting pages</li><li>AWS resources reference and glossary</li></ol>
+    </div>
+    <div class="card"><span class="tag t-good">When there's demand</span>
+      <ol><li>Framework guides, but only for frameworks proven on real AWS</li><li>A "send this to your customer" email template</li><li>A security questionnaire pack</li></ol>
+    </div>
+  </div>
+</section>
+
+<section id="rules">
+  <h2>7. Writing rules for Deployz pages</h2>
+  <div class="grid g2">
+    <div class="card"><h3>Say who acts</h3><p>Start every task with a "Who" line: the vendor in the dashboard, or the customer in their AWS console.</p></div>
+    <div class="card"><h3>Lead with fit</h3><p>Say plainly what isn't supported. "We don't support that" beats "it might work".</p></div>
+    <div class="card"><h3>Product words, not AWS jargon</h3><p>Use AWS service names only where the reader needs them, mainly in the customer guide.</p></div>
+    <div class="card"><h3>Warn before the action</h3><p>Rollback doesn't undo database changes. Removal keeps data that still costs money. Region and size can't be changed later.</p></div>
+    <div class="card"><h3>Mark Preview features</h3><p>Queues and scheduled jobs carry a Preview label until they're proven on real AWS.</p></div>
+    <div class="card"><h3>Public before launch</h3><p>Publish prices and limits as they are now. Don't promise roadmap features or dates.</p></div>
+  </div>
+</section>
+
+<section id="words">
+  <h2>8. Words to use</h2>
+  <p class="sub">One word per idea, matching the product. US spelling everywhere, including UI labels: write <b>Analyze application</b> even where the app says "Analyse".</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Use</th><th>Instead of</th></tr></thead>
+    <tbody>
+      <tr><td>application</td><td><span class="no">app</span> (in headings), <span class="no">product</span></td></tr>
+      <tr><td>release</td><td><span class="no">build</span>, <span class="no">image</span></td></tr>
+      <tr><td>deployment ("install" for the first one)</td><td><span class="no">installation</span>, <span class="no">environment</span></td></tr>
+      <tr><td>install link</td><td><span class="no">deploy link</span>, <span class="no">installation link</span></td></tr>
+      <tr><td>invitation, invite a customer</td><td><span class="no">create installation</span></td></tr>
+      <tr><td>Deployz connector</td><td><span class="no">relay</span>, <span class="no">bootstrap</span></td></tr>
+      <tr><td>remove a deployment</td><td><span class="no">disconnect</span>, <span class="no">uninstall</span></td></tr>
+      <tr><td>delete retained data</td><td><span class="no">purge</span></td></tr>
+      <tr><td>Needs input · Needs attention · Failed</td><td><span class="no">issue</span>, <span class="no">problem</span>, <span class="no">error</span> (as a status)</td></tr>
+      <tr><td>organization; owner, admin, member</td><td><span class="no">workspace</span>, <span class="no">organisation</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="sub" style="margin-top:12px">The app shows status in two ways: grouped labels on lists ("Waiting for customer", "Live") and detailed states elsewhere ("Installing", "Healthy"). The status page explains both and how they match.</p>
+</section>
+
+<section id="decisions">
+  <h2>9. Decisions made</h2>
+  <div class="grid g2">
+    <div class="card"><span class="tag t-good">Decided</span><h3>The code is the source of truth</h3><p>Where the app code and the internal docs disagree, the public docs follow the code. Examples: there are 25 error codes, sign-up is email and password only, and customer pages have <b>Invite customer</b> (no "Create installation").</p></div>
+    <div class="card"><span class="tag t-good">Decided</span><h3>US spelling everywhere</h3><p>Now a rule in <code>AGENTS.md</code>. The product team should be asked to change the app's spelling to match.</p></div>
+    <div class="card"><span class="tag t-good">Decided</span><h3>The docs go public before launch</h3><p>Prices, limits and Preview labels are published as they are. No dated promises.</p></div>
+    <div class="card"><span class="tag t-good">Decided</span><h3>An AI coding agent checks the security pages</h3><p>On every relevant app change and before each release. See section 10.</p></div>
+    <div class="card"><span class="tag t-good">Decided</span><h3>All 17 AWS Regions are listed</h3>
+      <div class="regions">
+        <span>US East (N. Virginia)<em>us-east-1</em></span><span>US East (Ohio)<em>us-east-2</em></span><span>US West (N. California)<em>us-west-1</em></span><span>US West (Oregon)<em>us-west-2</em></span><span>Canada (Central)<em>ca-central-1</em></span><span>South America (São Paulo)<em>sa-east-1</em></span><span>Europe (Ireland)<em>eu-west-1</em></span><span>Europe (London)<em>eu-west-2</em></span><span>Europe (Paris)<em>eu-west-3</em></span><span>Europe (Frankfurt)<em>eu-central-1</em></span><span>Europe (Stockholm)<em>eu-north-1</em></span><span>Asia Pacific (Tokyo)<em>ap-northeast-1</em></span><span>Asia Pacific (Seoul)<em>ap-northeast-2</em></span><span>Asia Pacific (Osaka)<em>ap-northeast-3</em></span><span>Asia Pacific (Mumbai)<em>ap-south-1</em></span><span>Asia Pacific (Singapore)<em>ap-southeast-1</em></span><span>Asia Pacific (Sydney)<em>ap-southeast-2</em></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="security">
+  <h2>10. Why the customer security page needs a review before each release</h2>
+  <p class="sub">This is the page a customer's security team reads before allowing Deployz into their AWS account. It makes specific promises, and those promises depend on code that changes.</p>
+  <div class="grid g2">
+    <div class="card"><h3>What the page promises</h3><ul>
+      <li>Deployz's access is limited to resources it tags for that installation.</li>
+      <li>Deployz never connects into the account. The connector only reaches out.</li>
+      <li>Deployz receives IDs, states, AWS error text and health-check codes, never the app's responses or logs.</li>
+      <li>Secrets are deleted after 24 hours if the account never connects, and backups last up to 7 days.</li>
+      <li>Deleting the connector stack revokes all access.</li>
+    </ul></div>
+    <div class="card"><h3>Why it can quietly become false</h3><ul>
+      <li>These facts live in several places: the AWS permissions template, the connector code, the secrets code and the page text.</li>
+      <li>A new feature can add permissions. Queues and schedules already did.</li>
+      <li>Nothing currently forces the page text to be updated when that code changes.</li>
+      <li>One internal doc already contradicts itself about where secrets appear.</li>
+    </ul></div>
+  </div>
+  <div class="callout"><b>Why it matters:</b> customers copy these answers into their own security reviews. If a release changes Deployz's access and the page isn't updated, a customer approved something different from what they were told. That's a trust and contract risk, not just a typo.</div>
+  <div class="card"><span class="tag t-good">Decided</span><h3>An AI coding agent does the check</h3>
+    <div class="flow" role="list" style="margin-top:10px">
+      <div class="step" role="listitem"><b>When</b>Every app pull request that touches the permissions template, connector, secrets or security-page files, and once before each release</div>
+      <div class="step" role="listitem"><b>What</b>Checks each security promise against the code, using a fixed list of promises and their source files</div>
+      <div class="step" role="listitem"><b>Result</b>A pull request comment marking each promise <b>still true</b>, <b>changed</b> or <b>can't verify</b>, with file evidence and suggested wording</div>
+      <div class="step" role="listitem"><b>Gate</b>A <b>changed</b> promise blocks the release until the docs and the in-app page are updated</div>
+    </div>
+    <p style="margin-top:10px">Each security page also records the app commit it was last checked against.</p>
+  </div>
+</section>
+
+<section id="open">
+  <h2>11. More decisions</h2>
+  <div class="grid g2">
+    <div class="card"><span class="tag t-good">Decided</span><h3>Support goes to the HubSpot form</h3><p>Every "contact support" link in the docs points there. The app's <b>Contact Deployz support</b> button should use it too.</p></div>
+    <div class="card"><span class="tag t-good">Decided</span><h3>The app will link to the docs</h3><p>The docs live at <code>deployz.dev/docs</code>. Page URLs are now fixed, and changing one needs a redirect. The <code>/docs</code> address is set up in the Mintlify dashboard and on the server behind <code>deployz.dev</code>, not in this repo.</p></div>
+    <div class="card"><span class="tag t-good">Decided</span><h3>Leave out the legacy deploy link</h3><p>It isn't documented anywhere.</p></div>
+    <div class="card"><span class="tag t-good">Decided</span><h3>Customer guide stays neutral for now</h3><p>Vendor branding comes later. Until then the pages say "your software provider".</p></div>
+    <div class="card"><span class="tag t-good">Decided</span><h3>Launch scope: P0 and P1</h3><p>Both "must have before launch" and "first month after launch" pages are in the launch scope.</p></div>
+  </div>
+</section>
+
+<section id="next">
+  <h2>12. Next steps</h2>
+  <div class="flow" role="list">
+    <div class="step" role="listitem"><b>1 · Done</b>Agree on this plan and settle the open items</div>
+    <div class="step" role="listitem"><b>2 · Done</b>Set up the site structure and 40 placeholder pages</div>
+    <div class="step" role="listitem"><b>3</b>Write the P0 and P1 pages, checking each against the code</div>
+    <div class="step" role="listitem"><b>4</b>Add a docs check and the security agent check to the app's pull request process</div>
+  </div>
+</section>
+
+<footer>Deployz documentation strategy · Draft, 2026-10-20 · Internal planning document, not published on the docs site</footer>
+</main>
+</body>
+</html>
