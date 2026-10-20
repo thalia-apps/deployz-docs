@@ -3,9 +3,9 @@
   "theme": "palm",
   "name": "Deployz Documentation",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#111111",
+    "light": "#FAFAFA",
+    "dark": "#111111"
   },
   "favicon": "/favicon.svg",
   "navigation": {
@@ -69,5 +69,8 @@
       "linkedin": "https://linkedin.com/company/mintlify"
     }
   },
-  "description": "Documentation Site for Deployz.dev"
+  "description": "Documentation Site for Deployz.dev",
+  "appearance": {
+    "strict": true
+  }
 }
