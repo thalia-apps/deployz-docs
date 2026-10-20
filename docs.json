@@ -1,13 +1,16 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "palm",
+  "theme": "mint",
   "name": "Deployz Documentation",
   "colors": {
     "primary": "#111111",
     "light": "#FAFAFA",
     "dark": "#111111"
   },
-  "favicon": "/favicon.svg",
+  "favicon": {
+    "light": "/images/favicon.ico",
+    "dark": "/images/favicon.ico"
+  },
   "navigation": {
     "pages": [
       {
@@ -34,8 +37,9 @@
     }
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/images/android-chrome-192x192.png",
+    "dark": "/images/app-icon-dark-180x180.png",
+    "href": "https://deployz.dev"
   },
   "navbar": {
     "links": [
