@@ -1,10 +1,94 @@
 ---
 title: "Application requirements"
-description: "The application architecture Deployz supports."
+description: "The application architecture Deployz supports: one container image, a web service, optional workers and data services, and a dedicated network in one AWS Region."
 ---
 
-{/* Placeholder. Planned content: Dockerfile building a production image; web service behind a load balancer; optional workers; optional PostgreSQL 16 or MySQL 8.0; optional Valkey (Redis-compatible); S3 bucket; SQS queues and scheduled jobs (Preview); port and health path; one image per deployment. Sources in the deployz repo: docs/product/mvp-scope.md, packages/analysis/src. See planning/content-strategy.md. */}
+Deployz supports one application architecture and runs it the same way in every customer's AWS account. Check your application against this page before you add it. If something you rely on isn't listed here, read [What Deployz doesn't support](/prepare/not-supported).
+
+When you add an application, Deployz analyzes the repository and reports anything that doesn't fit. You don't need to declare most of the items below by hand.
+
+## What each deployment contains
+
+One deployment is one copy of your application in one AWS Region of one customer's account. It contains:
+
+| Part | What Deployz runs | Needed? |
+| --- | --- | --- |
+| Web service | Your container, behind a load balancer, with a permanent HTTPS URL | Always |
+| Background workers | One extra container per declared worker process, with no URL | Optional |
+| Database | Managed PostgreSQL 16 or MySQL 8.0 (Amazon RDS) | Optional |
+| Cache | Managed Valkey, which is Redis-compatible (Amazon ElastiCache) | Optional |
+| File storage | One S3 bucket | Always created |
+| Queue (Preview) | One SQS Standard queue, with an optional dead-letter queue | Optional |
+| Scheduled job (Preview) | A one-shot task that runs on a schedule | Optional |
+| Network | A dedicated network (VPC) for this deployment | Always |
+
+Deployz adds the optional parts only when the analysis finds that your application needs them. For the full list of AWS resources, see [AWS resources Deployz creates](/reference/aws-resources).
 
 <Note>
-  This page is coming soon.
+  Queues and scheduled jobs are at **Preview** maturity. They haven't been qualified on real AWS accounts.
 </Note>
+
+## Container image
+
+- **A Dockerfile in the repository.** Deployz builds your application from a Dockerfile that produces a production image. A Dockerfile that's only for development, is a template, or copies files the repository doesn't contain doesn't count.
+- **One image per deployment.** The web service, every worker, the migration task, and scheduled jobs all run the same image with different commands. A worker that needs its own Dockerfile isn't supported.
+- **A start command.** The Dockerfile needs a `CMD` or `ENTRYPOINT`, or the repository needs a `start` script in `package.json`.
+- **Linux on x86_64.** Deployz runs containers on Linux with the x86_64 CPU architecture (AWS Fargate).
+
+Deployz builds the image when you [create a release](/releases/create). Each release has exactly one image.
+
+## Web service
+
+Your web service must:
+
+- **Listen on one port.** Deployz sends customer traffic and health checks to a single container port. The analysis looks for it in the Dockerfile (`EXPOSE` or `ENV PORT`), env files, Compose files, and code defaults. If it can't find one, you set it on the **Configuration** tab.
+- **Listen on all network interfaces.** A server that binds only to `127.0.0.1` or `localhost` never receives traffic. Bind to `0.0.0.0`.
+- **Answer a health check.** The load balancer requests a health check path, such as `/health`, on your port. Your application must return HTTP `200` there once it's ready. Deployz doesn't treat a deployment as healthy, or send traffic to a new release, until this check passes.
+- **Keep no state on local disk.** The container's disk is wiped on every deploy and restart. Store uploaded and generated files in the S3 bucket, and data in the database.
+
+## Background workers
+
+A worker is a long-running process, such as a job runner, that runs next to the web service. Deployz runs one container for each worker that your repository declares, for example a non-web process in a `Procfile` or a worker service in a production Compose file.
+
+- Each worker runs from the same image as the web service, with its own start command.
+- Each worker runs one task. Workers have no URL and receive no traffic from the load balancer.
+- If the analysis finds worker-like code but no command that starts it, it asks you about it instead of guessing.
+
+## Data services
+
+- **Database.** PostgreSQL 16 or MySQL 8.0. Deployz provisions it, connects your application to it, and keeps automated backups for 7 days. If your application has a migration command, see [Database migrations](/prepare/migrations).
+- **Cache.** A single-node Valkey cache that's compatible with standard Redis clients. It has no TLS and no cluster mode.
+- **File storage.** One S3 bucket, created for every deployment. Your application gets its credentials from AWS automatically, so it doesn't need access keys.
+
+Deployz passes connection details to your application through environment variables. See [Configure environment variables](/prepare/environment-variables).
+
+<Warning>
+  When you remove a deployment, the database, its credentials, and the S3 bucket stay in the customer's AWS account and keep costing money until their data is deleted. See [Remove a deployment](/operate/remove).
+</Warning>
+
+## Queues and scheduled jobs (Preview)
+
+- **Queue.** Deployz provisions an SQS Standard queue only when the analysis finds clear evidence that your application both sends messages to it and receives them. Weaker evidence becomes a question for you. You can't declare a queue by hand.
+- **Scheduled job.** Deployz provisions a scheduled job only from a `render.yaml` service with `type: cron`, or a Kubernetes `CronJob` manifest, that names both a schedule and a command. The job runs your image as a one-shot task.
+
+## Sizes
+
+Every deployment uses one of three fixed size presets. The size sets capacity only, never which parts the deployment contains.
+
+| Size | Each task (web and each worker) |
+| --- | --- |
+| Small | 0.25 vCPU, 512 MiB memory |
+| Medium | 1 vCPU, 2 GiB memory |
+| Large | 2 vCPU, 4 GiB memory |
+
+You set a **Default size** and a **Minimum allowed size** for the application. The customer chooses a size before they install. A deployment's size and Region can't be changed after it's created. For database and cache sizes and estimated AWS costs, see [Sizes and AWS cost](/share/sizes-and-cost).
+
+## Runtimes
+
+Deployz runs whatever your Dockerfile builds. The analysis recognizes Node.js, Python, Ruby, Go, JVM languages, .NET, PHP, Elixir, and Rust projects, which helps it find your port, start command, and dependencies. Recognition doesn't mean a framework has been tested with Deployz.
+
+## Next steps
+
+- [What Deployz doesn't support](/prepare/not-supported)
+- [Configure environment variables](/prepare/environment-variables)
+- [Database migrations](/prepare/migrations)

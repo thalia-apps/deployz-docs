@@ -3,8 +3,117 @@ title: "Quickstart"
 description: "Go from a GitHub repository to a working test deployment in your own AWS account."
 ---
 
-{/* Placeholder. Planned content: Sign up, create organization, connect GitHub, add application, analysis and readiness, review configuration, create a release, start a test deployment, follow progress, open the application. Next: share with a customer. Sources in the deployz repo: apps/web/src/app (sign-up, dashboard, applications), docs/product/user-flows.md. See planning/content-strategy.md. */}
+This guide takes you from a GitHub repository to your application running in your own AWS account, at a permanent HTTPS address. Along the way you add the application, let Deployz analyze it, build a release, and run a test deployment. Everything in this guide is part of the free evaluation.
+
+## Before you begin
+
+You need:
+
+- **A GitHub repository** with a Dockerfile that builds a production image of your web application. Check [Application requirements](/prepare/requirements) first, so you know your application fits.
+- **An AWS account you control,** where you can create a CloudFormation stack that creates IAM resources. The checks are the same as for a customer. See [Before you install](/customers/before-you-install).
 
 <Note>
-  This page is coming soon.
+  The test deployment is free in Deployz, but it creates real resources in your AWS account, and AWS bills you for them until you remove the deployment. See [Sizes and AWS cost](/share/sizes-and-cost).
 </Note>
+
+## Set up your account and application
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+<Steps>
+  <Step title="Sign up">
+    Go to [app.deployz.dev/sign-up](https://app.deployz.dev/sign-up). Enter your **Name**, **Email**, and a **Password** of at least 8 characters, then select **Create account**.
+
+    Deployz creates an organization for you, named after the part of your email address before the `@`, and makes you its owner. Customers see the organization name as the publisher on the install page. To change it, open **Settings**, edit **Organization name**, and select **Update Organization**.
+  </Step>
+  <Step title="Connect GitHub">
+    In the sidebar, select **Applications**. Under **Connect your code**, select **Connect GitHub**. On GitHub, install the Deployz GitHub App and choose the repositories Deployz can read. Deployz requests read-only access to your code.
+
+    GitHub returns you to **Applications**, which now lists your repositories. If a repository is missing, select **Manage GitHub access** to grant access to it.
+  </Step>
+  <Step title="Add the application">
+    Find your repository in the list, or search for it, and select **Select**. Deployz creates the application, starts analyzing the repository, and opens the application's **Overview**.
+  </Step>
+  <Step title="Wait for the analysis">
+    While the analysis runs, the **Overview** shows **Analyzing application**. It usually takes about a minute. When it finishes, the status badge shows the result:
+
+    | Status | What it means | What to do |
+    | --- | --- | --- |
+    | **Ready to test** | The application fits and has everything it needs. | Continue to the next step. |
+    | **Needs input** | Deployz needs a change or a decision before you can deploy. | Select **Review required changes**. |
+    | **Analysis failed** | Deployz couldn't read or analyze the repository. | Read the reason on the **Overview**, then select **Re-analyze application**. |
+
+    For help with a result, see [Fix analysis problems](/troubleshooting/analysis).
+  </Step>
+  <Step title="Review the configuration">
+    Open the **Configuration** tab. It has four tabs:
+
+    - **Resources:** the services Deployz detected, with build and runtime settings such as the port and health check path. Any required change appears on its row.
+    - **Size presets:** the Small, Medium, and Large sizes, the default size, and the minimum allowed size.
+    - **Variables:** the environment variables Deployz detected. Decide who provides each one, and enter the values you provide.
+    - **Settings:** the application's name, repository, and branch.
+
+    Resolve every required change. When the **Overview** status shows **Ready to test**, continue. See [Configure environment variables](/prepare/environment-variables).
+  </Step>
+  <Step title="Create a release">
+    Open the **Releases** tab and select **Create release**. In **New release**, check the suggested **Version**, choose a **Commit** from your branch, and leave **Migration command (optional)** empty to use the detected command. Select **Create release**.
+
+    The release shows **Building**, then **Ready** when the build succeeds. If it shows **Build failed**, see [Fix a failed build](/releases/build-failures). Creating a release doesn't update any deployment. For details, see [Create a release](/releases/create).
+  </Step>
+</Steps>
+
+## Run the test deployment
+
+**Who:** you, in the Deployz dashboard.
+
+<Warning>
+  You can't change a deployment's AWS Region or size after you create it. Each application can have one test deployment at a time. To use a different Region or size later, you remove this test deployment and create a new one.
+</Warning>
+
+<Steps>
+  <Step title="Start the test deployment">
+    On the application's **Overview**, select **Start test deployment**. The **Create test deployment** page opens.
+  </Step>
+  <Step title="Fill in the details">
+    - **Customer:** keep **Create new customer** and enter a name and email. You can use your own details.
+    - **AWS region:** the Region to install into. See [AWS Regions](/share/regions).
+    - **Size:** the size of the deployment. See [Sizes and AWS cost](/share/sizes-and-cost).
+
+    Deployz runs its deployment checks and confirms which release it will install.
+  </Step>
+  <Step title="Create the test deployment">
+    Select **Run free test deployment**. **Deployment created** shows the test deployment's install link.
+  </Step>
+</Steps>
+
+## Install it in your AWS account
+
+**Who:** you, on the install page and in your AWS console. These are the same steps your customers follow.
+
+<Steps>
+  <Step title="Open the install page">
+    Select **Open** next to the install link. The install page shows the Region, the release, what will be deployed, and the **Estimated AWS cost**.
+  </Step>
+  <Step title="Connect your AWS account">
+    Select **Connect AWS account**. The AWS console opens a CloudFormation Quick Create page in a new tab. Nothing is created until you approve it there.
+  </Step>
+  <Step title="Create the stack">
+    Sign in to the AWS account you want to use, if you aren't already, and check that the account and Region are correct. Then create the stack. It sets up the Deployz connector in your account. [Install the application](/customers/install) describes this step in detail.
+  </Step>
+  <Step title="Follow the progress">
+    Return to the install page. It shows each step as Deployz connects to your account, creates the infrastructure, starts the application, checks its health, and sets up HTTPS. The application's **Overview** in the dashboard shows **Testing** while this runs.
+
+    If a step fails, the page explains what happened. See [Fix install failures](/troubleshooting/install).
+  </Step>
+  <Step title="Open the application">
+    When the install page shows **Your application is ready**, select **Open application**. Your application runs at its permanent address, in the form `https://d-<deployment-id>.deployz.dev`.
+  </Step>
+</Steps>
+
+In the dashboard, the application's **Overview** now shows **Ready to share**.
+
+The test deployment keeps running, and AWS keeps billing your account, until you remove it. See [Remove a deployment](/operate/remove).
+
+## Next step
+
+Your application is ready for customers. Create an install link and send it to your first customer. See [Share an install link](/share/install-links).

@@ -3,8 +3,79 @@ title: "Fix a failed build"
 description: "Find out why a release build failed and how to fix it."
 ---
 
-{/* Placeholder. Planned content: Where the log evidence is; build failure summaries; coding-agent prompt on failed builds; retry with a new release. Sources in the deployz repo: packages/copy-map (releaseBuildFailureSummary), apps/web/src/components/release-failure-details.tsx. See planning/content-strategy.md. */}
+**Symptom:** a release on the **Releases** tab shows **Build failed**.
 
-<Note>
-  This page is coming soon.
-</Note>
+A failed build doesn't affect running deployments. Customers keep their current release, and new installs keep getting your newest **Ready** release. The failure details say so, for example "Customers still get v1.2.0."
+
+A failed release can't be retried. After you fix the cause, you [create a new release](/releases/create) with a new version.
+
+## Find the evidence
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+1. Open your application and select **Releases**.
+2. On the failed release, select **Review failure details**.
+
+The details panel shows:
+
+- **A summary** of what failed. When the build log names the Dockerfile step that failed, the summary reads "The image build failed while running this Dockerfile command:" followed by the step.
+- **Failed while**: the build stage, such as **Building the image from your Dockerfile**.
+- **Earliest error found**: the first meaningful error in the build log.
+- **Next step**: what to do, and the evidence the advice is based on.
+- **Relevant log lines**: the part of the build log around the error. Select **View build logs** for the full log, or the last part of it for a long build.
+- **Who acts**: Deployz's reading of where the cause lies.
+
+Build logs have secrets and Deployz infrastructure details removed. Build logs can expire. When no log is available, the stored failure reason is the only evidence.
+
+## Read the summary
+
+The release row shows a one-line summary under **Build failed**:
+
+| Summary | Likely cause | What to do |
+| --- | --- | --- |
+| The version could not be built from the repository. | A step in your Dockerfile or build failed. | Open the details and read the earliest error. Fix it in your repository. |
+| The image build failed. This message does not show the cause. | The build ended without an image. This final check isn't the cause. | Open the details and look for the earliest error in the log. |
+| The build could not fetch the repository. | Deployz couldn't download the commit from GitHub. | Check that the commit still exists on the application's branch and that the Deployz GitHub App can still read the repository. |
+| The version build ran out of time. | A build step was slow or stuck. | Check the log for the last step that ran. |
+| The container registry temporarily limited image downloads. Start the build again in a few minutes. | A temporary rate limit on base image downloads. | Wait a few minutes, then create a new release from the same commit. |
+| The build could not start. | The build didn't start. | Create a new release. If it fails the same way, contact support. |
+| The version was built but could not be stored in the image registry. | The image was built but couldn't be saved. | Create a new release. If it fails the same way, contact support. |
+| The version build failed. | No specific cause was found. | Open the details and check the build log. |
+
+## Who acts
+
+The details panel labels the likely owner of the problem:
+
+| Label | Meaning | Next step |
+| --- | --- | --- |
+| **Likely a repository issue** | The error comes from your Dockerfile or your code. | Fix the error, push the change, then create a new release from the new commit. |
+| **Likely temporary** | The log shows a network or rate-limit error. | Wait a few minutes, then create a new release from the same commit. |
+| **Likely a Deployz build issue** | The failure happened in a step Deployz runs, not in your build. | Select **Copy report for Deployz support** and [send it to support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). Don't change your application to work around it. |
+| **Cause not determined** | The evidence doesn't show the cause. This includes builds that ran out of memory or time. | Use the coding-agent prompt, and check the build log for the earliest error. |
+
+## Investigate with a coding agent or AI
+
+Unless the failure is a Deployz build issue, the panel offers two optional tools:
+
+- **Copy prompt for coding agent** copies an investigation prompt with the failure evidence. Paste it into your coding agent, such as one in your editor. The prompt asks the agent to find the cause before it changes code. Copying it gives no access to Deployz or AWS.
+- **Explain with AI** asks Deployz for an AI reading of the redacted log lines. The result shows a likely cause, a suggested next step, and what's uncertain. Verify it before you act. This option needs log lines to read.
+
+Select **Copy technical details** to share the failure with a teammate or in a support request.
+
+## Retry with a new release
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+1. Fix the cause. For a repository issue, push the fix to the application's branch.
+2. Select **Create release** at the top of the **Releases** tab. For a repository issue or a temporary failure, the failure details also have a **Create release** button.
+3. Enter a new version. You can't reuse the failed release's version.
+4. Choose the commit: the new commit with your fix, or the same commit for a temporary failure.
+5. Select **Create release**.
+
+## Related problems
+
+- **Missing build values.** If the **New release** form says "Set these build values before you build a release:", no build started. Enter the listed values, then create the release. See [Configure environment variables](/prepare/environment-variables).
+- **Unavailable release.** A release marked **Unavailable** built successfully, but its image no longer exists. Create a new release to deploy that code again.
+- **Problems after the build.** If the release built but the deployment fails to start or stay healthy, see [Fix startup and health check failures](/troubleshooting/startup-and-health).
+
+If you can't find the cause, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur) and include the technical details.

@@ -3,8 +3,89 @@ title: "Before you install"
 description: "Check your AWS account and choose a Region before you install."
 ---
 
-{/* Placeholder. Planned content: AWS identity that can run Quick Create and create IAM roles; SCPs; quotas; Availability Zone capacity; all 17 Regions; the Region can't change later. Sources in the deployz repo: apps/web install pages, packages/contracts/src/regions.ts. See planning/content-strategy.md. */}
+{/* Last checked against deployz commit 76a4b779 on 2026-10-20 */}
 
-<Note>
-  This page is coming soon.
-</Note>
+Run these checks before you open the install link. An account that can't create the required resources stops the deployment partway, and it then needs a retry.
+
+**Who:** you, in your AWS account. You may need help from the person who manages your AWS organization.
+
+## Choose the AWS account
+
+The application runs in whichever AWS account you approve the connector stack in, and AWS bills that account directly. Decide which account to use first, for example a dedicated account for this application.
+
+## Check your AWS permissions
+
+You approve the setup in your own AWS console with a CloudFormation Quick Create link. You need an AWS identity that can create CloudFormation stacks and the resources in the connector stack, including its IAM roles. The connector stack creates:
+
+- IAM roles and IAM managed policies
+- AWS Lambda functions
+- An Amazon EventBridge rule
+- An AWS Secrets Manager secret
+- Amazon CloudWatch Logs log groups
+
+You don't need permission to create the application's resources yourself. After the connector starts, CloudFormation creates them with a role that the connector stack provides. For what that role can do, see [Security and AWS access](/customers/security).
+
+## Check your organization's policies
+
+If your account belongs to an AWS organization, service control policies (SCPs) can block the setup. Deployz doesn't support accounts whose SCPs block the standard stack.
+
+Before you install, check that your organization's policies allow, in the Region you choose:
+
+- Creating IAM roles and policies
+- The AWS services the application uses: Amazon VPC networking (including a NAT gateway and an Elastic IP address), Elastic Load Balancing, Amazon ECS on AWS Fargate, Amazon S3, AWS Secrets Manager, CloudWatch Logs, AWS Certificate Manager, and AWS Lambda
+- Amazon RDS and Amazon ElastiCache, if the install page lists a database or cache
+- Amazon SQS and Amazon EventBridge Scheduler, if the application uses queues or scheduled jobs (both are at Preview maturity in Deployz)
+
+If a policy blocks the setup, the deployment stops and your software provider sees the reason. Allow the setup in the account, or use an account without that restriction, then ask your software provider for a new attempt.
+
+## Check your AWS quotas
+
+Each deployment creates its own network. In the Region you choose, it uses:
+
+- One VPC
+- One NAT gateway
+- One Elastic IP address
+- One Application Load Balancer
+- AWS Fargate capacity for the application's containers
+
+AWS default quotas for some of these are low, for example five VPCs and five Elastic IP addresses per Region in a new account. If other workloads already use your quota, request an increase in the Service Quotas console before you install. If the deployment reaches a quota, it stops, and you need to request the increase before your software provider tries again.
+
+## Availability Zone capacity for the database
+
+If the application has a database, it runs as a single instance in one of the Region's Availability Zones. Occasionally AWS doesn't have capacity for the database instance in the available zones. This isn't a quota or permissions problem. Your software provider can retry once the previous attempt has finished rolling back.
+
+## Choose a Region
+
+You choose the AWS Region on the install page. Your software provider may recommend one, and the install page lists only the Regions this application can be installed in.
+
+<Warning>
+  You can't change the Region or the size after you continue to setup. Moving the application to another Region or size later needs a new deployment, which your software provider sets up.
+</Warning>
+
+When you choose, consider where your users are, any data residency requirements, and cost. AWS prices differ by Region, and the estimate on the install page reflects the Region you select. See [Costs in your AWS account](/customers/costs).
+
+Deployz supports these 17 Regions:
+
+| Region | Code |
+| --- | --- |
+| US East (N. Virginia) | `us-east-1` |
+| US East (Ohio) | `us-east-2` |
+| US West (N. California) | `us-west-1` |
+| US West (Oregon) | `us-west-2` |
+| Canada (Central) | `ca-central-1` |
+| South America (São Paulo) | `sa-east-1` |
+| Europe (Ireland) | `eu-west-1` |
+| Europe (London) | `eu-west-2` |
+| Europe (Paris) | `eu-west-3` |
+| Europe (Frankfurt) | `eu-central-1` |
+| Europe (Stockholm) | `eu-north-1` |
+| Asia Pacific (Tokyo) | `ap-northeast-1` |
+| Asia Pacific (Seoul) | `ap-northeast-2` |
+| Asia Pacific (Osaka) | `ap-northeast-3` |
+| Asia Pacific (Mumbai) | `ap-south-1` |
+| Asia Pacific (Singapore) | `ap-southeast-1` |
+| Asia Pacific (Sydney) | `ap-southeast-2` |
+
+## Next step
+
+When your account is ready, [install the application](/customers/install).

@@ -3,8 +3,67 @@ title: "Run a test deployment"
 description: "Install your application in your own AWS account with the same flow your customers use."
 ---
 
-{/* Placeholder. Planned content: Free, one per application; you pick the Region; per-deployment install link; why to test before sharing. Sources in the deployz repo: docs/product/user-flows.md, docs/billing/paddle-billing.md. See planning/content-strategy.md. */}
+A test deployment installs your application in an AWS account you control, through the same install page and AWS steps your customers go through. Run one before you share your application, so you find configuration and startup problems before a customer does.
 
-<Note>
-  This page is coming soon.
-</Note>
+## What a test deployment is
+
+- **Free.** Deployz never bills a test deployment, and it doesn't need a subscription. AWS bills the account you install into for the resources it uses. See [Sizes and AWS cost](/share/sizes-and-cost).
+- **One per application.** Each application can have one test deployment at a time. To start a new one, remove the existing test deployment first.
+- **Yours to configure.** You choose the AWS Region and the size. Your customers choose these for their own deployments.
+- **The same flow your customers use.** The test deployment has its own install link, opens the same install page, and creates the same Deployz connector and resources in AWS.
+
+The application **Overview** offers **Create install link** only after a test deployment succeeds. A passing test is the signal that the application is ready to share.
+
+## Before you start
+
+You need:
+
+- An application whose analysis has finished, with no required changes open on **Configuration**.
+- A release that built successfully. The test deployment installs your newest ready release. See [Create a release](/releases/create).
+- An AWS account where you can create a CloudFormation stack with IAM resources. The requirements are the same as for a customer. See [Before you install](/customers/before-you-install).
+
+## Create the test deployment
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+<Warning>
+  You can't change a deployment's Region or size after you create it. To use a different Region or size, remove the test deployment and create a new one.
+</Warning>
+
+<Steps>
+  <Step title="Open the application">
+    In **Applications**, open your application. When it's ready, the **Overview** shows **Ready for a test deployment**.
+  </Step>
+  <Step title="Start the test deployment">
+    Select **Start test deployment**. The **Create test deployment** page opens.
+  </Step>
+  <Step title="Choose a customer record">
+    In **Customer**, select an existing customer, or keep **Create new customer** and enter a name and email. You can use your own details.
+  </Step>
+  <Step title="Choose the Region and size">
+    Select the **AWS region** to install into, then the **Size**. The size list starts at your application's minimum size. See [AWS Regions](/share/regions) and [Sizes and AWS cost](/share/sizes-and-cost).
+  </Step>
+  <Step title="Create it">
+    Select **Run free test deployment**. Deployz runs its deployment checks first and shows any problem it finds.
+  </Step>
+</Steps>
+
+When it succeeds, **Deployment created** shows the test deployment's install link. If your application needs values that your customers normally enter, select **Set up configuration** to enter them for this deployment.
+
+## Install it in your AWS account
+
+**Who:** you, on the install page and in your AWS console.
+
+1. Select **Open**, or copy the install link and open it in your browser.
+2. On the install page, select **Connect AWS account**. The AWS console opens in a new tab, in the Region you chose.
+3. Sign in to the AWS account you want to use, and create the stack.
+4. Return to the install page and follow the progress. When the deployment is ready, select **Open application**.
+
+These are the same steps your customers follow. [Install the application](/customers/install) describes each one.
+
+## After the test
+
+- **If it succeeds,** the application **Overview** shows **Ready to share**. Share it with an [install link](/share/install-links) or an [invitation](/share/invitations).
+- **If it fails,** the **Overview** shows **Test failed**. Select **Review failure** to open the deployment and its recovery steps. See [Find your problem](/troubleshooting/overview).
+
+The test deployment keeps running, and keeps using AWS resources, until you remove it. See [Remove a deployment](/operate/remove).

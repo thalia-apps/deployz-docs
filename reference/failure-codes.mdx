@@ -3,8 +3,307 @@ title: "Failure codes"
 description: "Every Deployz failure code, what it means, and who needs to act."
 ---
 
-{/* Placeholder. Planned content: One entry per code in FAILURE_CODES, grouped by area: meaning, recoverability, what to do. Failures without a code: build failures, default HTTPS DNS timeout, subscription required. Sources in the deployz repo: packages/copy-map/src/index.ts. See planning/content-strategy.md. */}
+{/* Verified against packages/copy-map/src/index.ts (FAILURE_CODES, FAILURE_RECOVERABILITY, FAILURE_CODE_COPY, FAILURE_REMEDIATION) and apps/api/src/retry-eligibility.ts. 25 codes. */}
 
-<Note>
-  This page is coming soon.
-</Note>
+When a deployment fails, Deployz assigns it one failure code. The code tells you what went wrong and who needs to act. Deployz has 25 codes.
+
+To find the code for a failure, open the deployment in the dashboard and expand **Technical details** in the recovery panel. The code is listed under **Failure code**. For how to read the rest of the panel, see [Troubleshooting](/troubleshooting/overview).
+
+## How to read an entry
+
+Each entry gives:
+
+- **Meaning:** what happened, in plain language.
+- **Recoverability:** whether the failure can clear on its own, and who needs to act. The four classes are below.
+- **Why it happens** and **what to do:** the usual cause and the next step.
+
+| Recoverability | What it means | What you do |
+| --- | --- | --- |
+| Can recover on its own | The condition may clear without anyone acting. Deployz keeps checking. | Wait. Retry only if the failure persists. |
+| Needs a change | You or your customer must change something before a retry can succeed. | Make the change, then retry. |
+| Needs Deployz | The fault is on the Deployz side. | Contact support instead of retrying. |
+| Can't be retried as is | Retrying can't succeed until the requirement changes. | Change the requirement, for example the Region or the application. |
+
+In the recovery panel, "you" means the vendor. Your customer sees a simpler version on their install page, without the code.
+
+## Customer AWS account
+
+These failures come from the policies, permissions, or limits of your customer's AWS account. Your customer makes the change in their account. See [Fix install failures](/troubleshooting/install).
+
+### `AWS_SCP_BLOCKED`
+
+**Meaning:** A policy in your customer's AWS organization is blocking the setup.
+
+**Recoverability:** Needs a change. Your customer acts, then you retry.
+
+**Why it happens:** A service control policy (SCP), an organization-wide AWS policy, restricts what can be created in this account or Region.
+
+**What to do:** Ask your customer to allow the Deployz setup in this account, or to use an account without that restriction. Then select **Retry deployment**.
+
+### `AWS_PERMISSION_DENIED`
+
+**Meaning:** The Deployz connector was refused permission for something this deployment needs.
+
+**Recoverability:** Needs a change. Your customer acts.
+
+**Why it happens:** The permissions granted when the connector was installed don't cover this action. A customer policy can also deny it. **Technical details** names the refused action.
+
+**What to do:** Ask your customer to check whether a policy in their account denies the action. If the connector is out of date, your customer updates it so it has the current permissions. See [Reconnect or update the Deployz connector](/operate/connector).
+
+### `QUOTA_EXCEEDED`
+
+**Meaning:** Your customer's AWS account reached a resource limit during setup.
+
+**Recoverability:** Needs a change. Your customer acts, then you retry.
+
+**Why it happens:** The account has reached its maximum for one of the resources the deployment needs. Common limits are Elastic IP addresses, NAT gateways, VPCs, and Fargate vCPUs.
+
+**What to do:** Ask your customer to request a limit increase from AWS, or to free up resources. Then retry.
+
+### `REGION_NOT_SUPPORTED`
+
+**Meaning:** This deployment can't run in the AWS Region it was created for.
+
+**Recoverability:** Can't be retried as is.
+
+**Why it happens:** Deployz doesn't support that Region.
+
+**What to do:** Remove the deployment and create a new one in a supported Region. See [AWS Regions](/share/regions) and [Remove a deployment](/operate/remove).
+
+## Setup and removal
+
+### `STACK_CREATE_FAILED`
+
+**Meaning:** The first setup in your customer's AWS account didn't complete.
+
+**Recoverability:** Needs a change.
+
+**Why it happens:** One of the resources being created failed, so AWS rolled back the whole setup.
+
+**What to do:** Open **Technical details** to find the failed resource and its reason. Resolve the cause with your customer, then select **Retry deployment**. Deployz removes the failed resources from the previous attempt before it installs again.
+
+### `STACK_DELETE_FAILED`
+
+**Meaning:** Removing this deployment didn't complete. Your data is safe.
+
+**Recoverability:** Needs a change.
+
+**Why it happens:** One of the resources being removed failed, so the removal stopped part of the way through.
+
+**What to do:** Open **Technical details** to find the failed resource, then select **Retry removal**. The database and stored files are kept. See [Remove a deployment](/operate/remove).
+
+### `TEMPLATE_UNAVAILABLE`
+
+**Meaning:** The setup template for this Region couldn't be fetched.
+
+**Recoverability:** Needs Deployz.
+
+**Why it happens:** The template for this Region is missing or can't be reached from your customer's account.
+
+**What to do:** [Contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). Don't retry until Deployz fixes the template.
+
+## Database and cache
+
+### `RDS_AZ_CAPACITY`
+
+**Meaning:** AWS couldn't create the database because it doesn't have enough capacity in the available Availability Zones.
+
+**Recoverability:** Needs a change.
+
+**Why it happens:** The account has enough quota, but the zones where the database would run have no room for a new database server right now. This is an AWS capacity limit, not a permissions or quota problem.
+
+**What to do:** Wait until the previous attempt has finished rolling back, then select **Retry deployment**. If it keeps failing, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur).
+
+### `DATABASE_CREATE_FAILED`
+
+**Meaning:** The database couldn't be created.
+
+**Recoverability:** Needs a change. Your customer acts, then you retry.
+
+**Why it happens:** Your customer's account rejected the database this application needs.
+
+**What to do:** Ask your customer whether their account limits databases in this Region, for example with a policy or a quota. After they resolve it, retry.
+
+### `RDS_UNAVAILABLE`
+
+**Meaning:** The database wasn't reachable during the deployment.
+
+**Recoverability:** Can recover on its own.
+
+**Why it happens:** The database was still starting, or it's unavailable in your customer's account.
+
+**What to do:** Wait for the database to finish starting, then deploy again. If it keeps failing, ask your customer to check the database in their AWS account.
+
+### `DATABASE_CONNECTION_FAILED`
+
+**Meaning:** The application started but couldn't reach its database.
+
+**Recoverability:** Can recover on its own. If it persists, you change the application.
+
+**Why it happens:** The connection was refused or timed out. The most common cause is an application that doesn't read its database settings from the environment variables Deployz provides, or that doesn't accept an encrypted (TLS) database connection.
+
+**What to do:** Confirm the application reads its database settings from the environment, then deploy again. See [Fix startup and health check failures](/troubleshooting/startup-and-health).
+
+### `REDIS_PROVISIONING_FAILED`
+
+**Meaning:** The cache this application needs couldn't be set up.
+
+**Recoverability:** Needs Deployz.
+
+**Why it happens:** A limit was reached, or the cache was rejected, in your customer's AWS account while it was being created.
+
+**What to do:** Ask your customer to check their account's service limits for caches in this Region, and [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). On a failed first install, the dashboard shows **Contact Deployz support** instead of **Retry deployment**.
+
+### `REDIS_CONNECTION_FAILED`
+
+**Meaning:** The application started but couldn't reach its cache.
+
+**Recoverability:** Can recover on its own.
+
+**Why it happens:** The connection was refused or timed out.
+
+**What to do:** Deploy the application again. If it keeps failing, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur).
+
+## Application startup and health
+
+These failures come from the application itself. You fix them. Your customer has nothing to do, and their install page tells them so. See [Fix startup and health check failures](/troubleshooting/startup-and-health).
+
+### `CONTAINER_START_FAILED`
+
+**Meaning:** The application started and then stopped.
+
+**Recoverability:** Needs a change. You act.
+
+**Why it happens:** The application exited during startup. Common causes are a wrong start command or port, a missing required value, or an error before it began serving requests.
+
+**What to do:** Check the start command, the port, and the required values on the **Configuration** screen, then deploy again. **Technical details** shows the exit code and the stopped reason. The application's own logs are in your customer's AWS account.
+
+### `IMAGE_HEALTH_CHECK_FAILED`
+
+**Meaning:** The application started, but its health check isn't passing.
+
+**Recoverability:** Needs a change. You act.
+
+**Why it happens:** The health check path didn't return a success response in time. A wrong port also shows up as this code.
+
+**What to do:** Confirm that the health check path returns HTTP `200` once the application is ready, and that the port matches the one the application listens on. Then deploy again.
+
+### `PORT_MISMATCH`
+
+**Meaning:** The application listens on one port, but Deployz sends traffic to another.
+
+**Recoverability:** Needs a change. You act.
+
+**Why it happens:** The port configured for the application isn't the port it binds. Deployz rarely reports this code. A wrong port usually appears as `IMAGE_HEALTH_CHECK_FAILED`.
+
+**What to do:** Compare the port on the **Configuration** screen with the port your application binds, correct it, and deploy again.
+
+### `MISSING_SECRET`
+
+**Meaning:** A required secret has no value for this customer.
+
+**Recoverability:** Needs a change. You act.
+
+**Why it happens:** The application needs a secret that isn't set as a default or as a customer-specific value.
+
+**What to do:** Set the missing value on the **Configuration** screen, then deploy again. See [Configure environment variables](/prepare/environment-variables).
+
+### `MIGRATION_FAILED`
+
+**Meaning:** The database migration step failed, so the new version didn't start.
+
+**Recoverability:** Needs a change. You act.
+
+**Why it happens:** The migration command exited with an error.
+
+**What to do:** Fix the migration in your repository, create a new release, and deploy it. See [Database migrations](/prepare/migrations).
+
+## Rollout
+
+### `ECS_DEPLOYMENT_FAILED`
+
+**Meaning:** The new version couldn't be rolled out.
+
+**Recoverability:** Needs a change. You act.
+
+**Why it happens:** The updated application didn't reach a running state, so the rollout stopped. On a deployment that was already running, the previous release keeps serving.
+
+**What to do:** Open **Technical details** for the reported error, fix it in a new release, and deploy again.
+
+### `IMAGE_PULL_FAILED`
+
+**Meaning:** The application's release couldn't be downloaded into your customer's AWS account.
+
+**Recoverability:** Needs Deployz.
+
+**Why it happens:** The release is missing, or the account isn't allowed to download it.
+
+**What to do:** Create the release again, then deploy it. If it keeps failing, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). On a failed first install, the dashboard shows **Contact Deployz support** instead of **Retry deployment**.
+
+## Deployz connector
+
+See [Fix connector problems](/troubleshooting/connector).
+
+### `RELAY_DISCONNECTED`
+
+**Meaning:** The Deployz connector in your customer's AWS account stopped checking in.
+
+**Recoverability:** Can recover on its own.
+
+**Why it happens:** The connector was removed, it lost its credential, or the account can no longer reach Deployz.
+
+**What to do:** Wait a few minutes in case the connection returns. If it doesn't, issue a new install link. Your customer then updates the existing connector stack in their AWS account with the new values. See [Reconnect or update the Deployz connector](/operate/connector).
+
+### `RELAY_STATE_WRITE_FAILED`
+
+**Meaning:** Deployz lost track of an install that was still running in your customer's AWS account.
+
+**Recoverability:** Needs Deployz.
+
+**Why it happens:** The Deployz connector couldn't save its own progress.
+
+**What to do:** The setup may have finished on its own, so check the deployment's status first. If the install didn't finish, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). The dashboard shows **Contact Deployz support** instead of **Retry deployment** for this code.
+
+## Custom domains
+
+### `DOMAIN_OPERATION_TIMEOUT`
+
+**Meaning:** A custom domain change didn't finish in time.
+
+**Recoverability:** Can recover on its own.
+
+**Why it happens:** The Deployz connector didn't finish the domain update within the allowed time.
+
+**What to do:** Wait for the next automatic check, or select **Check now** on the custom domain card to retry. The deployment itself isn't affected. See [Fix HTTPS and custom domain problems](/troubleshooting/https-and-domains).
+
+## Application fit and other failures
+
+### `UNSUPPORTED_ARCHITECTURE`
+
+**Meaning:** This application can't be deployed as it's built.
+
+**Recoverability:** Can't be retried as is.
+
+**Why it happens:** The application uses something Deployz doesn't support.
+
+**What to do:** Open the application's **Configuration** screen for the change it needs, make the change, and create a new release. See [What Deployz doesn't support](/prepare/not-supported) and [Fix analysis problems](/troubleshooting/analysis).
+
+### `UNKNOWN`
+
+**Meaning:** Something failed, and Deployz couldn't identify the cause.
+
+**Recoverability:** Can recover on its own.
+
+**Why it happens:** The Deployz connector reported a failure without a cause Deployz recognizes, or an operation stopped responding and was retried several times without success.
+
+**What to do:** Open **Technical details** for the reported error, then deploy again. If it keeps failing, remove the deployment and create it again, or [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur).
+
+## Failures without a code
+
+Some problems don't use a failure code.
+
+| Problem | What you see | Where to look |
+| --- | --- | --- |
+| A release build fails | The release shows a failed build with a summary of the cause, not a failure code. | [Fix a failed build](/releases/build-failures) |
+| The default HTTPS address doesn't finish setting up | The default address stays in setup, then shows **Failed**. Deployz stops trying after about 30 minutes, and **Retry HTTPS setup** appears. | [Fix HTTPS and custom domain problems](/troubleshooting/https-and-domains) |
+| You can't create a customer deployment because of billing | Creating the deployment stops with a subscription message, for example that your first customer deployment starts your subscription, or that your last payment didn't go through. Existing deployments keep running. | [Pricing and billing](/account/billing) |

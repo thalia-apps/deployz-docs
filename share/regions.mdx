@@ -3,8 +3,48 @@ title: "AWS Regions"
 description: "The AWS Regions Deployz can install into, and who chooses the Region."
 ---
 
-{/* Placeholder. Planned content: All 17 Regions with display name and code; vendor recommends, customer selects (vendor picks for test deployments); can't change after creation; cost varies by Region. Sources in the deployz repo: packages/contracts/src/regions.ts. See planning/content-strategy.md. */}
+An AWS Region is the geographic location where a deployment's resources run, such as US East (N. Virginia). Each deployment runs in one Region, chosen when the deployment is created.
 
-<Note>
-  This page is coming soon.
-</Note>
+## Supported Regions
+
+Deployz supports these 17 AWS Regions.
+
+| Region | Code |
+| --- | --- |
+| US East (N. Virginia) | `us-east-1` |
+| US East (Ohio) | `us-east-2` |
+| US West (N. California) | `us-west-1` |
+| US West (Oregon) | `us-west-2` |
+| Canada (Central) | `ca-central-1` |
+| South America (São Paulo) | `sa-east-1` |
+| Europe (Ireland) | `eu-west-1` |
+| Europe (London) | `eu-west-2` |
+| Europe (Paris) | `eu-west-3` |
+| Europe (Frankfurt) | `eu-central-1` |
+| Europe (Stockholm) | `eu-north-1` |
+| Asia Pacific (Tokyo) | `ap-northeast-1` |
+| Asia Pacific (Seoul) | `ap-northeast-2` |
+| Asia Pacific (Osaka) | `ap-northeast-3` |
+| Asia Pacific (Mumbai) | `ap-south-1` |
+| Asia Pacific (Singapore) | `ap-southeast-1` |
+| Asia Pacific (Sydney) | `ap-southeast-2` |
+
+Region lists in Deployz show only the Regions that are available for installs. If a Region in this table doesn't appear in a list, you can't install into it.
+
+## Who chooses the Region
+
+| Deployment | Who chooses | How |
+| --- | --- | --- |
+| [Test deployment](/share/test-deployment) | You (the vendor) | You select the **AWS region** when you create it. |
+| [Invitation](/share/invitations) | Your customer | You can recommend a Region. It's preselected and labeled **Recommended** on the install page. The customer makes the final choice. |
+| [Install link](/share/install-links) | Your customer | The customer selects a Region. Install links don't carry a Region recommendation. |
+
+When there's no recommendation, the customer must select a Region before they can continue. Deployz doesn't choose one for them.
+
+## The Region can't be changed later
+
+The Region is fixed when the deployment is created. To move an application to a different Region, create a new deployment in that Region, then [remove the old one](/operate/remove). Data in the old deployment's database and file storage doesn't move with it.
+
+## Cost varies by Region
+
+AWS prices differ between Regions, so the same size can cost more in one Region than in another. The estimated monthly cost on the install page reflects the Region the customer selects. See [Sizes and AWS cost](/share/sizes-and-cost).

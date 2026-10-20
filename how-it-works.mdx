@@ -3,8 +3,63 @@ title: "How Deployz works"
 description: "How the vendor, Deployz, and the customer's AWS account work together."
 ---
 
-{/* Placeholder. Planned content: One diagram: repository, analysis, release, install link, customer Quick Create, Deployz connector (outbound only), deployment with a permanent HTTPS address. What runs where. Deployz never holds customer AWS credentials. Sources in the deployz repo: docs/architecture.md, packages/cdk/src/bootstrap/bootstrap-stack.ts. See planning/content-strategy.md. */}
+Three parties take part in every deployment: you (the vendor), Deployz, and your customer's AWS account. You prepare and operate the application in the Deployz dashboard. Your customer approves one setup step in their AWS account. After that, a small Deployz connector inside the customer's account does the work there, and it always connects out to Deployz, never the other way around.
 
-<Note>
-  This page is coming soon.
-</Note>
+## From repository to running deployment
+
+```mermaid
+flowchart LR
+  subgraph vendor["You, in the Deployz dashboard"]
+    repo["GitHub repository"]
+  end
+  subgraph deployz["Deployz"]
+    analysis["Analysis"]
+    release["Release"]
+    link["Install link or invitation"]
+  end
+  subgraph customer["Customer's AWS account"]
+    quick["Quick Create stack"]
+    connector["Deployz connector"]
+    app["Deployment with a permanent HTTPS address"]
+  end
+  repo --> analysis --> release --> link
+  link -- "customer opens the install page" --> quick
+  quick --> connector
+  connector -- "outbound only" --> deployz
+  connector --> app
+```
+
+1. **You connect a repository.** You install the Deployz GitHub App and choose a repository. Deployz requests read-only access to your code.
+2. **Deployz analyzes it.** Analysis reads the repository and detects what the application needs, such as its port, health check, environment variables, database, and cache. It tells you what to change if something doesn't fit. See [Application requirements](/prepare/requirements).
+3. **You create a release.** Deployz builds a commit into a release, a fixed version of your application. Creating a release doesn't change any deployment. See [Create a release](/releases/create).
+4. **You test it, then share it.** You run a free [test deployment](/share/test-deployment) in your own AWS account. Then you share an [install link](/share/install-links) or send a customer an [invitation](/share/invitations).
+5. **Your customer approves the install.** The install page shows what will be created and the estimated monthly AWS cost. The customer selects **Connect AWS account**, which opens a CloudFormation Quick Create page in their AWS console. Nothing is created until they approve it there.
+6. **The Deployz connector sets up the application.** The Quick Create stack creates the Deployz connector in the customer's account. The connector checks in with Deployz, creates the application's infrastructure, and starts your newest ready release.
+7. **The deployment goes live.** Deployz checks that the application is healthy and gives it a permanent address in the form `https://d-<deployment-id>.deployz.dev`, where `<deployment-id>` is the deployment's ID. You can add a [custom domain](/operate/custom-domains) later.
+8. **You operate it from the dashboard.** When you deploy an update, roll back, restart, or change configuration, the connector picks up the request on its next check-in and carries it out in the customer's account.
+
+## What runs where
+
+| Where | What runs there |
+| --- | --- |
+| Deployz | Your dashboard, the install pages your customers open, repository analysis, release builds and their stored container images, and the status of every deployment |
+| The customer's AWS account | The Deployz connector, your application, and its network, database, cache, and file storage |
+| Your GitHub account | Your source code. Deployz reads it with the access you grant to the GitHub App. |
+
+Each deployment is one application in one AWS Region of one customer's account. Your customer owns that account, its data, and its AWS charges. For the resources a deployment creates, see [AWS resources Deployz creates](/reference/aws-resources).
+
+## The Deployz connector
+
+The connector is a small AWS Lambda function, with its own roles, that the customer's Quick Create stack creates. It's the only part of Deployz that calls AWS in the customer's account.
+
+- **It runs on a schedule.** It runs every minute, checks in with Deployz, and carries out any pending request.
+- **It connects outbound only.** Deployz has no inbound path into the customer's account. If the customer deletes the connector stack, Deployz can't reconnect.
+- **It's limited to Deployz resources.** Its permissions are restricted by an IAM permissions boundary. [Security and AWS access](/customers/security) lists exactly what it can do.
+
+To reconnect or update a connector, see [Reconnect or update the Deployz connector](/operate/connector).
+
+## Deployz never holds customer AWS credentials
+
+Deployz never asks for AWS access keys or administrator credentials, from you or your customer. The customer approves the Quick Create stack in their own AWS console, with their own sign-in. From then on, the connector acts inside the account with the permissions that stack gave it.
+
+The connector sends Deployz operational information, such as deployment state, health status, resource identifiers, and AWS error messages. Your customer's database data, file storage, cache contents, and application logs stay in their account. [Security and AWS access](/customers/security) has the full list of what Deployz receives and doesn't receive. It's written for your customer's security reviewer, so you can send it to them.

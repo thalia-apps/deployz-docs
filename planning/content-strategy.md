@@ -153,7 +153,7 @@ Take terms from the product's UX guidelines (`deployz/docs/product/ux-guidelines
 Maintenance rules:
 
 - **Tie the docs to code changes.** When a pull request in `deployz` changes `packages/copy-map`, `packages/contracts` (pricing, profiles, Regions), `security-details.ts`, the bootstrap stack or the billing pages, it needs a matching docs update. Add it to the app repository's PR checklist, or have `scripts/test-affected.mjs` flag those paths.
-- **Give each failure code a stable anchor** (`/reference/failure-codes#missing-secret`). Then the in-app recovery panel and **Contact Deployz support** can link to the exact entry, so the docs get traffic at the moment a vendor needs them.
+- **Give each failure code a stable anchor** (`/reference/failure-codes#missing_secret`). Then the in-app recovery panel and **Contact Deployz support** can link to the exact entry, so the docs get traffic at the moment a vendor needs them.
 - **Use the Changelog for anything a user would notice**: new Regions, features leaving Preview, pricing changes, removed flows such as the legacy deploy link.
 - **An AI coding agent checks the customer security content.** Decided 2026-10-20. The content in question is `customers/security`, the security parts of `customers/before-you-install` and `customers/remove`, and the in-app page text in `apps/web/src/lib/security-details.ts`.
   - **When it runs:** on every `deployz` pull request that changes `packages/cdk/src/bootstrap/`, `packages/relay/`, `apps/web/src/lib/security-details.ts` or the pending-secret code, and once before each release.

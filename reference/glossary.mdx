@@ -3,8 +3,78 @@ title: "Glossary"
 description: "Definitions of the terms used in Deployz and its documentation."
 ---
 
-{/* Placeholder. Planned content: Alphabetical terms from AGENTS.md terminology, with links to the pages that explain them. Sources in the deployz repo: AGENTS.md, docs/product/ux-guidelines.md. See planning/content-strategy.md. */}
+The terms Deployz uses in the dashboard, on the install page, and in this documentation, in alphabetical order.
 
-<Note>
-  This page is coming soon.
-</Note>
+## A
+
+**Analysis:** Deployz's check of an application's repository. It works out how to build, start, and host the application, and lists anything you need to change or answer. See [Fix analysis problems](/troubleshooting/analysis).
+
+**Application:** The software you deploy with Deployz, connected to a GitHub repository. Each application has releases, and each release can run in many deployments. See [Key concepts](/concepts).
+
+## C
+
+**Customer:** A company that runs your application in its own AWS account. Customers don't have a Deployz account. They use the install link you send them. See [Install an application with Deployz](/customers/overview).
+
+## D
+
+**Delete retained data:** The action that deletes the resources a removed deployment left behind, such as the database and stored files. It can't be undone. See [Remove a deployment](/operate/remove).
+
+**Deployment:** One copy of your application running in one customer's AWS account, in one Region and at one size. See [Deployment status and health](/operate/deployment-status).
+
+**Deployz connector:** A small service your customer installs in their AWS account from the install link. It connects out to Deployz, carries out installs and updates, and reports status. It's created as its own AWS CloudFormation stack. See [Reconnect or update the Deployz connector](/operate/connector).
+
+## F
+
+**Failed:** A status that means an install, update, or removal didn't complete. The recovery panel explains why and what to do next. See [Troubleshooting](/troubleshooting/overview).
+
+**Failure code:** A stable code, such as `MISSING_SECRET`, that identifies why a deployment failed. See [Failure codes](/reference/failure-codes).
+
+## I
+
+**Install:** The first deployment of an application into a customer's AWS account. Later changes are updates. See [Install the application](/customers/install).
+
+**Install link:** A link that lets a customer install your application in their AWS account. An application's install link is reusable and can be shared with many customers. Each deployment also has its own install link on its deployment page. When you issue a new one, the old one stops working. See [Share an install link](/share/install-links).
+
+**Invitation:** A private, single-use install link for one specific customer. You create one when you invite a customer. See [Invite a specific customer](/share/invitations).
+
+## N
+
+**Needs attention:** A status that means a deployment is running but something is wrong, for example the connector lost contact or health checks are failing. See [Deployment status and health](/operate/deployment-status).
+
+**Needs input:** A status that means Deployz needs a decision or a value from you before the application can be deployed. See [Fix analysis problems](/troubleshooting/analysis).
+
+## O
+
+**Organization:** Your company's account in Deployz. It holds your applications, customers, and deployments. Each person in it has a role: owner, admin, or member. See [Pricing and billing](/account/billing) for how an organization is billed.
+
+## P
+
+**Preview:** A label for features that work but haven't been fully qualified on AWS. Queues and scheduled jobs are Preview features.
+
+## R
+
+**Recoverability:** What a failure needs before it can be fixed: whether it can clear on its own, needs a change from you or your customer, needs Deployz, or can't be retried as is. See [Troubleshooting](/troubleshooting/overview).
+
+**Recovery panel:** The panel at the top of a deployment page when something fails. It shows what happened, the impact, the cause and fix, and **Technical details**. See [Troubleshooting](/troubleshooting/overview).
+
+**Region:** The AWS Region a deployment runs in. You can't change it after the deployment is created. See [AWS Regions](/share/regions).
+
+**Release:** A built, versioned copy of your application, created from your repository. The version is its label. You deploy releases to customers. See [Create a release](/releases/create).
+
+**Remove a deployment:** The action that deletes a deployment's application and networking from the customer's AWS account. The database, its credentials, and stored files are kept until you delete retained data. See [Remove a deployment](/operate/remove).
+
+**Retained data:** The resources that remain in a customer's AWS account after you remove a deployment: the database, its credentials, the file storage bucket, and the network parts the database uses. They keep costing money until they're deleted. See [AWS resources Deployz creates](/reference/aws-resources).
+
+## S
+
+**Size:** The preset that sets the container, database, and cache capacity of a deployment: Small, Medium, or Large. You can't change it after the deployment is created. See [Sizes and AWS cost](/share/sizes-and-cost).
+
+## T
+
+**Technical details:** The collapsed section on a page that holds the raw detail behind a status or failure, such as the failure code, the AWS resource, and error messages. On the customer's install page, the same section is called **Deployment details**.
+
+**Test deployment:** A free deployment into an AWS account you control, using the same flow your customers use. You run one before you share an install link. See [Run a test deployment](/share/test-deployment).
+
+## V
+
+**Vendor:** The software company that uses Deployz to deploy its application into customers' AWS accounts. In the customer guide, the vendor is called "your software provider". See [How Deployz works](/how-it-works).

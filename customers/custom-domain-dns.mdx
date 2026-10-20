@@ -3,8 +3,61 @@ title: "Create custom domain DNS records"
 description: "Create the DNS records your software provider needs for a custom domain."
 ---
 
-{/* Placeholder. Planned content: The two CNAME records (validation and routing); Check now; you can't add or remove the domain yourself. Sources in the deployz repo: docs/networking-and-https.md. See planning/content-strategy.md. */}
+The application always has a permanent HTTPS address on `deployz.dev`. Your software provider can also give it an address on your own domain, for example `app.example.com`. For that, you create two DNS records at your DNS provider.
 
-<Note>
-  This page is coming soon.
-</Note>
+Your software provider adds and removes the custom domain. You can't add, change, or remove the domain yourself.
+
+## Before you start
+
+- Your software provider has added the custom domain. Until they do, the **Custom domain** card on the install page says **No custom domain yet**.
+- You can edit DNS records for the domain at your DNS provider.
+
+## Create the records
+
+**Who:** you, on the install page and at your DNS provider.
+
+<Steps>
+  <Step title="Open the install page">
+    Open the install page for your deployment. The **Custom domain** card appears once the application is being checked or is ready. When the domain needs records, its status is **Waiting for DNS**.
+  </Step>
+  <Step title="Create the validation record">
+    The **Verify ownership** record proves you control the domain, so AWS can issue an HTTPS certificate for it. At your DNS provider, create a record of type `CNAME` with the **Name** and **Value** shown. Use **Copy** to avoid typing mistakes.
+  </Step>
+  <Step title="Create the routing record">
+    The **Route traffic** record points the domain at the application's load balancer in your AWS account. Create a second `CNAME` record with the **Name** and **Value** shown.
+  </Step>
+  <Step title="Check the records">
+    Select **Check now**. Deployz also checks automatically and continues once it detects the records. DNS changes can take some time to appear.
+  </Step>
+</Steps>
+
+<Tip>
+  Some DNS providers add your domain to the end of the name automatically. If yours does, enter only the part of the **Name** before your domain, so the record doesn't end up with the domain twice.
+</Tip>
+
+Keep both records in place after the domain is active. AWS uses the validation record to renew the certificate.
+
+## What happens next
+
+The card's status shows the progress:
+
+| Status | Meaning |
+| --- | --- |
+| **Setting up** | A certificate for the domain is being requested. |
+| **Waiting for DNS** | Deployz is waiting to detect the two records. |
+| **Connecting** | The domain is verified, and Deployz is configuring HTTPS. |
+| **Active** | The application is available securely at `https://` followed by your domain. |
+| **Needs attention** | The domain couldn't be connected. |
+| **Removing** | Your software provider is removing the domain. |
+
+The certificate is issued in your AWS account, and traffic to your custom domain goes directly to the load balancer in your account. Deployz only reads your DNS records. It doesn't change them.
+
+## If the check doesn't pass
+
+While the status is **Waiting for DNS** or **Connecting**, the card shows the latest result of the check:
+
+- **Verification record not found:** Deployz can't find the validation record yet. Check that its name and value match exactly, then wait for DNS to update.
+- **Domain isn't pointing to this deployment:** update the routing record to the value shown.
+- **HTTPS isn't reachable yet:** the load balancer may still be starting, or the application may not be running. Wait, then check again.
+
+If the status is **Needs attention**, Deployz doesn't retry the domain. Ask your software provider to remove the domain and add it again.

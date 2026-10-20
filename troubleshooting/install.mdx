@@ -4,8 +4,146 @@ sidebarTitle: "Install"
 description: "Resolve failures that happen while installing into a customer's AWS account."
 ---
 
-{/* Placeholder. Planned content: Customer-account causes (SCPs, permissions, quotas, Availability Zone capacity, database creation, existing stack); who acts; Retry deployment. Organize as one section per issue (symptom, checks, cause, fix, who acts) so new issues add sections, not pages. Sources in the deployz repo: docs/operations/troubleshooting.md, packages/copy-map. See planning/content-strategy.md. */}
+An install can fail because of something in your customer's AWS account: a policy, a permission, a limit, or AWS capacity. This page covers those failures, who fixes each one, and how you retry. If the install finished but the application never became healthy, see [Fix startup and health check failures](/troubleshooting/startup-and-health) instead.
 
-<Note>
-  This page is coming soon.
-</Note>
+## How an install failure looks
+
+**In the dashboard:** the deployment shows **Install failed** in the deployments list. The deployment page shows a recovery panel with what happened, why, and how to fix it. Expand **Technical details** for the failure code and the AWS resource that failed. See [Troubleshooting](/troubleshooting/overview) for how to read the panel.
+
+**On your customer's install page:** your customer sees **Deployment failed** and a short explanation without the failure code. The page also tells them whether they need to act:
+
+- When the cause is in their AWS account, it says that something in the account or setup must change before a retry can succeed, and asks them to contact you to retry after that change.
+- Otherwise, it says that no action is required and that you can retry the deployment.
+
+Your customer can't retry a failed install. You retry it after the cause is fixed. See [Retry a failed install](#retry-a-failed-install).
+
+## An AWS organization policy blocks the setup
+
+**Symptom:** Failure code `AWS_SCP_BLOCKED`. The recovery panel says setup was blocked by a policy in your customer's cloud organization.
+
+**Cause:** Your customer's AWS account belongs to an AWS organization with a service control policy (SCP). An SCP is an organization-wide rule that limits what any user or role in the account can do. It can block a resource type, a Region, or a specific action that the deployment needs.
+
+**Fix:** Ask your customer to have their AWS administrator allow the Deployz setup in this account and Region, or to install into an account without that restriction. **Technical details** shows the resource and the reason AWS gave, which help their administrator find the rule. After they confirm the change, retry.
+
+**Who acts:** your customer's AWS administrator, then you.
+
+## The connector lacks permission
+
+**Symptom:** Failure code `AWS_PERMISSION_DENIED`. The recovery panel says the connector was refused permission for something the deployment needs.
+
+**Cause:** Either a policy in your customer's account denies the action, or the permissions the Deployz connector received at install time don't cover it. **Technical details** names the refused action.
+
+**Fix:**
+
+1. Ask your customer whether a policy in their account, such as an SCP or a permissions boundary set by their administrator, denies that action. If it does, they remove the restriction for the Deployz resources.
+2. If the connector is out of date, the deployment page shows a connector update alert. Your customer updates the connector so it has the current permissions. See [Reconnect or update the Deployz connector](/operate/connector).
+3. Retry.
+
+**Who acts:** your customer, then you.
+
+## The AWS account reached a limit
+
+**Symptom:** Failure code `QUOTA_EXCEEDED`. The recovery panel says your customer's cloud account hit a resource limit during setup.
+
+**Cause:** AWS limits how many of some resources an account can have in each Region. Each deployment creates its own network, with one VPC, one NAT gateway, and one Elastic IP address, plus Fargate tasks for the application. The limits customers reach most often are Elastic IP addresses (AWS's default is five per Region), NAT gateways, VPCs, and Fargate vCPUs. **Technical details** shows which resource hit its limit. For the full list of resources, see [AWS resources Deployz creates](/reference/aws-resources).
+
+**Fix:** Your customer either frees up the resource, for example by releasing unused Elastic IP addresses, or requests a limit increase in the AWS Service Quotas console. Increases can take time for AWS to approve. After the new limit applies, retry.
+
+**Who acts:** your customer, then you.
+
+## AWS has no database capacity
+
+**Symptom:** Failure code `RDS_AZ_CAPACITY`. The recovery panel says the cloud provider couldn't create the database because there isn't enough capacity in the available zones.
+
+**Cause:** AWS doesn't have room for a new database server of the required type in the Availability Zones the deployment uses. An Availability Zone is one of the separate data centers in an AWS Region. This is a temporary AWS capacity limit. It isn't caused by your customer's quota or permissions.
+
+**Fix:** Wait until the failed attempt has finished rolling back. Your customer's install page says when the failed deployment has been cleaned up. Then retry. A retry looks for available zones again. If it keeps failing, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur).
+
+**Who acts:** you. Your customer has nothing to change.
+
+## Database creation failed
+
+**Symptom:** Failure code `DATABASE_CREATE_FAILED`. The recovery panel says the database could not be created.
+
+**Cause:** Your customer's account rejected the database this application needs, for example because a policy or a quota limits databases in this Region.
+
+**Fix:** Ask your customer to check whether their account limits databases in this Region. **Technical details** shows the reason AWS gave. After they resolve it, retry.
+
+**Who acts:** your customer, then you.
+
+## Cache setup failed
+
+**Symptom:** Failure code `REDIS_PROVISIONING_FAILED`. The recovery panel says the cache this application needs couldn't be set up.
+
+**Cause:** A limit was reached, or AWS rejected the cache, in your customer's account.
+
+**Fix:** Ask your customer to check their account's service limits for Amazon ElastiCache in this Region. Deployz treats this failure as one that needs Deployz, so the dashboard shows **Contact Deployz support** instead of **Retry deployment**. [Contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur) with the deployment ID.
+
+**Who acts:** your customer checks their limits. Deployz support helps with the retry.
+
+## The setup failed and was rolled back
+
+**Symptom:** Failure code `STACK_CREATE_FAILED`. The recovery panel says the initial setup in your customer's account didn't complete.
+
+**Cause:** One of the resources being created failed, so AWS rolled back the whole setup. When Deployz recognizes the cause, it shows a more specific code instead.
+
+**Checks:** Open **Technical details** and find the failed resource and its reason. Your customer can see the same events in AWS CloudFormation.
+
+**Fix:** Resolve the cause the reason points to. It's often one of the causes on this page. Then retry.
+
+**Who acts:** depends on the cause. Usually your customer, then you.
+
+## The connector stack already exists
+
+**Symptom:** Your customer tries to create the connector stack, and AWS CloudFormation says a stack with that name already exists. Or your customer created a second connector stack for the same deployment.
+
+**Cause:** The deployment was installed before, so its connector stack is still in your customer's account. A deployment has one connector stack. Creating a second one isn't supported.
+
+**Fix:**
+
+**Who:** your customer, on the install page and in their AWS console.
+
+Your customer opens the latest install link, which shows **Reconnect the existing connector**, and updates the existing stack with the new values. See [Your customer reconnects the existing connector](/operate/connector#your-customer-reconnects-the-existing-connector).
+
+If your customer already created a second connector stack, they delete that extra stack in CloudFormation and update the original one as above.
+
+## The Region is unavailable
+
+**Symptom:** Failure code `REGION_NOT_SUPPORTED` or `TEMPLATE_UNAVAILABLE`.
+
+**Cause:** `REGION_NOT_SUPPORTED` means Deployz doesn't support the Region the deployment was created for. `TEMPLATE_UNAVAILABLE` means the setup template for the Region couldn't be fetched, which is a problem on the Deployz side.
+
+**Fix:**
+
+- For `REGION_NOT_SUPPORTED`, retrying can't help. Remove the deployment and create a new one in a supported Region. See [AWS Regions](/share/regions).
+- For `TEMPLATE_UNAVAILABLE`, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). Don't retry until Deployz confirms the fix.
+
+**Who acts:** you, or Deployz support.
+
+<Warning>
+  You can't change a deployment's Region after you create it. To move to another Region, you remove the deployment and create a new one.
+</Warning>
+
+## Retry a failed install
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+Before you retry, make sure the cause is fixed. Retrying a failure that needs a change in your customer's account fails the same way.
+
+1. Open the deployment.
+2. Select **Retry deployment**.
+3. Review the dialog. Deployz removes the failed infrastructure from the previous attempt in your customer's account, then runs the install again. No data is lost.
+4. Select **Retry deployment** to confirm.
+
+Your customer doesn't need to do anything for the retry. Progress shows on the deployment page and on their install page.
+
+What you see instead of **Retry deployment** depends on the failure:
+
+| You see | What it means |
+| --- | --- |
+| **Retry deployment** | You can retry once the cause is fixed. |
+| **Check again** | The failure can clear on its own. Wait, then reload the page. |
+| **Contact Deployz support** | The fault is on the Deployz side. [Contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur) instead of retrying. |
+| A message that the connector is disconnected | The retry needs the connector. See [Fix connector problems](/troubleshooting/connector). |
+
+**Retry deployment** is only for a first install that failed. Once an install has succeeded, you recover by deploying again with **Deploy update** or **Retry update**. See [Deploy an update](/operate/deploy-update).

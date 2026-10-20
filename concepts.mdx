@@ -3,8 +3,85 @@ title: "Key concepts"
 description: "Applications, releases, deployments, customers, and the other building blocks of Deployz."
 ---
 
-{/* Placeholder. Planned content: Application, release, deployment, customer, install link, invitation, test deployment, Deployz connector, organization roles. Which object owns what. Sources in the deployz repo: docs/product/ux-guidelines.md (information architecture). See planning/content-strategy.md. */}
+Deployz organizes your work around a few objects. Knowing which object owns what tells you where to find a setting or an action in the dashboard.
 
-<Note>
-  This page is coming soon.
-</Note>
+## Which object owns what
+
+| Object | Owns | Doesn't own |
+| --- | --- | --- |
+| Application | Analysis, configuration, releases, and the install link | Operations on a deployment |
+| Customer | Contact details, invitations, and links to that customer's deployments | Operations on a deployment, the install link |
+| Deployment | Status, every day-to-day action, its own configuration, failures and recovery, and its infrastructure details | The application's default settings |
+
+In practice:
+
+- To change how the application is analyzed, configured, or built, open the application.
+- To deploy an update, roll back, restart, change one customer's settings, or remove a deployment, open the deployment.
+
+## Application
+
+An application is one GitHub repository connected to Deployz. Each repository can be added once per organization. The application's page has three tabs:
+
+- **Overview:** the application's status and its one next action.
+- **Configuration:** the detected services, size presets, environment variables, and settings. Changes here are the defaults for new deployments.
+- **Releases:** the versions Deployz has built.
+
+Deployz analyzes the repository when you add the application, and again when you select **Re-analyze application**. Analysis decides whether the application fits the supported architecture. See [Application requirements](/prepare/requirements).
+
+## Release
+
+A release is a fixed version of your application, built from one commit. You give each release a version label, such as `v1.3.0`. Once a release is built, it doesn't change.
+
+Creating a release doesn't update any deployment. You choose when each deployment moves to a new release. See [Create a release](/releases/create) and [Deploy an update](/operate/deploy-update).
+
+## Deployment
+
+A deployment is one application running in one AWS account, in one AWS Region. "Install" is the word for a deployment's first setup in that account. Each deployment has its own status, address, configuration, and history.
+
+You choose a deployment's Region and size before it's installed. You can't change either one afterward. See [Deployment status and health](/operate/deployment-status) for what each status means.
+
+## Test deployment
+
+A test deployment is a deployment of your application in your own AWS account. It uses the same install page and AWS steps your customers use, so you can find problems before a customer does.
+
+- It's free. Deployz doesn't bill test deployments, but AWS bills your account for the resources it uses.
+- Each application can have one test deployment at a time.
+- The install link for customers becomes available after a test deployment succeeds.
+
+See [Run a test deployment](/share/test-deployment).
+
+## Customer
+
+A customer is a record of a company or person you deploy to: a name, an email address, and an optional company name. Customers don't have a Deployz account. They act only on the install page and in their own AWS console.
+
+Your organization's name is shown to customers as the publisher on the install page.
+
+## Install link
+
+An install link is a reusable link for one application. You share the same link with any number of customers. When a customer opens it, they choose an AWS Region and a size, enter any settings you've asked them to provide, and confirm. Each confirmation creates a new customer record and a new deployment.
+
+Each application has one live install link at a time. See [Share an install link](/share/install-links).
+
+## Invitation
+
+An invitation is a link for one specific customer. You create it from the dashboard and can recommend a Region and size, but the customer makes the final choice. An invitation creates one deployment when the customer confirms it, and can't be used again after that.
+
+The invitation link includes a one-time token that Deployz shows only once, when you create it. See [Invite a specific customer](/share/invitations).
+
+## Deployz connector
+
+The Deployz connector is a small AWS Lambda function that runs in the customer's AWS account. The customer creates it with one CloudFormation Quick Create stack during the install. The connector checks in with Deployz every minute, connects outbound only, and carries out every change to the deployment in that account.
+
+While the connector is offline, Deployz can't make changes in the customer's account. See [How Deployz works](/how-it-works) and [Reconnect or update the Deployz connector](/operate/connector).
+
+## Organization and roles
+
+An organization is your company's space in Deployz. It holds your applications, customers, deployments, and billing. When you sign up, Deployz creates an organization for you and makes you its owner. Members of an organization have one of three roles:
+
+| Role | What the role can do |
+| --- | --- |
+| Owner | Everything an admin can do, plus delete the organization and transfer ownership to another member. Each organization has one owner. |
+| Admin | Everything a member can do, plus rename the organization, invite people, change members' roles, and remove members. |
+| Member | Work with applications, releases, customers, and deployments. |
+
+You manage members under **Team** in the dashboard.

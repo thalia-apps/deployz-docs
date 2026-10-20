@@ -4,8 +4,140 @@ sidebarTitle: "Startup and health"
 description: "Resolve an application that doesn't start or never becomes healthy."
 ---
 
-{/* Placeholder. Planned content: App-owned failure codes; port, health path, binding to 0.0.0.0, environment variables; logs stay in the customer's CloudWatch. Organize as one section per issue (symptom, checks, cause, fix, who acts) so new issues add sections, not pages. Sources in the deployz repo: packages/copy-map, docs/operations/troubleshooting.md. See planning/content-strategy.md. */}
+These failures come from the application itself: how it starts, which port it listens on, how it answers health checks, and how it reads its configuration. You fix them. Your customer has nothing to do, and their install page tells them so.
 
-<Note>
-  This page is coming soon.
-</Note>
+## How a startup failure looks
+
+**In the dashboard:** after a first install, the deployment page shows **Application couldn't start**, and the deployments list shows **Install failed**. After an update, the page shows **Update failed**, and the previous release usually keeps serving. The recovery panel explains the likely cause and fix. For startup failures, Deployz can write this explanation from the failure signals. It then shows **Likely cause** and **Suggested fix**, with the note "Explained by Deployz from the failure signals." Treat it as a lead and check it against **Technical details**.
+
+**In Technical details:** look for the failure code and, when available, the container's **Exit code**, **Stop code**, **Restart count**, and **Stopped reason**. The stopped reason often names the problem directly, for example a missing file or a failed command.
+
+**On your customer's install page:** your customer sees **Application couldn't start** and "No action is required from you."
+
+How long Deployz waits: after the install or deploy finishes, the load balancer gives the application five minutes to start before its health checks count. If the deployment still isn't healthy about 30 minutes after the last install or deploy finished, Deployz marks it as failed.
+
+## Find the application logs
+
+Deployz doesn't collect or read your application's logs. **Technical details** says "Raw container logs are not collected." The logs stay in your customer's AWS account, in Amazon CloudWatch Logs, with one log group for each service, worker, and migration task. Log groups keep entries for seven days.
+
+To see them, ask your customer to open CloudWatch Logs in the deployment's Region and send you the relevant lines. They should check the lines for secrets before they share them. If a container stops before it writes any output, the logs may be empty. The stopped reason and exit code in **Technical details** are then the best signal.
+
+## The application stops right after it starts
+
+**Symptom:** Failure code `CONTAINER_START_FAILED`. The recovery panel says the application started and then stopped.
+
+**Likely causes:**
+
+- The start command is wrong, or it isn't in the release.
+- A required environment variable is missing, or has a value the application rejects.
+- The application crashes before it begins serving, for example during its own startup checks.
+- The port is wrong.
+
+**Checks:**
+
+1. Read the **Stopped reason** and **Exit code** in **Technical details**.
+2. On the application's **Configuration** screen, check the **Start command** and **Port**.
+3. Check that every variable the application requires has a value for this customer. See [Configure environment variables](/prepare/environment-variables).
+
+**Fix:** Correct the setting or the code, then deploy again. A code fix needs a new release.
+
+**Who acts:** you.
+
+## The health check fails
+
+**Symptom:** Failure code `IMAGE_HEALTH_CHECK_FAILED`. The recovery panel says the application started but never reported itself healthy.
+
+**How the health check works:** Deployz sends HTTP requests to the application's health check path, on its port, through the load balancer. The application passes when the path returns HTTP `200`.
+
+**Checks:**
+
+1. **Port.** The **Port** on the **Configuration** screen must match the port the application listens on. Deployz also sets the `PORT` environment variable to this value, so an application that reads `PORT` stays in step. A wrong port shows up as this failure.
+2. **Address.** The application must listen on `0.0.0.0`, not on `localhost` or `127.0.0.1`. An application bound to `localhost` can't receive requests from the load balancer.
+3. **Health check path.** The **Health check** value on the **Configuration** screen must be a path that returns `200` without signing in. A path that redirects, returns `404`, or needs authentication fails.
+4. **Readiness.** The path must return `200` once the application can serve requests. If startup takes longer than five minutes, for example because of slow migrations or cache warm-up, health checks start failing before the application is ready.
+5. **Dependencies.** If the health route checks the database or cache, a connection problem fails the health check too. See the database and cache sections below.
+
+**Fix:** Correct the setting or the code, then deploy again.
+
+**Who acts:** you.
+
+## The port is wrong
+
+**Symptom:** Failure code `PORT_MISMATCH`. The recovery panel says nothing answered on the expected port.
+
+**Cause:** The port configured for the application isn't the one it binds. Deployz rarely reports this code. A wrong port usually appears as a [health check failure](#the-health-check-fails).
+
+**Fix:** Compare the **Port** on the **Configuration** screen with the port your application binds. Correct the setting, or change the application to read the `PORT` environment variable. Then deploy again.
+
+**Who acts:** you.
+
+## A required secret is missing
+
+**Symptom:** Failure code `MISSING_SECRET`. The recovery panel says a required secret has no value for this customer.
+
+**Cause:** The application needs a secret that isn't set as a default for all customers or as a value for this customer.
+
+**Fix:** Set the value on the **Configuration** screen, then deploy again. See [Configure environment variables](/prepare/environment-variables) and [Change a customer's configuration](/operate/configuration).
+
+**Who acts:** you.
+
+## The database migration failed
+
+**Symptom:** Failure code `MIGRATION_FAILED`. The recovery panel says the database migration step failed, so the new version wasn't started.
+
+**Cause:** The migration command exited with an error. Deployz runs it as a one-off task before it starts the new version. The task runs your migration command through `sh`, so the release image must include `sh`.
+
+**Checks:** Read the **Stopped reason** and **Exit code**. Ask your customer for the migration task's log lines in CloudWatch Logs.
+
+**Fix:** Fix the migration in your repository, create a new release, and deploy it. See [Database migrations](/prepare/migrations).
+
+<Warning>
+  A migration that failed part of the way through can leave the database partly changed. Rolling back to an earlier release doesn't reverse migrations. Write the fix so it works from the database's current state. See [Roll back a deployment](/operate/rollback).
+</Warning>
+
+**Who acts:** you.
+
+## The application fails to reach its database
+
+**Symptom:** Failure code `DATABASE_CONNECTION_FAILED` or `RDS_UNAVAILABLE`. The recovery panel says the application can't reach its database, or that the database isn't reachable right now.
+
+**Checks:**
+
+1. **Is the database still starting?** `RDS_UNAVAILABLE` during a first install often clears on its own. Wait a few minutes, then deploy again.
+2. **Does the application read its connection settings from the environment?** Deployz provides `DATABASE_URL`, plus `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`, `DATABASE_USER`, and `DATABASE_PASSWORD`. A hard-coded host or a different variable name won't connect.
+3. **Does the application accept an encrypted connection?** The connection settings Deployz provides use TLS. For PostgreSQL, `DATABASE_URL` includes `sslmode=require`. The certificate bundle for the database is in the container, and `NODE_EXTRA_CA_CERTS` points to it. Make sure your database client doesn't turn TLS off.
+
+**Fix:** Change the application to read the provided values and accept TLS, create a new release, and deploy it. If the database stays unreachable, ask your customer to check it in their AWS account.
+
+**Who acts:** you. Your customer checks the database only if it stays unavailable.
+
+## The application fails to reach its cache
+
+**Symptom:** Failure code `REDIS_CONNECTION_FAILED`. The recovery panel says the application started but can't reach its cache.
+
+**Checks:** Make sure the application reads `REDIS_URL`, or `REDIS_HOST` and `REDIS_PORT`, from the environment. The cache connection isn't encrypted, so the URL starts with `redis://`. A client that requires `rediss://` (TLS) can't connect.
+
+**Fix:** Deploy again. If it keeps failing, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur).
+
+**Who acts:** you.
+
+## A live application stops responding
+
+**Symptom:** A deployment that was live shows **Your application is not responding** or **Your application is degraded**. The deployments list shows **Needs attention · Not responding** or **Needs attention · Degraded**.
+
+**Cause:** Some or all health checks are failing on the running release. It can be the application itself, for example an overloaded process or a failing dependency, or the database or cache.
+
+**Checks:** Look at **Technical details** on the deployment page, and ask your customer for recent log lines from CloudWatch Logs.
+
+**Fix:** Depending on the cause, restart the deployment, roll back to the previous release, or deploy a fix. See [Restart a deployment](/operate/restart), [Roll back a deployment](/operate/rollback), and [Deploy an update](/operate/deploy-update).
+
+**Who acts:** you.
+
+## Deploy again after a fix
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+- **First install failed:** select **Retry deployment**. See [Fix install failures](/troubleshooting/install).
+- **Install finished but the deployment never became healthy, or an update failed:** select **Deploy update** or **Retry update**, and choose the release to deploy. See [Deploy an update](/operate/deploy-update).
+
+A code change needs a new release first. See [Create a release](/releases/create).

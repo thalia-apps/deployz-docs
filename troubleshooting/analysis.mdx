@@ -4,8 +4,101 @@ sidebarTitle: "Analysis"
 description: "Resolve failed analyses, open questions, and findings that block your application."
 ---
 
-{/* Placeholder. Planned content: Analysis failed; Needs input questions; blocking and fixable findings; Re-analyze application. Organize as one section per issue (symptom, checks, cause, fix, who acts) so new issues add sections, not pages. Sources in the deployz repo: packages/analysis/src, docs/ai-analysis.md. See planning/content-strategy.md. */}
+When you add an application, Deployz analyzes its repository to work out how to build, start, and host it. This page covers what to do when the analysis fails, asks you a question, or finds something you need to change. All of it happens in the Deployz dashboard, before any customer is involved.
 
-<Note>
-  This page is coming soon.
-</Note>
+## Analysis failed
+
+**Symptom:** The application shows **Analysis failed**, with a reason below it.
+
+**Checks and fixes:** Match the reason to the table.
+
+| Reason shown | Likely cause | Fix |
+| --- | --- | --- |
+| No GitHub installation is linked to this application | The application isn't connected to GitHub through Deployz. | Reconnect GitHub for your organization, then re-analyze. |
+| Failed to mint a GitHub installation token | Deployz lost access to GitHub, for example because the Deployz GitHub App was removed or no longer has access to the repository. | In GitHub, make sure the Deployz GitHub App is installed and can access the repository, then re-analyze. |
+| Repository or branch not found | The repository or its branch was renamed, deleted, or made inaccessible. | Restore access or check the branch, then re-analyze. |
+| Repository has no commits to analyze | The branch is empty. | Push a commit, then re-analyze. |
+| GitHub API rate limit exceeded | GitHub temporarily limited requests. | Wait a few minutes, then re-analyze. |
+| Repository analysis failed unexpectedly, or another reason | An unexpected error. | Re-analyze. If it fails again, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). |
+
+Large repositories don't cause a failure. Deployz reads a limited set of files and skips any it can't read.
+
+**Who acts:** you (the vendor), in the Deployz dashboard, and in GitHub if access is the cause.
+
+## The analysis is taking longer than usual
+
+**Symptom:** The application shows **Analyzing** with the message "Taking longer than usual. Wait, or restart the analysis." An analysis usually takes about a minute. The message appears after about two minutes.
+
+**Fix:** Wait a little longer. If nothing changes, select **Re-analyze application** to start again.
+
+**Who acts:** you.
+
+## The application needs input
+
+**Symptom:** The application shows **Needs input**. The **Overview** shows either a count of changes required before you can deploy, or **Configuration needs review**, with **Review required changes**.
+
+**Cause:** Deployz found something it can't decide for you. There are two kinds of input:
+
+- **Questions about your application.** For example, how database migrations should run when the application uses a database but has no migration command, or which command runs a background worker. These rows are marked **Needs input** on the **Configuration** screen.
+- **Environment variable decisions.** A variable shows **Needs a decision** when nobody has said who provides it, or **Needs a value** when you provide it but haven't entered a value. See [Configure environment variables](/prepare/environment-variables).
+
+**Fix:**
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+1. On the **Overview**, select **Review required changes**. The **Configuration** screen opens at the rows that need attention.
+2. For each marked row, answer the question, edit the value, or select **Get fix instructions**.
+3. Save your changes.
+
+Open environment variable decisions block a test deployment and customer deployments. Missing build values also block release builds.
+
+## A finding blocks the application
+
+**Symptom:** A finding on the **Configuration** screen is marked **Blocking**, and the application can't be deployed.
+
+**Cause:** The application depends on something Deployz doesn't support. Examples are a database engine other than PostgreSQL or MySQL, Redis features beyond a standard single-node cache, its own message broker, several services that must run together, a persistent disk volume, a GPU, or its own infrastructure code.
+
+**Fix:** You can't answer a blocking finding with a setting. Change the application so it no longer needs the unsupported part, push the change, and re-analyze. For the full list and the alternatives, see [What Deployz doesn't support](/prepare/not-supported).
+
+**Who acts:** you.
+
+## A finding needs a change you can make
+
+**Symptom:** The **Overview** shows a count of changes required before you can deploy, but no finding is blocking. Or a finding is marked as recommended.
+
+**Cause:** Deployz found something it can host, but it needs more information or a small change first.
+
+These findings must be fixed before you deploy:
+
+| Finding | How you fix it |
+| --- | --- |
+| Deployz doesn't know how to start your app | Add a Dockerfile that builds the application. |
+| Tell Deployz which port your app listens on | Enter the port on the **Configuration** screen. |
+| Tell Deployz how to start your app | Set the start command on the **Configuration** screen. |
+| Give Deployz a way to check your app | Add a health check route, then set the health check path. |
+| Your app only listens on localhost | Change the application to listen on `0.0.0.0`. |
+| Choose how Deployz runs database migrations | Choose a migration option on the **Configuration** screen. See [Database migrations](/prepare/migrations). |
+
+Recommended findings don't block a deployment, but they can cause problems later. Examples are confirming which Dockerfile Deployz builds, adding a way to update the database, and confirming background workers, queues, or scheduled jobs. Queues and scheduled jobs are a **Preview** feature.
+
+**Fix:**
+
+**Who:** you (the vendor), in the Deployz dashboard and in your repository.
+
+1. On the **Configuration** screen, find the finding.
+2. If the fix is a setting, such as the port, start command, health check path, or migration choice, edit it and save. You don't need to re-analyze.
+3. If the fix is a code change, select **Get fix instructions**. The **Fix deployment issues with your coding agent** dialog gives instructions you can copy into a coding agent or follow yourself.
+4. Push the code change to GitHub, then select **Re-analyze application**.
+
+## Re-analyze the application
+
+Re-analyze after you push a change, after you fix GitHub access, or when Deployz shows **Checks updated** with the message "Re-analyze to apply the latest checks."
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+1. Open the application.
+2. Open **More actions** and select **Re-analyze application**. If the **Checks updated** notice is showing, you can select **Re-analyze** there instead.
+
+Deployz reads the latest commit on the application's branch. Values you entered yourself, such as a port or a health check path, are kept. **Re-analyze application** isn't available while an analysis is running.
+
+To get a code change to your customers, create a new release after the analysis passes. See [Create a release](/releases/create).

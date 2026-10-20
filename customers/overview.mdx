@@ -3,8 +3,79 @@ title: "Install an application with Deployz"
 description: "What happens when your software provider runs their application in your AWS account."
 ---
 
-{/* Placeholder. Planned content: What's happening; who does what; what you can and can't do; steps at a glance. Sources in the deployz repo: docs/product/user-flows.md (customer journey). See planning/content-strategy.md. */}
+Your software provider uses Deployz to run their application inside your own AWS account. This guide explains what happens, what you approve, and what stays under your control. You don't need a Deployz account.
 
-<Note>
-  This page is coming soon.
-</Note>
+## What's happening
+
+Your software provider sent you an install link. When you follow it, you:
+
+1. Choose the AWS Region and size for the application, and review what will be created and the estimated monthly AWS cost.
+2. Approve a standard AWS CloudFormation stack in your AWS console. This stack creates the Deployz connector, a small component that manages the application in your account.
+3. Follow the progress on the install page until the application is ready, then open it at its HTTPS address.
+
+The connector only calls out to Deployz. Deployz never connects into your account, and it never sees or stores your AWS credentials. For the full detail, see [Security and AWS access](/customers/security).
+
+## Who does what
+
+| | Your software provider | You |
+| --- | --- | --- |
+| The application | Builds it, releases updates, rolls back, restarts, and changes its configuration through Deployz | Uses it |
+| Install | Sends the install link and can retry a failed deployment | Chooses the Region and size, enters any settings you're asked for, and approves the connector stack |
+| Your AWS account | Has no direct access | Owns the account, its data, and its AWS bill |
+| Custom domain | Adds or removes the domain | Creates the DNS records you're shown |
+| Removal | Removes the deployment and can delete the data it kept | Deletes the connector stack when you no longer need it |
+
+Your software provider manages releases and updates through Deployz. You keep ownership of your AWS account, your data, your AWS charges, and the ability to revoke Deployz access at any time.
+
+## What you can and can't do
+
+On the install page, you can:
+
+- Review what will be created, the estimated AWS cost, and the security details before you approve anything.
+- Retry the connection if the connector doesn't connect.
+- Follow the progress and open the application when it's ready.
+- See the DNS records for a custom domain and check them.
+
+You can't deploy updates, roll back, restart, change the configuration, or remove the application in Deployz. Ask your software provider for those. To take the application out of your account, ask your software provider to remove it, or delete its resources yourself in the AWS console. See [Remove the application](/customers/remove).
+
+## The steps at a glance
+
+<Steps>
+  <Step title="Check your AWS account">
+    Make sure you can create the connector stack, that your organization's policies and AWS quotas allow it, and decide on a Region. See [Before you install](/customers/before-you-install).
+  </Step>
+  <Step title="Review and approve">
+    Open the install link, choose a Region and size, review the plan and cost, then approve the connector stack in your AWS console. See [Install the application](/customers/install).
+  </Step>
+  <Step title="Follow the progress">
+    Deployz creates the infrastructure and starts the application. Progress shows on the install page.
+  </Step>
+  <Step title="Open the application">
+    When the page shows the application is ready, open it at its HTTPS address.
+  </Step>
+</Steps>
+
+## In this guide
+
+<CardGroup cols={2}>
+  <Card title="Before you install" href="/customers/before-you-install">
+    AWS permissions, organization policies, quotas, and choosing a Region.
+  </Card>
+  <Card title="Install the application" href="/customers/install">
+    The install page, the AWS console step, and what each progress step means.
+  </Card>
+  <Card title="Security and AWS access" href="/customers/security">
+    What Deployz creates, what it can access, and how to revoke access.
+  </Card>
+  <Card title="Costs in your AWS account" href="/customers/costs">
+    What you pay AWS for, and what keeps costing money after removal.
+  </Card>
+  <Card title="Create custom domain DNS records" href="/customers/custom-domain-dns">
+    The two DNS records for a custom domain.
+  </Card>
+  <Card title="Remove the application" href="/customers/remove">
+    What removal deletes, what remains, and how to delete it.
+  </Card>
+</CardGroup>
+
+For questions about the application itself, contact your software provider.

@@ -3,8 +3,126 @@ title: "Configure environment variables"
 description: "Decide who provides each environment variable and how its value reaches each deployment."
 ---
 
-{/* Placeholder. Planned content: Detection; who provides each variable; build vs runtime; secrets; customer-facing labels and help text; encryption; effect of later edits. Sources in the deployz repo: docs/environment-variables.md, apps/web configuration Variables tab. See planning/content-strategy.md. */}
+Your application reads settings from environment variables. For each one, you decide who provides the value: Deployz, you, or each customer. Deployz then delivers the right value to every deployment.
 
-<Note>
-  This page is coming soon.
-</Note>
+## How Deployz finds your variables
+
+When it analyzes your repository, Deployz detects variable **names**, never values. It looks at:
+
+- Reads in your code, such as `process.env.API_KEY` or `os.environ["API_KEY"]`
+- Sample env files, such as `.env.example`
+- Known third-party services your code uses
+
+Values in sample files like `.env.example` are treated as evidence of the name only. They never reach your containers.
+
+Detection isn't complete for every pattern. A variable your application reads only indirectly, for example through a dynamic key or a configuration file loaded at runtime, may not appear. You can add it by hand.
+
+When required variables still need a decision or a value, the application **Overview** shows **Configuration needs review**, with a **Review configuration** action.
+
+## Review and save your variables
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+<Steps>
+  <Step title="Open the Variables tab">
+    Open your application, select **Configuration**, then select **Variables**.
+  </Step>
+  <Step title="Find the variables that need you">
+    The list opens on the **Vendor & customer** filter. Select **Needs input** to see only variables that need a decision or a value. The other filters are **Managed**, **Optional**, and **All**.
+  </Step>
+  <Step title="Review each variable">
+    Each detected variable starts with a suggestion, marked **Suggested**, and the reason for it. A suggestion with weak evidence, such as a name found only in a sample file, is also marked **Uncertain**. Select **Review** or **Edit** on a row to change its settings. To take every remaining suggestion as it is, select the accept button above the list, for example **Accept 4 suggested decisions**.
+  </Step>
+  <Step title="Enter your values">
+    For each variable you provide, enter the value in **Value**.
+  </Step>
+  <Step title="Save">
+    Select **Save changes**. Nothing is saved until you do.
+  </Step>
+</Steps>
+
+To change several rows at once, select their checkboxes, then select **Mark optional**, **Set by vendor**, or **Set by customer**.
+
+Each row shows a status:
+
+| Status | Meaning |
+| --- | --- |
+| **Needs a decision** | You haven't saved a decision for this variable yet. |
+| **Needs a value** | You provide this required variable, but it has no value. |
+| **Ready** | The variable has what it needs. |
+| **Set by customer** | Each customer enters the value when they install. |
+| **Optional** | The application doesn't need a value. |
+
+## Choose who provides each value
+
+In **Who provides**, choose one option for each variable. The table shows the short form in brackets.
+
+| Option | Who supplies the value | Use it for |
+| --- | --- | --- |
+| **Managed by Deployz** (Deployz) | Deployz, at install | Connection details for the database, cache, bucket, and queue Deployz creates; the deployment's own public URL; and internal secrets Deployz can generate, such as a signing key |
+| **Set by vendor** (Vendor) | You, once for all customers | API keys and settings that are the same for every customer |
+| **Set by customer** (Customer) | Each customer, on the install page | Values that differ per customer, or credentials the customer owns |
+| **Optional / not needed** | Nobody | Variables your application can run without |
+
+**Managed by Deployz** is available only for values Deployz can supply. When it generates a secret, Deployz creates a new random value for each deployment.
+
+### Map a variable to a managed value
+
+Your application might read a database or cache setting under a name the analysis can't recognize. In that case, tell Deployz which value to put there:
+
+1. On the variable's row, choose **Managed by Deployz** in **Who provides**. For a name the analysis didn't detect, select **Add managed value** instead and enter the name.
+2. In **Value**, choose the managed value, for example **Database URL**, **Database host**, **JDBC URL**, **Redis URL**, or **Bucket name**. The list shows only the resources your application has.
+3. Select **Save changes**.
+
+### Add a variable by hand
+
+Select **Add value** for a plain value or **Add secret** for a secret, enter the name and value, then select **Save changes**. Variables you add are provided by you.
+
+## Build or runtime
+
+In **When used**, choose when your application reads the variable:
+
+- **Runtime.** The container reads the value when it starts. Most variables are runtime variables.
+- **Build.** The value is used while Deployz builds the image, for example a `NEXT_PUBLIC_`, `VITE_`, or `REACT_APP_` variable that a frontend build inlines. Deployz suggests build for these names. You confirm the choice.
+
+Build values have limits:
+
+- Only you can provide a build value. **Set by customer** and **Managed by Deployz** are runtime only, because every customer gets the same image.
+- A build value is part of the release image. Anyone who can pull the image might be able to read it, so don't use build values for secrets.
+- If a required build value has no value, you can't create a release. The **New release** form lists the missing names with a **Review configuration** link.
+
+## Required and secret
+
+- **Required.** The application can't run without this variable. Deployz checks for missing required values before a deployment starts, and a customer can't complete the install page until they enter theirs.
+- **Secret.** The value is masked. After you save a secret, the dashboard shows **Secret saved** and never displays the value again. To change it, enter a new value.
+
+If a row shows **Re-enter this secret**, Deployz can't deliver the stored value. Enter the secret again and save.
+
+## Write labels and help text for customers
+
+For each **Set by customer** variable, add text that helps the customer enter the right value:
+
+- **Label**: a short, plain name, up to 80 characters, such as "Company SSO domain".
+- **Help text**: where to find the value or what format to use, up to 300 characters.
+
+The row shows a preview. On the install page, the customer sees these fields in an **Application settings** section, with your label first and the variable name below it. Secrets appear as password fields. A required field must be filled before the customer can install.
+
+## How values are protected
+
+- Deployz encrypts saved secret values with AWS Key Management Service (KMS). Secret values aren't shown in the dashboard, written to logs, or sent to AI features.
+- Each deployment's runtime values, including your secrets, are stored in the customer's AWS account so the application can read them. The account owner can read them there. Don't use a vendor secret for a value your customer must not see.
+
+## What happens when you change a value later
+
+| Change | Effect |
+| --- | --- |
+| Save a new build value | Applies to the next release you create. Existing release images don't change. |
+| Save or remove a runtime value you provide | Reaches every running deployment of the application within a few minutes. |
+| Change a decision, such as who provides a value | Applies to the next install or configuration update. Saving a decision doesn't update running deployments on its own. |
+| Deploy, roll back, or restart | Changes only the release image. The deployment's runtime configuration stays as it is. |
+
+A runtime update finishes only after the new containers are running and healthy. If the update fails, the deployment keeps serving its previous configuration. Fix the value and save it again to retry.
+
+When a decision changes so that a value is no longer delivered, a deployment that's already running keeps the old value. To change one customer's values, see [Change a customer's configuration](/operate/configuration).
+
+If the latest analysis no longer finds a variable you configured, the tab shows **Variables not found in the latest analysis**. Select **Mark not needed** for each variable your application no longer reads.

@@ -3,8 +3,134 @@ title: "Security and AWS access"
 description: "What Deployz creates in your AWS account, what it can access, and how to revoke access."
 ---
 
-{/* Placeholder. Planned content: Connector resources; IAM role and permissions boundary; tag-scoped permissions; no inbound access; enrollment; data Deployz receives and never receives; secrets handling; logs stay in your account; revoking access. Checked by an AI coding agent before each release (see AGENTS.md). Sources in the deployz repo: apps/web/src/lib/security-details.ts, packages/cdk/src/bootstrap/bootstrap-stack.ts, packages/relay. See planning/content-strategy.md. */}
+{/* Last checked against deployz commit 76a4b779 on 2026-10-20 */}
 
-<Note>
-  This page is coming soon.
-</Note>
+This page is for the person who reviews this deployment for security. It describes the Deployz connector, the AWS permissions it holds, the data Deployz receives, and how to revoke access.
+
+The install page has a **Security details** page specific to your deployment. It lists every IAM action read from the connector template you deploy, and the AWS resources your application creates. Use it for the exact permission list.
+
+## How it works
+
+1. You create the Deployz connector in your AWS account from a standard AWS CloudFormation template, with a Quick Create link.
+2. Every minute, the connector calls Deployz over HTTPS and collects commands, such as install, update, or remove.
+3. The connector applies each command with roles in your account and reports the result to Deployz.
+
+The application, its database, its stored files, and its logs stay in your AWS account. Deployz never sees or stores your AWS credentials.
+
+## What the connector stack creates
+
+The connector stack, named `deployz-bootstrap-` followed by an identifier, creates:
+
+- The connector function (AWS Lambda) and an Amazon EventBridge schedule that runs it every minute
+- The connector role, with a permissions boundary and the provisioner policy
+- A CloudFormation execution role for your application stack
+- An AWS Secrets Manager secret that holds the connector's Deployz credential
+- Helper functions that create the installation ID and set the connector log's one-week retention
+
+At run time, the connector also writes AWS Systems Manager parameters under `/deployz/<installation ID>/` to track unfinished commands.
+
+The installation ID is created inside your account when the stack is created. It isn't part of the Quick Create link.
+
+## IAM roles and permissions
+
+The connector holds broad permissions so it can install, update, and remove the application without manual setup. Both roles below receive all their permissions when you create the connector stack, not after the connector first connects. Deployz chooses the commands and the application template that the connector applies.
+
+### Connector role
+
+The connector function runs with this role. Only AWS Lambda can assume it.
+
+- **Permissions boundary.** A permissions boundary caps the role. The role can never exceed it.
+- **Tag-scoped permissions.** Where AWS supports it, actions are limited to resources tagged `deployz:installation` with this deployment's installation ID. Creating a resource requires the request to carry that tag, and changing or deleting a resource requires the resource to carry it.
+- **Scoped secrets access.** The role can read and update the connector's own credential secret, and the application's secrets tagged for this deployment.
+- **No log reads.** The role writes the connector's own activity log. It can't read log events (`logs:GetLogEvents` and `logs:FilterLogEvents` aren't granted).
+- **No network, database, or IAM role creation.** The connector role has no permission to create the network, the database, or IAM roles. It asks CloudFormation to apply the application template with the execution role below.
+
+### CloudFormation execution role
+
+CloudFormation uses this role to build your application stack.
+
+- Only CloudFormation can assume it, and only on behalf of your account.
+- Creating a resource requires the request to carry this deployment's `deployz:installation` tag. Changing or deleting a resource requires the resource to carry the tag.
+- It can create IAM roles for your application and attach any policy to them.
+- It has no permissions boundary.
+
+### Exceptions to tag scoping
+
+Some AWS actions don't support tag conditions, so they're scoped another way:
+
+- **Read-only actions** (describe and list calls) aren't limited to this deployment.
+- **Amazon S3 bucket actions** don't support tag conditions. Before the connector deletes a bucket, it checks the bucket's `deployz:installation` tag.
+- **Passing roles** (`iam:PassRole`) is limited by the receiving service rather than by resource.
+- **Queues and schedules** are limited by resource name to this deployment's application stack. Queues and scheduled jobs are at **Preview** maturity in Deployz.
+
+The **Security details** page for your deployment lists each of these with its resources and conditions.
+
+## No inbound access
+
+The connector only starts outbound HTTPS requests to Deployz. No inbound connection to your account is required, and Deployz has no path into your account. Inside the application's network, the internet-facing load balancer is the only component that accepts traffic from the internet, on ports 80 and 443.
+
+## Enrollment
+
+The Quick Create link carries a single-use enrollment code. It ties the connector to your deployment. Deployz spends the code when the connector first connects and refuses any later attempt to use the same code with a different connector. If you select **Retry connection** on the install page, Deployz issues a new code.
+
+## The connector's credential
+
+The connector signs in to Deployz with a token stored in a Secrets Manager secret in your account. The token is either generated by CloudFormation in your account, or created by Deployz and passed in the Quick Create link as a hidden (`NoEcho`) parameter.
+
+## Data Deployz receives
+
+The connector sends Deployz operational information about the deployment:
+
+- Installation ID, AWS account ID, and AWS Region
+- Connector version, and the release and image version that runs
+- Deployment state, infrastructure status, health state, and timestamps
+- Resource identifiers
+- AWS error messages: stack events, stopped-task reasons, and exit codes
+- Health-check status code and response time (not the response body)
+
+Configuration values and secrets that you or your software provider enter also pass through Deployz.
+
+## Data Deployz never receives
+
+These stay in your AWS account:
+
+- Your application runtime and its in-memory data
+- Your database data
+- Your cache contents
+- Your S3 data
+- Your application's CloudWatch logs
+
+Deployz doesn't automatically copy your raw application logs outside your AWS account. Deployz doesn't ask for or store your AWS credentials.
+
+## Secrets you enter
+
+If the install page asks you for secret values:
+
+- They're sent to Deployz over HTTPS and stored encrypted until your AWS account connects.
+- Deployz then delivers them to AWS Secrets Manager in your account and deletes the active copy.
+- If your account doesn't connect within 24 hours, the secret is deleted and must be entered again.
+- Encrypted backup copies may remain for up to 7 days.
+- Deployz doesn't display secret values or write them to application logs.
+
+Values your software provider changes after your account connects stay in the update job until the connector collects it. Deployz then removes them from the job.
+
+## Logs
+
+Application logs are written to CloudWatch Logs in your account. The connector's own log is kept for one week.
+
+## Revoke access
+
+You can revoke Deployz access at any time by deleting the Deployz connector stack in your AWS account.
+
+<Warning>
+  Ask your software provider to remove the deployment and delete its retained data first. The connector stack also holds the role that CloudFormation uses for your application. After you delete the connector, Deployz can't change or remove your application, and you must remove those resources yourself.
+</Warning>
+
+**Who:** you, in your AWS console.
+
+1. In the CloudFormation console, in the application's Region, select the connector stack (its name starts with `deployz-bootstrap-`).
+2. Delete the stack. This deletes the connector function, its schedule, and its roles.
+
+The connector stops. Because Deployz has no inbound path into your account, it can't reconnect. Deployz shows the connector as disconnected when it stops receiving check-ins.
+
+For the full removal order, see [Remove the application](/customers/remove).

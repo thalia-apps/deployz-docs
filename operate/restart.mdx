@@ -3,8 +3,32 @@ title: "Restart a deployment"
 description: "Restart the services of a deployment without changing its release."
 ---
 
-{/* Placeholder. Planned content: What restart does; when to use it. Sources in the deployz repo: apps/web deployment detail. See planning/content-strategy.md. */}
+A restart replaces the running copies of every service in the deployment with fresh ones. The release, the configuration, the database, and stored files stay the same. A restart doesn't run database migrations.
 
-<Note>
-  This page is coming soon.
-</Note>
+## When to restart
+
+Restart when the application is running the right release but is misbehaving in a way a fresh start can clear, for example:
+
+- The application is **Degraded** or **Not responding**, and you suspect a stuck process or exhausted memory rather than a bug in the release.
+- A dependency the application connects to at startup was unavailable and has recovered.
+
+A restart isn't needed to apply changes:
+
+- To change configuration values, save them on the configuration page. Deployz applies them for you. See [Change a customer's configuration](/operate/configuration).
+- To change the release, use [Deploy an update](/operate/deploy-update) or [Roll back a deployment](/operate/rollback).
+
+If the same problem returns after a restart, look for the cause. See [Fix startup and health check failures](/troubleshooting/startup-and-health).
+
+## Restart the deployment
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+1. In **Deployments**, open the customer's deployment.
+2. Open the **More actions** menu (the three-dot button next to the actions), then select **Restart**.
+3. In **Restart `<application>`?**, select **Restart**.
+
+The application restarts behind the load balancer. The deployment changes to **Updating**, and the detail page shows **Restarting your application**. The restart finishes when every restarted service is running again. **Recent activity** then shows **Restarted**.
+
+If the restart fails, the detail page shows **Restart failed**. See [Find your problem](/troubleshooting/overview).
+
+**Restart** is unavailable while the deployment isn't installed, while its connector is offline, or while another operation is running. The detail page shows the reason. The rules are the same as for [deploying an update](/operate/deploy-update).

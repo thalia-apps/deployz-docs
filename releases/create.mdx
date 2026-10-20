@@ -3,8 +3,69 @@ title: "Create a release"
 description: "Build an immutable release from a commit on your application's branch."
 ---
 
-{/* Placeholder. Planned content: New release; commit or full SHA; version; optional migration command; build statuses; creating a release never updates a customer; infrastructure-change notice. Sources in the deployz repo: apps/web releases pages. See planning/content-strategy.md. */}
+A release is one version of your application: a container image that Deployz builds from one commit, with a version label you choose. A release never changes after it's built, so every customer who runs version `v1.3.0` runs the same image.
 
-<Note>
-  This page is coming soon.
-</Note>
+Creating a release doesn't update any customer. Running deployments keep their current release until you [deploy an update](/operate/deploy-update). New installs get your newest release that built successfully.
+
+## Before you start
+
+- Your application's analysis has finished. See [Application requirements](/prepare/requirements).
+- Every required build variable has a value. If one is missing, you can't create a release. See [Configure environment variables](/prepare/environment-variables).
+
+## Create the release
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+<Steps>
+  <Step title="Open the Releases tab">
+    Open your application and select **Releases**.
+  </Step>
+  <Step title="Open the form">
+    Select **Create release**. The **New release** form opens.
+  </Step>
+  <Step title="Enter a version">
+    In **Version**, enter a label such as `v1.3.0`. Deployz suggests the next patch version after your newest release. Each version must be unique for the application, including versions whose build failed. If you reuse a version, the form shows "Couldn't create this release. Try again."
+  </Step>
+  <Step title="Choose the commit">
+    In **Commit**, select a commit from the list. The list shows commits from your application's branch. To use another commit, select **Enter commit SHA manually** and paste its SHA, from 7 to 40 characters. Deployz checks a short SHA with GitHub. If GitHub is unavailable, enter the full 40-character SHA.
+  </Step>
+  <Step title="Leave the migration command empty">
+    **Migration command (optional)** is recorded with the release. Deployments run the command from the application's migration setting, so you can leave this field empty. See [Database migrations](/prepare/migrations).
+  </Step>
+  <Step title="Create it">
+    Select **Create release**. Deployz starts building the image. A build usually takes a few minutes, and the page updates when it finishes.
+  </Step>
+</Steps>
+
+If the commit has been released before, the form shows **Already released as** with the earlier versions.
+
+If a required build value is missing, the form shows "Set these build values before you build a release:" with the variable names. Select **Review configuration**, enter the values, then create the release again.
+
+## Build statuses
+
+The **Build** column on the **Releases** tab shows each release's status:
+
+| Status | Meaning | What you can do |
+| --- | --- | --- |
+| **Building** | Deployz is building this release from its commit. | Wait. New installs keep using your newest **Ready** release. If none exists yet, customers can't install until the build finishes. |
+| **Ready** | The build finished successfully. | Deploy it, or let new installs use it. |
+| **Build failed** | The build stopped before it produced an image. | See [Fix a failed build](/releases/build-failures). |
+| **Unavailable** | The release's image no longer exists, so it can't be deployed. | Create a new release from the same commit to deploy that code again. |
+
+The newest **Ready** release has a **Customer installs** label. That's the release new customer installs get. The line above the table names it, for example "Customer installs get v1.3.0 (commit a1b2c3d)."
+
+To see a release's full commit SHA and creation time, select the arrow next to its version. **Running on** shows which deployments currently run each release.
+
+## Check for infrastructure changes
+
+When your application has at least one deployment, the **Releases** tab compares what your application needs now with what that deployment was created with:
+
+- **No infrastructure changes** means you can deploy new releases to existing deployments.
+- **Infrastructure requirements changed** means the application now needs something, such as a database, cache, worker, queue, or scheduled job, that existing deployments don't have. The notice says the release requires infrastructure changes, which Deployz doesn't apply to existing deployments.
+
+Deployz doesn't change what an existing deployment contains. To give a customer the new requirements, create a new deployment for them. See [What Deployz doesn't support](/prepare/not-supported).
+
+## Next steps
+
+- [Run a test deployment](/share/test-deployment) with your new release.
+- [Deploy an update](/operate/deploy-update) to existing customers.

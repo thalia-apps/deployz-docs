@@ -3,8 +3,88 @@ title: "Sizes and AWS cost"
 description: "Choose deployment sizes and understand what each costs in AWS."
 ---
 
-{/* Placeholder. Planned content: Small, Medium, Large CPU and memory; recommended and minimum size; customer chooses at or above the minimum; size is fixed per deployment; cost estimate ranges; network and load balancer dominate cost. Sources in the deployz repo: packages/contracts/src/profile.ts, pricing.ts, docs/infrastructure-profiles.md. See planning/content-strategy.md. */}
+Every deployment uses one of three sizes: Small, Medium, or Large. The size sets the capacity of your application's containers, database, and cache. It's chosen when the deployment is created and can't be changed afterward.
 
-<Note>
-  This page is coming soon.
-</Note>
+AWS bills the account the deployment runs in. For a customer deployment, that's your customer's account. For a test deployment, it's yours. Deployz fees are separate. See [Pricing and billing](/account/billing).
+
+## The three sizes
+
+| | Small | Medium | Large |
+| --- | --- | --- | --- |
+| Each container | 0.25 vCPU, 512 MiB memory | 1 vCPU, 2 GiB memory | 2 vCPU, 4 GiB memory |
+| Database (PostgreSQL 16 or MySQL 8.0) | `db.t3.micro`, 20 GB storage | `db.t3.medium`, 20 GB storage | `db.t3.large`, 20 GB storage |
+| Cache (Valkey) | `cache.t4g.micro`, 1 node | `cache.t4g.small`, 1 node | `cache.t4g.medium`, 1 node |
+
+- Each container runs as one copy. The web application and each background worker get the container size shown.
+- Database storage starts at 20 GB and grows automatically up to 100 GB.
+- A deployment includes a database or cache only when your application needs one.
+- Every size creates the same set of resources. Only their capacity differs.
+
+## Choose the recommended and minimum size
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+Set two sizes for each application. Both start at Small.
+
+- **Default size** is preselected for your customers.
+- **Minimum allowed size** is the smallest size anyone can choose. Customers don't see sizes below it.
+
+1. Open your application, then select **Configuration**.
+2. Select the **Size presets** tab. It shows each size's resources and estimated AWS cost side by side.
+3. Under **Customer sizes**, choose the **Default size** and the **Minimum allowed size**. The default must be the same as the minimum or larger.
+4. Select **Save sizes**.
+
+Changes apply only to install links, invitations, and deployments you create afterward. Existing deployments keep their size. Each install link and invitation keeps the sizes it had when you created it. You can also choose a different recommended size each time you create an install link or an invitation.
+
+## Who chooses a deployment's size
+
+| Deployment | Who chooses |
+| --- | --- |
+| [Test deployment](/share/test-deployment) | You |
+| [Install link](/share/install-links) or [invitation](/share/invitations) | Your customer, at or above the minimum. Your recommended size is preselected and labeled **Vendor recommended**. |
+
+<Warning>
+  A deployment's size can't be changed after it's created. Updates, rollbacks, and restarts keep the same size. To use a different size, create a new deployment.
+</Warning>
+
+## Estimated monthly AWS cost
+
+Deployz shows an estimated monthly AWS cost on **Size presets** and on the customer's install page. The install page estimate reflects the Region and size the customer selects. The estimates are approximate ranges in US dollars, based on on-demand AWS prices for 730 hours a month. They aren't a quote or a bill.
+
+These are the baseline ranges for each resource in US East (N. Virginia), in USD per month:
+
+| Resource | Small | Medium | Large |
+| --- | --- | --- | --- |
+| Each container | $8–$11 | $33–$40 | $68–$80 |
+| Database | $14–$19 | $50–$60 | $100–$115 |
+| Cache | $12–$15 | $18–$24 | $36–$45 |
+| Load balancer | $15–$25 | $15–$25 | $15–$25 |
+| NAT gateway (outbound network access) | $30–$40 | $30–$40 | $30–$40 |
+
+Every deployment gets its own private network, with a load balancer and a NAT gateway. A NAT gateway lets the application reach the internet without being directly reachable from it. Together these cost about $45–$65 a month at any size, so they're most of the cost of a Small deployment.
+
+For example, an application with a web container and a PostgreSQL database, and no cache or workers, is estimated at about:
+
+| Small | Medium | Large |
+| --- | --- | --- |
+| $65–$95 | $125–$165 | $210–$260 |
+
+These are illustrative figures for US East (N. Virginia). Check **Size presets** for your own application's estimate.
+
+### What the estimate doesn't include
+
+Some AWS costs depend on usage, so the estimate leaves them out:
+
+- Files stored in file storage (Amazon S3) and data transfer
+- Data processed by the NAT gateway
+- Load balancer capacity used
+- Database storage growth and backups
+- Outbound internet data transfer and data transfer between availability zones
+
+Deployz fees and any external services your application uses are also not included.
+
+### Regional differences
+
+Prices in other Regions are estimated with a coarse adjustment to the US East (N. Virginia) baseline. For example, estimates for South America (São Paulo) are about 50% higher. See [AWS Regions](/share/regions).
+
+To explain AWS costs to your customers, send them [Costs in your AWS account](/customers/costs).

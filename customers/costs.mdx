@@ -3,8 +3,67 @@ title: "Costs in your AWS account"
 description: "What you pay AWS for, and what keeps costing money after removal."
 ---
 
-{/* Placeholder. Planned content: You pay AWS directly; resources that run; estimate ranges; Region multiplier; retained resources. Sources in the deployz repo: packages/contracts/src/pricing.ts. See planning/content-strategy.md. */}
+The application runs in your AWS account, so AWS bills you directly for the resources it uses. Deployz doesn't bill you. Any fees for the application itself are between you and your software provider.
 
-<Note>
-  This page is coming soon.
-</Note>
+## What runs in your account
+
+Each deployment creates its own set of resources. The install page lists the ones this application needs under **What will be deployed**.
+
+| Resource | When it's created |
+| --- | --- |
+| Application containers (Amazon ECS on AWS Fargate) | Always, one or more services |
+| Application Load Balancer | Always |
+| NAT gateway, with an Elastic IP address | Always, as part of the application's own network |
+| S3 bucket for stored files | Always |
+| Database (Amazon RDS for PostgreSQL or MySQL) | When the application needs one |
+| Cache (Amazon ElastiCache for Valkey) | When the application needs one |
+| Deployz connector (AWS Lambda, run every minute) | Always |
+
+The size you choose sets the capacity of the containers, the database, and the cache. You can't change the size after you continue to setup.
+
+## The estimate on the install page
+
+The install page shows an **Estimated AWS cost** per month for the Region and size you select. It's a rounded range, not a quote:
+
+- It uses on-demand AWS prices for one instance of each resource, running all month.
+- Prices come from a US East (N. Virginia) baseline, adjusted by a factor for your Region.
+- The total is rounded to steps of $5.
+- It doesn't include usage-based charges, such as outbound internet data transfer, data transfer between Availability Zones, load balancer capacity, data processed by the NAT gateway, files stored in S3, and database storage growth and backups.
+
+If some resources can't be priced, the page says the estimate is incomplete. Your actual charges depend on usage.
+
+### Baseline ranges
+
+These are the monthly ranges the estimate starts from, in US dollars, before the Region factor:
+
+| Resource | Small | Medium | Large |
+| --- | --- | --- | --- |
+| Application, per service | $8–11 | $33–40 | $68–80 |
+| Database | $14–19 | $50–60 | $100–115 |
+| Cache | $12–15 | $18–24 | $36–45 |
+| Application Load Balancer | $15–25 | $15–25 | $15–25 |
+| NAT gateway | $30–40 | $30–40 | $30–40 |
+
+For example, a Small deployment with one service and a database, in US East (N. Virginia), comes to an estimated $65–95 per month before usage-based charges. The NAT gateway and the load balancer are a large part of the cost at every size.
+
+### Region factor
+
+| Factor | Regions |
+| --- | --- |
+| 1.0 | US East (N. Virginia), US East (Ohio), US West (Oregon) |
+| 1.1 | US West (N. California), Canada (Central), Europe (Ireland), Europe (Frankfurt), Europe (Stockholm), Asia Pacific (Mumbai), Asia Pacific (Singapore) |
+| 1.2 | Europe (London), Europe (Paris), Asia Pacific (Tokyo), Asia Pacific (Seoul), Asia Pacific (Osaka) |
+| 1.3 | Asia Pacific (Sydney) |
+| 1.5 | South America (São Paulo) |
+
+## Costs after removal
+
+When your software provider removes the deployment, some resources stay in your account so that your data isn't lost: the database (with its automated backups), its credentials, the storage bucket, the network parts the database uses, and the Deployz connector.
+
+<Warning>
+  Retained resources keep costing money in your AWS account until they're deleted.
+</Warning>
+
+To stop these charges, ask your software provider to delete the retained data, or delete the resources yourself in the AWS console. See [Remove the application](/customers/remove).
+
+To track what the application costs, you can filter AWS Cost Explorer by the `deployz:installation` tag after you activate it as a cost allocation tag in the AWS Billing console.

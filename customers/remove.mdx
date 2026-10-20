@@ -1,10 +1,71 @@
 ---
 title: "Remove the application from your AWS account"
-description: "What remains after removal and how to delete it."
+description: "What removal deletes, what remains in your AWS account, and how to delete it."
 ---
 
-{/* Placeholder. Planned content: What remains (database, credentials, bucket, network parts the database uses, connector stack); costs; ask your provider to delete retained data or use the AWS console; delete the connector stack last. Sources in the deployz repo: docs/product/user-flows.md, apps/web install removed state. See planning/content-strategy.md. */}
+{/* Last checked against deployz commit 76a4b779 on 2026-10-20 */}
 
-<Note>
-  This page is coming soon.
-</Note>
+Removing the application happens in up to three parts: your software provider removes the deployment, the data it kept is deleted, and you delete the Deployz connector stack. Do them in that order.
+
+## 1. Your software provider removes the deployment
+
+**Who:** your software provider, in Deployz. You can't remove the deployment in Deployz yourself.
+
+Ask your software provider to remove the deployment. The connector then removes the application and most of its networking. It removes only resources tagged for this deployment.
+
+While this runs, the install page shows **Removing deployment**. When it finishes, it shows **Deployment removed** and lists **What can remain in your AWS account**.
+
+### What remains after removal
+
+Removal keeps these resources so that your data isn't lost:
+
+- The database, with deletion protection on. Its AWS automated backups continue.
+- The database's credentials, in AWS Secrets Manager
+- The storage bucket
+- The network parts the database uses
+- The Deployz connector stack
+
+<Warning>
+  These retained resources keep costing money in your AWS account until they're deleted.
+</Warning>
+
+## 2. Delete the retained data
+
+You can ask your software provider to delete the retained data, or delete it yourself in the AWS console. Either way, the deletion is permanent.
+
+<Warning>
+  Deleting retained data deletes the database without a final snapshot, and deletes the storage bucket and its files. If you need the data, export it or take your own database snapshot first.
+</Warning>
+
+### Ask your software provider
+
+**Who:** your software provider, in Deployz, while the connector is still in your account.
+
+**Delete retained data** is a separate step your software provider confirms explicitly. It deletes the database, the bucket, the application's secrets, the certificates, and the remaining network. It runs through the connector, so keep the connector stack until it finishes.
+
+### Delete it yourself
+
+**Who:** you, in your AWS console.
+
+The retained resources carry the `deployz:installation` tag with your deployment's installation ID. You can find them with the Tag Editor in AWS Resource Groups, in the application's Region.
+
+1. Turn off deletion protection on the database, then delete the database. The database is set to keep its automated backups after deletion. AWS keeps them for the rest of their 7-day retention period unless you delete them.
+2. Empty the storage bucket, then delete it.
+3. Delete the database's secrets in Secrets Manager.
+4. Delete the remaining network resources: the database's subnet group and security group, the subnets, and the VPC.
+
+## 3. Delete the connector stack
+
+**Who:** you, in your AWS console.
+
+Delete the connector stack last. The connector stack holds the role that CloudFormation uses for your application. After you delete it, Deployz can't change or remove anything in your account, and any remaining resources are yours to delete.
+
+1. On the install page, select **Open AWS CloudFormation**, or open the CloudFormation console in the application's Region.
+2. Select the connector stack. Its name starts with `deployz-bootstrap-`, and the install page shows the exact name.
+3. Delete the stack.
+
+This deletes the connector function, its schedule, and its roles. Deployz shows the connector as disconnected once it stops checking in. For more on what this revokes, see [Security and AWS access](/customers/security).
+
+## If you delete the connector first
+
+If you delete the connector stack before the deployment is removed, Deployz can no longer reach your account to remove anything. The application and all its resources stay in your account, and keep costing money, until you delete them yourself in the AWS console. Contact your software provider so they know the connector is gone.

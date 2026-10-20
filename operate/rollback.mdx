@@ -1,10 +1,44 @@
 ---
 title: "Roll back a deployment"
-description: "Return a deployment to a previous release."
+description: "Return a deployment to the release it ran before the current one."
 ---
 
-{/* Placeholder. Planned content: Rollback; choose a previous release; never re-runs or reverses migrations. Sources in the deployz repo: apps/web deployment detail, docs/product/mvp-scope.md. See planning/content-strategy.md. */}
+Roll back when the current release causes problems and you want the customer's deployment back on the release it ran before. A rollback restores the previous release of your application. It doesn't touch the database or stored files.
 
-<Note>
-  This page is coming soon.
-</Note>
+<Warning>
+Application rollback does not automatically reverse database migrations.
+
+A rollback never runs migrations, in either direction. If the current release changed the database schema, the previous release runs against the changed schema. Write migrations that the previous release can still run against, and check this before you roll back.
+</Warning>
+
+## What a rollback changes
+
+| Changes | Stays the same |
+| --- | --- |
+| The release the application runs | The database and its data |
+| Scheduled jobs (**Preview**) move to the restored release | Stored files |
+| | The deployment's configuration, including customer overrides |
+| | Infrastructure, Region, and size |
+
+Rollback goes to the previous release only: the release that ran before the current one. You can't pick another release here. To move to any other release, older or newer, use [Deploy an update](/operate/deploy-update).
+
+## Roll back
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+1. In **Deployments**, open the customer's deployment.
+2. Open the **More actions** menu (the three-dot button next to the actions), then select **Rollback to `<version>`**.
+3. In **Rollback deployment?**, check **Current version** and **Rollback to**.
+4. Read the migration warning, then select **Rollback**.
+
+The deployment changes to **Updating**, and the detail page shows **Rolling back**. The current release keeps serving while the previous one is restored. When the connector confirms the restored release is healthy, **Recent activity** shows **Rolled back**.
+
+If the rollback fails, the detail page shows **Rollback failed**, and the release that was running stays live. See [Find your problem](/troubleshooting/overview).
+
+## When rollback isn't available
+
+**Rollback** is unavailable in the **More actions** menu when:
+
+- **No previous successful release to roll back to.** The deployment has run only one release.
+- **The previous release is already running.** For example, you already rolled back after a failed update.
+- The deployment can't take actions right now: it isn't installed, the connector is offline, or another operation is running. The detail page shows the reason. See [When you can't deploy an update](/operate/deploy-update), which uses the same rules.

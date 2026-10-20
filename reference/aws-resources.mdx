@@ -3,8 +3,138 @@ title: "AWS resources Deployz creates"
 description: "The AWS resources in a customer's account, and which ones remain after removal."
 ---
 
-{/* Placeholder. Planned content: Connector stack resources; application stack (network, load balancer, ECS Fargate, RDS, ElastiCache Valkey, S3, SQS and EventBridge Scheduler in Preview); retained on removal. Sources in the deployz repo: packages/cdk, packages/infrastructure-compiler. See planning/content-strategy.md. */}
+{/* Verified against packages/cdk/src/bootstrap/bootstrap-stack.ts, packages/infrastructure-compiler/src/compile.ts, packages/contracts/src/profile.ts, and packages/relay (destroy, purge). */}
+
+Each deployment creates two AWS CloudFormation stacks in the customer's AWS account, in the Region chosen for the deployment:
+
+- The **Deployz connector stack**, which your customer creates from the install link.
+- The **application stack**, which the connector creates and manages.
+
+All resources are tagged with `deployz:managed=true`, and with `deployz:installation` set to the deployment's installation ID. The connector's permissions are limited to resources with that installation tag. For the permissions themselves, see [Security and AWS access](/customers/security). For what these resources cost, see [Sizes and AWS cost](/share/sizes-and-cost).
+
+## Deployz connector stack
+
+**Stack name:** `deployz-bootstrap-<application>-<id>`, where `<application>` is a short form of the application name and `<id>` is the first eight characters of the deployment ID. A retried attempt adds a suffix such as `-r2`.
+
+| Resource | AWS service | Purpose |
+| --- | --- | --- |
+| Connector function | AWS Lambda | Runs the connector. It connects out to Deployz, picks up work, and reports status. |
+| Schedule | Amazon EventBridge rule | Runs the connector function once a minute. |
+| Connector role | AWS IAM role | The permissions the connector function uses. A permissions boundary limits it. |
+| Permissions boundary and provisioner policy | AWS IAM managed policies | Define the most the connector can do. |
+| Application execution role | AWS IAM role | The role CloudFormation uses to create and change the application stack. Only CloudFormation in this account can use it. |
+| Connector credential | AWS Secrets Manager secret | Stores the credential the connector uses to identify itself to Deployz. |
+| Installation ID function | AWS Lambda | Generates the installation ID when the stack is created. |
+| Log groups | Amazon CloudWatch Logs | The connector's own logs. Entries are kept for one week. |
+
+The stack's parameters are `ControlPlaneUrl`, `EnrollmentCode`, and `RelayCredential`. While it runs, the connector also stores its progress in AWS Systems Manager parameters under `/deployz/<installation-id>/`.
+
+## Application stack
+
+**Stack name:** `deployz-app-<id>`, where `<id>` is the first eight characters of the installation ID.
+
+The application stack contains only what the application needs. For example, a deployment without a database has no database resources.
+
+### Network
+
+Every deployment gets its own network. Deployz doesn't use an existing VPC.
+
+| Resource | Details |
+| --- | --- |
+| VPC | Address range `10.0.0.0/16`. |
+| Subnets | Two public and two private subnets, across two Availability Zones. When the database needs more zones, Deployz adds database-only subnets with no internet route. |
+| Internet gateway | One. |
+| NAT gateway and Elastic IP address | One NAT gateway in a public subnet, with one Elastic IP address. The application uses it for outbound internet access. |
+| Security groups | One for the load balancer, which accepts ports `80` and `443` from the internet. One for each service and scheduled job. One for the database, which accepts connections only from the application. One for the cache, which accepts connections from inside the VPC. |
+
+### Load balancer and HTTPS
+
+| Resource | Details |
+| --- | --- |
+| Application Load Balancer | Internet-facing, in the public subnets. Created when the application serves web traffic. |
+| Listeners | Port `80` at first. When HTTPS is set up, the connector adds a port `443` listener, and port `80` redirects to HTTPS. |
+| Certificates | AWS Certificate Manager certificates for the default address and any custom domain. The connector creates them outside the application stack. |
+| Health alarm | A CloudWatch alarm on unhealthy targets. |
+
+### Application containers
+
+| Resource | Details |
+| --- | --- |
+| ECS cluster | One Amazon ECS cluster. |
+| Services | One AWS Fargate service for the web application, and one for each background worker. They run in the private subnets with no public IP address. A failed rollout rolls back to the previous release. |
+| Migration task | A one-off Fargate task that runs the migration command before a new release starts. It isn't a service. |
+| Task size | CPU and memory come from the deployment's size. See the table below. |
+| Roles | An execution role shared by the tasks, and a role for each workload. |
+| Log groups | One Amazon CloudWatch Logs group for each service, worker, migration task, and scheduled job. Entries are kept for seven days. Deployz doesn't read these logs. |
+| Configuration secret | An AWS Secrets Manager secret for the application's configuration values. |
+
+The release image is stored by Deployz. The customer's account gets permission to download it when the release is deployed.
+
+### Database
+
+Created when the application needs a database.
+
+| Setting | Value |
+| --- | --- |
+| Engine | Amazon RDS for PostgreSQL 16 or Amazon RDS for MySQL 8.0, depending on the application. |
+| Instance class | Set by the size. See the table below. |
+| Storage | 20 GB of gp3 storage, which grows automatically up to 100 GB. |
+| Availability | One Availability Zone. |
+| Encryption | Encrypted at rest. For PostgreSQL, the connection URL Deployz provides requires TLS. |
+| Backups | Automated daily backups, kept for seven days. |
+| Access | Not publicly accessible. Only the application's security groups can connect. |
+| Deletion protection | On. |
+| Credentials | Two Secrets Manager secrets: the database password and the connection URL. |
+
+### Cache
+
+Created when the application needs a cache. The cache is an Amazon ElastiCache for Valkey replication group with one node. Valkey is compatible with Redis. Its node type is set by the size. Connections inside the VPC aren't encrypted.
+
+### File storage
+
+Created for every deployment. One Amazon S3 bucket with:
+
+- Encryption at rest (SSE-S3) and versioning.
+- All public access blocked, and a policy that refuses requests without TLS.
+- Old versions of files deleted after 30 days.
+
+### Queues and scheduled jobs (Preview)
 
 <Note>
-  This page is coming soon.
+  Queues and scheduled jobs are a Preview feature.
 </Note>
+
+Created only when the application declares them.
+
+- **Queues:** standard Amazon SQS queues, encrypted, accepting TLS requests only.
+- **Scheduled jobs:** an Amazon EventBridge Scheduler schedule for each job, with its own role. Each run starts a Fargate task in the private subnets.
+
+## Resources by size
+
+| Size | Container CPU and memory | Database instance class | Cache node type |
+| --- | --- | --- | --- |
+| Small | 0.25 vCPU, 512 MiB | `db.t3.micro` | `cache.t4g.micro` |
+| Medium | 1 vCPU, 2 GiB | `db.t3.medium` | `cache.t4g.small` |
+| Large | 2 vCPU, 4 GiB | `db.t3.large` | `cache.t4g.medium` |
+
+Each service runs one container. All sizes use one NAT gateway and the same database storage. Some older Small deployments use a `db.t4g.micro` database with gp2 storage. You can't change a deployment's size after you create it. See [Sizes and AWS cost](/share/sizes-and-cost).
+
+## What remains after removal
+
+When you remove a deployment, Deployz deletes the application stack but keeps the customer's data.
+
+<Warning>
+  Retained resources stay in the customer's AWS account and keep costing money until someone deletes them. Removing a deployment doesn't stop those charges.
+</Warning>
+
+| Resource | After **Remove deployment** | After **Delete retained data** |
+| --- | --- | --- |
+| Containers, load balancer, cache, configuration secret, log groups | Deleted | Deleted |
+| Database | Kept | Deleted. No final snapshot is taken. |
+| Database password and connection URL secrets | Kept | Deleted, without a recovery period |
+| S3 bucket and its files | Kept | Emptied and deleted |
+| Database subnet group, and the subnets, security group, and VPC the database still uses | Kept | Deleted |
+| Certificates | Kept | Deleted |
+| Deployz connector stack | Kept | Kept |
+
+Deployz can't delete the connector stack. After the retained data is deleted, the customer deletes the connector stack in AWS CloudFormation. See [Remove a deployment](/operate/remove) and [Remove the application from your AWS account](/customers/remove).

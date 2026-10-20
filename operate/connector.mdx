@@ -3,8 +3,93 @@ title: "Reconnect or update the Deployz connector"
 description: "Restore or update the connection between Deployz and a customer's AWS account."
 ---
 
-{/* Placeholder. Planned content: What the connector is; connector statuses; Issue new install link; connector updates; Retry connection. Sources in the deployz repo: docs/product/user-flows.md, apps/web deployment detail. See planning/content-strategy.md. */}
+The Deployz connector is a small stack that your customer creates in their AWS account during the install. It's how Deployz works in that account: it reports the application's health and carries out the actions you start, such as updates, restarts, and removal. The connector reaches out to Deployz; Deployz never connects into your customer's account. For what the connector can and can't do, see [Security and AWS access](/customers/security).
+
+Each deployment has one connector stack. Reconnecting or updating it always changes that existing stack. Your customer should never create a second one.
+
+## Connector status
+
+The **Deployz connector** row in the deployment's **Infrastructure** section shows its status and when it last checked in.
+
+| Status | What it means | What to do |
+| --- | --- | --- |
+| **Online** | The connector is checking in. | Nothing. |
+| **Not connected yet** | No connector has connected to this deployment. | Wait for your customer to finish the install. If it's stuck, see [Before the connector connects](#before-the-connector-connects). |
+| **Offline** | The connector hasn't checked in for 15 minutes or more. | See [When a connector goes offline](#when-a-connector-goes-offline). |
+
+While the connector is offline, the **Deployments** list shows **Needs attention · Lost contact**, and the detail page shows **Lost contact with this deployment**. The application may still be running. Deployz shows the last confirmed state, but it can't check health or run actions. **Deploy update**, **Rollback**, **Restart**, and configuration changes are unavailable until the connector is back.
+
+## Before the connector connects
+
+If your customer started the install but the connector hasn't connected after 15 minutes, the **Deployments** list shows **Setting up · Slow to connect**. The setup in your customer's AWS account may still be running, or it may have failed before the connector started. The **Install link** card on the detail page shows the **Expected stack name**, so your customer can find the stack in their AWS console.
+
+There are two ways to start a new connection attempt.
+
+### Your customer selects Retry connection
+
+**Who:** your customer, on the install page.
+
+After 15 minutes, the install page shows **Still connecting** and a **Retry connection** button. When your customer selects it, Deployz starts a fresh attempt. The install page then shows either a new link to create the connector, or the steps to update the connector stack that's already in their account. See [Install the application](/customers/install).
+
+### You issue a new install link
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+<Warning>
+A new install link replaces the old one. The old link stops working, so send your customer the new one.
+</Warning>
+
+1. In **Deployments**, open the customer's deployment.
+2. In the **Install link** card, select **Issue new install link**.
+3. Select **Copy install link**, and send the link to your customer.
+
+Deployz also offers **Issue new install link** in the **Retry deployment** dialog when a failed first install can't be retried because the connector is disconnected.
+
+Issuing a new link gives the connector a new credential. What your customer does next depends on whether the connector stack already exists in their account:
+
+- **No connector stack yet.** The link page shows the normal install steps.
+- **The connector stack exists.** The link page shows **Reconnect the existing connector** and the new values. Your customer updates the existing stack, as described in the next section.
+
+## Your customer reconnects the existing connector
+
+**Who:** your customer, in their AWS console.
+
+The install page shows **Update the connector stack. Do not create a new one.** A second stack with the same name fails to create. Your customer:
+
+1. Selects **Open connector stack in AWS**, then **Update**, then **Replace existing template**.
+2. Enters the template URL, if the install page shows one.
+3. Enters the new **RelayCredential** and **EnrollmentCode** from the install page, and keeps every other value as it is.
+4. Submits the update.
+
+When the connector reconnects, its status returns to **Online**, and progress continues on the install page and in your dashboard.
+
+## When a connector goes offline
+
+A connector that was online can go offline because:
+
+- The connector stack was deleted or changed in your customer's AWS account.
+- The connector lost its credential.
+- Your customer's AWS account can no longer reach Deployz, for example because of a network change.
+
+Ask your customer to check that the connector stack still exists in their AWS account and that the account can still reach Deployz. When the connector checks in again, Deployz marks it **Online** without any action from you.
+
+If the connector doesn't come back, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). For more checks, see [Fix connector problems](/troubleshooting/connector).
 
 <Note>
-  This page is coming soon.
+If a removal is waiting on an offline connector, see [Remove a deployment](/operate/remove).
 </Note>
+
+## Update the connector
+
+Deployz occasionally publishes a newer connector. Updating it is your customer's decision, because the connector runs in their account.
+
+When an update exists, the deployment detail page shows **Connector update available**. If the deployment needs the update before Deployz can verify releases, it shows **Connector update required to verify releases** instead. If an action you need isn't supported, the detail page says **This action is not supported by the currently installed Deployz connector.**, and updating the connector adds it.
+
+**Who:** you send the instructions; your customer updates the stack in their AWS console.
+
+1. Send your customer these steps, with the template URL from the alert on the detail page if it shows one.
+2. Your customer opens the connector stack, for example with **Open connector stack in AWS**, and selects **Update**, then **Replace existing template**.
+3. Your customer enters the template URL, if you sent one.
+4. Your customer keeps all existing parameter values (**Use existing value**), especially **RelayCredential**, and submits the update.
+
+A connector update keeps the existing credential. It isn't a reconnect, so your customer doesn't need new values.

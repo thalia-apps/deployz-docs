@@ -1,10 +1,82 @@
 ---
 title: "Deploy an update"
-description: "Deploy a new release to a customer's deployment."
+description: "Deploy a new release to a customer's deployment, and what happens if the update fails."
 ---
 
-{/* Placeholder. Planned content: Deploy update; migration runs first, once; a failed update keeps the previous release live; when actions are unavailable; changes that need a new deployment. Sources in the deployz repo: docs/deployment-resilience.md, apps/web deployment detail. See planning/content-strategy.md. */}
+Deploy an update to move a customer's deployment to a different release of your application. Your customer doesn't need to do anything. The application keeps serving its current release until the new one passes its health checks.
+
+## Before you start
+
+- The release you want to deploy must have built successfully. See [Create a release](/releases/create).
+- The deployment must be installed, its Deployz connector must be **Online**, and no other operation can be running on it. See [When you can't deploy an update](#when-you-cant-deploy-an-update).
+- If the release adds infrastructure, such as a database, a cache, or a new worker, it can't go to an existing deployment. See [Changes that need a new deployment](#changes-that-need-a-new-deployment).
+
+## Deploy the update
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+1. In **Deployments**, open the customer's deployment.
+2. Select **Deploy update**. When a newer release is ready, the button reads **Deploy update to `<version>`**. After a failed update, it reads **Retry update**.
+3. In **Release to deploy**, choose the release. The list shows releases that built successfully, newest first, except the one already running.
+4. Check the summary. **Current** and **New** show the two versions. **Infrastructure** shows **Unchanged**, or **Requirements changed** if the application now needs different infrastructure than this deployment has.
+5. Select **Deploy update**.
+
+The dialog warns that the application will restart behind the load balancer. Existing persistent resources, such as the database and stored files, are kept.
+
+The deployment changes to **Updating**, and the detail page shows **Updating your application** with the running job and how long it has taken. **Recent activity** records each step.
+
+## What happens during an update
+
+1. **The database migration runs first.** If your application has a separate migration step, Deployz runs it once, after the infrastructure and database are ready and before any service changes. The migration must finish with exit code `0`. If Deployz retries the same update, a migration that already succeeded doesn't run again. To set up migrations, see [Database migrations](/prepare/migrations).
+2. **Each service moves to the new release.** Your current release keeps serving until the new one is running.
+3. **The connector verifies the new release.** The update succeeds only when the connector confirms that the new release is running and healthy. See [Deployment status and health](/operate/deployment-status).
+
+An update changes only the release. The deployment's configuration stays as it is. If your application has scheduled jobs (**Preview**), they move to the new release only after the update succeeds.
+
+## If the update fails
+
+A failed update never takes down the release that was running. The deployment returns to its previous status, and:
+
+- The **Deployments** list shows **Update failed**.
+- The detail page shows **Update failed** with a line such as **Release `<version>` is still live and unaffected.**
+- If the migration failed, no service was changed, and the previous release keeps serving.
+
+The recovery panel on the detail page explains what failed and what to do next. Fix the cause, then select **Retry update**, or deploy a different release. See [Find your problem](/troubleshooting/overview) and [Failure codes](/reference/failure-codes).
+
+<Warning>
+A migration that succeeded stays applied, even if the rest of the update fails. Rolling back to an earlier release doesn't reverse it. Write migrations that the previous release can still run against. See [Roll back a deployment](/operate/rollback).
+</Warning>
+
+## When you can't deploy an update
+
+When **Deploy update** isn't available, the detail page shows the reason under the action buttons. The same rules apply to **Rollback**, **Restart**, and **Configuration**.
+
+| Reason | What to do |
+| --- | --- |
+| The deployment was removed, or is being removed. | Nothing. These actions no longer apply. |
+| The deployment hasn't completed an install yet. | Wait for the install to finish. If the first install failed, use **Retry deployment** instead. See [Fix install failures](/troubleshooting/install). |
+| No connector has connected yet, or the connector is offline. | Ask your customer to reconnect the connector. See [Reconnect or update the Deployz connector](/operate/connector). |
+| Another operation is running. | Wait for it to finish. Only one update, rollback, restart, configuration change, or removal runs at a time. |
+| The installed connector doesn't support the action. | Ask your customer to update the connector. See [Reconnect or update the Deployz connector](/operate/connector). |
+
+If you start an update and Deployz refuses it, the dialog shows why. For example, a release whose build is no longer available can't be deployed. Create a new release instead.
+
+## Changes that need a new deployment
+
+A deployment keeps the infrastructure it was created with. An update can't add or change infrastructure, so Deployz refuses an update when the application now needs any of these and the deployment doesn't have it:
+
+- A database, or a different database engine
+- A cache
+- A different set of processes, such as workers
+- A different set of queues (**Preview**)
+- A different set of scheduled jobs (**Preview**)
+
+The update dialog warns you first: **Infrastructure** shows **Requirements changed**, and the dialog lists each change and says a new deployment is needed. To apply the change, create a new deployment for the customer, or change the application's requirements back.
+
+An application that no longer uses its database or cache can still be updated. The unused resource stays in the deployment.
+
+Region and size also can't change on an existing deployment. See [Sizes and AWS cost](/share/sizes-and-cost) and [AWS Regions](/share/regions).
 
 <Note>
-  This page is coming soon.
+If you add a migration command to an application whose deployment was created without a separate migration step, Deployz refuses the update. Choose **No separate migration** for the application, or create a new deployment.
 </Note>

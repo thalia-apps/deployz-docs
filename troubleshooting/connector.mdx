@@ -4,8 +4,94 @@ sidebarTitle: "Connector"
 description: "Resolve a Deployz connector that is offline or never connects."
 ---
 
-{/* Placeholder. Planned content: Still connecting; Retry connection; connector disconnected; credential mismatch; issuing a new install link. Organize as one section per issue (symptom, checks, cause, fix, who acts) so new issues add sections, not pages. Sources in the deployz repo: docs/operations/troubleshooting.md. See planning/content-strategy.md. */}
+The Deployz connector is the small service your customer installs in their AWS account. It connects out to Deployz about once a minute, picks up work such as installs and updates, and reports status. If it can't connect, Deployz can't install, update, or check the deployment. For what the connector is and how to update it, see [Reconnect or update the Deployz connector](/operate/connector).
 
-<Note>
-  This page is coming soon.
-</Note>
+## The install page shows Still connecting
+
+**Symptom:** Your customer started the setup in AWS, but the install page shows **Still connecting** with the message that Deployz hasn't connected to AWS yet. In the dashboard, the deployment's install link card shows the same message and the expected stack name. Deployz shows this after about 15 minutes without a connection. It isn't a failure.
+
+**Checks:** Ask your customer to open AWS CloudFormation in the Region they chose (the install page links to it under **Deployment details**) and look for the stack with the expected name. Then check its status:
+
+| What your customer finds | What it means |
+| --- | --- |
+| The stack is still being created | The setup is still running. Wait. |
+| The stack failed or was rolled back | The connector never started. Note the failed resource and its reason. A common cause is an AWS policy that blocks the setup. See [Fix install failures](/troubleshooting/install). |
+| There's no stack | The setup was closed before the stack was created. |
+
+**Fix:**
+
+**Who:** your customer, on the install page.
+
+1. Fix the cause in AWS, if the stack failed.
+2. On the install page, select **Retry connection**. This starts a fresh attempt with a new one-time code.
+3. Follow the page. It shows either a new link to create the stack, or the steps to update the connector stack that's already in the account.
+
+If **Retry connection** says the deployment was already installed, your customer should contact you. The deployment is past this stage. See the other sections on this page.
+
+## The connector never connects after a new install link
+
+**Symptom:** Your customer created the connector stack, but the install page keeps showing **Still connecting**, and the stack in AWS completed without errors.
+
+**Cause:** The stack was created from an install link that was replaced afterward, so its credential no longer matches. Deployz refuses a connector whose credential doesn't match. This happens when you issue a new install link after your customer has already opened the old one.
+
+**Fix:**
+
+**Who:** your customer, in their AWS console and on the install page.
+
+1. Open the latest install link you sent.
+2. If the page shows **Reconnect the existing connector**, update the existing connector stack with the values shown. Don't create a second stack.
+3. Otherwise, select **Retry connection** and create the stack from the new link. The stack created from the old link can't connect, so your customer can delete it in CloudFormation.
+
+**Who acts:** your customer. If you aren't sure which link is current, select **Issue new install link** on the deployment's install link card and send that link.
+
+## The connector is offline
+
+**Symptom:** The deployment page shows **Lost contact with this deployment**. Under **Technical details**, the **Deployz connector** row shows that it's offline, with the time of its last contact. **Deploy update**, **Restart**, **Rollback**, and **Configuration** aren't available. The deployments list shows **Needs attention · Lost contact**.
+
+Deployz marks the connector offline after about 15 minutes without a check-in. The application may still be running. The page shows the last state Deployz confirmed.
+
+**Likely causes:**
+
+- Your customer deleted the connector stack, or part of it.
+- The connector lost its credential.
+- The AWS account can no longer reach Deployz over the internet, for example because of a network or policy change.
+
+**Checks:** Ask your customer to confirm that the connector stack still exists in CloudFormation and hasn't been changed, and that nothing new blocks outbound internet access from the account.
+
+**Fix:**
+
+- If your customer finds and fixes a temporary cause, wait a few minutes. The connector reconnects on its own, and Deployz picks up any waiting operations. No action is needed in Deployz.
+- If the connector stack was deleted or its credential was lost, issue a new install link. Your customer then updates the existing connector stack with the new values, or creates it again if it's gone. See [Reconnect or update the Deployz connector](/operate/connector).
+
+Operations you started before the connector went offline wait for it. If it doesn't return, they eventually fail with `RELAY_DISCONNECTED`. See [Failure codes](/reference/failure-codes).
+
+**Who acts:** your customer checks their account. You issue a new install link if one is needed.
+
+## Retry deployment says the connector is disconnected
+
+**Symptom:** After a failed first install, you select **Retry deployment**, and the dialog says that the Deployz connector is disconnected and that you need to issue a new install link first.
+
+**Cause:** A retry runs through the connector. Deployz can't retry while the connector is offline.
+
+**Fix:**
+
+**Who:** you (the vendor), in the Deployz dashboard, then your customer, on the install page and in their AWS console.
+
+1. In the dialog, select **Issue new install link**.
+2. Send the new link to your customer.
+3. Your customer opens the link and follows **Reconnect the existing connector** to update the existing stack. See [Your customer reconnects the existing connector](/operate/connector#your-customer-reconnects-the-existing-connector).
+4. When the connector is back online, select **Retry deployment** again.
+
+<Warning>
+  A new install link replaces the old one. The old link stops working. If the connector is already installed, your customer must update the existing connector stack, not create a second one. A second connector stack for the same deployment isn't supported.
+</Warning>
+
+## The connector needs an update
+
+**Symptom:** The deployment page shows **Connector update available** or **Connector update required to verify releases**.
+
+**Cause:** Your customer's connector is older than the current version. When the update is required, Deployz can't verify new releases on this deployment until it's done.
+
+**Fix:** Your customer updates the existing connector stack and keeps all existing values. This isn't a reset, and it doesn't need a new install link. See [Reconnect or update the Deployz connector](/operate/connector).
+
+**Who acts:** your customer, in their AWS console.

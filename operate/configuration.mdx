@@ -1,10 +1,51 @@
 ---
 title: "Change a customer's configuration"
-description: "Update the values a single customer deployment uses."
+description: "Set or change the environment variable values that one customer's deployment uses."
 ---
 
-{/* Placeholder. Planned content: Customer overrides; editing customer values; what applies when; what can't change (Region, size, topology). Sources in the deployz repo: docs/environment-variables.md, apps/web configuration. See planning/content-strategy.md. */}
+Each deployment runs with your application's default values plus any **customer overrides** you set for that customer. An override replaces your default for that one customer only. Use overrides for a value that differs per customer, such as a license key or a customer-specific URL, or to correct a value your customer entered during install.
+
+To change the defaults for every customer, or to decide who provides each variable, see [Configure environment variables](/prepare/environment-variables).
+
+## Before you start
+
+- The deployment must have completed its install, and its Deployz connector must be **Online**. Deployz refuses to save overrides while a running deployment for this customer has an offline connector. See [Reconnect or update the Deployz connector](/operate/connector).
+- After a failed operation, **Configuration** appears on the deployment only when the failure is one that a configuration change can fix.
+
+## Change the customer's values
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+1. In **Deployments**, open the customer's deployment.
+2. Select **Configuration**. The application's configuration page opens for this customer.
+3. Select the **Variables** tab. The **Customer overrides** card shows **For `<customer>` only. Overrides the defaults.**
+4. Make your changes:
+   - To change a value, edit its field. A plain value shows your default under it, for example **Default: `<value>`**, when the two differ.
+   - To replace a secret, enter the new value. Secrets are write-only: the field stays masked, and leaving it empty keeps the current secret.
+   - To add a value, select **Add value** or **Add secret**, then enter the **Name** and **Value**.
+   - To remove a value, select **Remove** next to it. The removal happens when you save. Select **Keep** to undo it before you save.
+5. Select **Save overrides**.
 
 <Note>
-  This page is coming soon.
+Removing a secret override also deletes it from the secret store in your customer's AWS account.
 </Note>
+
+## What happens after you save
+
+The new values reach this customer's running deployment within minutes. Deployz starts a configuration update, and the application restarts with the new configuration. The release doesn't change.
+
+When the update finishes, **Recent activity** on the deployment shows **Configuration updated**, or **Configuration update failed** if the restarted application didn't become healthy. If the update fails, the deployment keeps running with its previous configuration. Correct the value and save again.
+
+Deploying an update, rolling back, or restarting never changes or resets a deployment's configuration.
+
+## What you can't change
+
+Configuration covers environment variable values only. You can't change these on an existing deployment:
+
+- **Region.** It's fixed when the deployment is created. See [AWS Regions](/share/regions).
+- **Size.** It's fixed when the deployment is created. Changes on **Size presets** apply only to new install links and new deployments. See [Sizes and AWS cost](/share/sizes-and-cost).
+- **Infrastructure.** Adding a database, a cache, workers, queues (**Preview**), or scheduled jobs (**Preview**) needs a new deployment. See [Changes that need a new deployment](/operate/deploy-update).
+
+To change any of these, create a new deployment for the customer. The new deployment has its own infrastructure, including its own database, so Deployz doesn't copy data from the old one. Plan how to move any data your customer needs. When the new deployment is in use, [remove the old one](/operate/remove).
+
+Build-time values are part of the release, not the deployment. A changed build value takes effect only in a new release. See [Configure environment variables](/prepare/environment-variables).

@@ -4,8 +4,96 @@ sidebarTitle: "HTTPS and domains"
 description: "Resolve problems with the default HTTPS address or a custom domain."
 ---
 
-{/* Placeholder. Planned content: DNS records; certificate failure; timeouts; retry default HTTPS; change domain means remove then add. Organize as one section per issue (symptom, checks, cause, fix, who acts) so new issues add sections, not pages. Sources in the deployz repo: docs/networking-and-https.md. See planning/content-strategy.md. */}
+Each deployment gets a default HTTPS address on `deployz.dev`. You can also add a custom domain on your customer's own hostname. This page covers problems with either one. For how custom domains work, see [Add a custom domain](/operate/custom-domains).
 
-<Note>
-  This page is coming soon.
-</Note>
+Problems on this page don't stop the application. While the secure address is being set up, the application is still reachable over its temporary address.
+
+## The default HTTPS address stays in setup
+
+**Symptom:** The deployment is running, but its secure address hasn't appeared. The dashboard says the application is "running and healthy over a temporary address", and the endpoint shows **Setting up**, **Waiting for certificate**, or **Activating HTTPS**. On the install page, your customer sees that the deployment is temporarily available at an address that's "not secure".
+
+**Cause:** Setup is still in progress. Deployz requests the certificate for the default address, `d-<deployment-id>.deployz.dev`, during the install, and finishes the address once the deployment is running. Deployz manages the DNS records for this address, so your customer doesn't need to do anything. Setup moves forward about once a minute.
+
+**Fix:** Wait. Deployz keeps trying for about 30 minutes. If the address is still not ready after that, the endpoint shows **Failed**. See the next section.
+
+**Who acts:** nobody, while it's in progress.
+
+## The default HTTPS address failed
+
+**Symptom:** The endpoint row under **Infrastructure** shows **Failed**, and **Retry HTTPS setup** appears.
+
+**Cause:** The default address didn't finish setting up within about 30 minutes. Deployz stops trying on its own at this point.
+
+**Fix:**
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+1. Open the deployment.
+2. Under **Infrastructure**, on the endpoint row, select **Retry HTTPS setup**.
+3. Wait for the endpoint to show **Ready**.
+
+The retry starts the setup again and keeps the existing certificate. **Retry HTTPS setup** appears only while the default address is in the **Failed** state, and not while the deployment's custom domain has also failed.
+
+If the retry fails again, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur) with the deployment ID.
+
+## A custom domain is waiting for DNS
+
+**Symptom:** The custom domain card shows **Waiting for DNS** and lists two DNS records.
+
+**Checks:** Ask your customer to confirm that both records exist at their DNS provider, with the exact name and value shown on the card:
+
+| Record | Purpose |
+| --- | --- |
+| **Verify ownership** | A `CNAME` record that proves the domain is theirs, so AWS can issue the certificate. |
+| **Route traffic** | A `CNAME` record that points the hostname at the deployment's load balancer. |
+
+New DNS records can take some time to become visible.
+
+**Fix:** Your customer creates or corrects the records. Deployz checks again automatically every few minutes. To check right away, select **Check now** on the custom domain card. **Check now** can run once every 30 seconds. See [Create custom domain DNS records](/customers/custom-domain-dns) for the customer's steps.
+
+**Who acts:** your customer, in their DNS provider. You or your customer can select **Check now**.
+
+## A custom domain needs attention
+
+**Symptom:** The custom domain card shows **Needs attention**. One cause is that the certificate couldn't be issued: the card says "The HTTPS certificate couldn't be issued".
+
+**Cause:** The certificate authority didn't accept the domain, or the setup couldn't complete. Deployz doesn't retry a failed custom domain on its own.
+
+**Checks:** Check the domain name for typos, and check the DNS records with your customer.
+
+**Fix:**
+
+**Who:** you (the vendor), signed in to Deployz, on the deployment's install page.
+
+1. Open the custom domain. In the dashboard, select **Manage custom domain** on the deployment.
+2. Select **Remove domain**, then confirm. Your customer's DNS records aren't deleted automatically.
+3. Add the domain again, with the corrected name if needed. Your customer then creates the new records the card shows.
+
+Your customer can't remove or add a domain. Their card asks them to contact you.
+
+## A custom domain update timed out
+
+**Symptom:** The deployment shows the failure code `DOMAIN_OPERATION_TIMEOUT`, labeled "Custom domain update timed out".
+
+**Cause:** The Deployz connector didn't finish the domain change within the allowed time. The deployment itself isn't affected.
+
+**Fix:** Wait for the next automatic check, or select **Check now** on the custom domain card. If the domain then shows **Needs attention**, follow the steps in the previous section. If the timeout keeps happening, check the connector. See [Fix connector problems](/troubleshooting/connector).
+
+**Who acts:** you or your customer.
+
+## Change a custom domain
+
+A deployment has one custom domain. You can't edit its hostname. To change it, remove the domain, then add the new one.
+
+<Warning>
+  When you remove a domain, it stops routing to the deployment right away. People who use that hostname can't reach the application until the new domain is active. The default address keeps working throughout.
+</Warning>
+
+**Who:** you (the vendor), signed in to Deployz, on the deployment's install page.
+
+1. Select **Remove domain** on the custom domain card, then confirm.
+2. Wait until the domain is removed.
+3. Select **Set up custom domain**, enter the new hostname in **Domain**, and select **Add domain**.
+4. Send your customer the two new DNS records.
+
+Deployz accepts subdomains only, such as `app.example.com`. It doesn't accept root domains, such as `example.com`, or wildcard domains.

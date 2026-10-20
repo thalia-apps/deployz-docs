@@ -1,10 +1,83 @@
 ---
 title: "Add a custom domain"
-description: "Serve a deployment from your customer's own hostname."
+description: "Serve a deployment from your customer's own hostname, such as app.example.com, over HTTPS."
 ---
 
-{/* Placeholder. Planned content: You enter the hostname; customer creates two CNAME records; certificate in the customer account; states; change means remove then add; validation rules; default address keeps working. Sources in the deployz repo: docs/networking-and-https.md. See planning/content-strategy.md. */}
+A custom domain lets your customer reach their deployment at a hostname they own, such as `app.example.com`, instead of the address Deployz assigns. You add the domain in Deployz. Your customer creates two DNS records, and Deployz sets up HTTPS.
 
-<Note>
-  This page is coming soon.
-</Note>
+## How a custom domain works
+
+- **You add and remove the domain.** Your customer can't add, change, or remove it. They can only create the DNS records and check their progress.
+- **Your customer creates two CNAME records** in their own DNS: one that proves they own the domain, and one that routes traffic to the deployment. Deployz only reads their DNS. It never changes it.
+- **The HTTPS certificate is created in your customer's AWS account**, in the deployment's Region, by the Deployz connector.
+- **Traffic goes straight to your customer's AWS account.** The custom domain points directly at the load balancer in their account. The default Deployz address keeps working, and its traffic passes through Deployz's edge network first.
+- **One custom domain per deployment.** A domain can be connected to only one deployment.
+
+## Before you start
+
+- The deployment must be running and show its **Application URL** on the detail page.
+- Agree on the hostname with your customer. They need access to that domain's DNS settings.
+- Use a subdomain, such as `app.example.com`. Deployz doesn't support:
+  - Root domains, such as `example.com`
+  - Wildcard domains, such as `*.example.com`
+  - Full URLs: enter only the hostname, without `https://` or a path
+  - IP addresses, or Deployz and AWS domains
+
+## Add the domain
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+1. In **Deployments**, open the customer's deployment.
+2. In the **Application URL** card, next to **Custom domain**, select **Add custom domain**. The deployment's install page opens. Because you're signed in to Deployz, you can manage the domain there.
+3. Select **Set up custom domain**.
+4. In **Domain**, enter the hostname, for example `app.example.com`.
+5. Select **Add domain**.
+
+Deployz requests a certificate. After a short wait, the card shows **Waiting for DNS** and lists two records:
+
+| Record | Type | Purpose |
+| --- | --- | --- |
+| **Verify ownership** | `CNAME` | Proves your customer controls the domain, so the certificate can be issued. |
+| **Route traffic** | `CNAME` | Sends visitors to the deployment's load balancer. |
+
+Each record has a **Name** and a **Value** with a **Copy** button.
+
+## Ask your customer to create the DNS records
+
+**Who:** your customer, at their DNS provider.
+
+Send your customer [Create custom domain DNS records](/customers/custom-domain-dns). They see the same records on their install page and can select **Check now** after creating them.
+
+DNS changes can take some time to appear. Deployz checks automatically, and you can select **Check now** on the card at any time. When both records are found, Deployz finishes the certificate and sets up HTTPS.
+
+When the card shows **Active** and **Available securely at:** with the `https://` address, the custom domain is ready. The **Application URL** on the detail page switches to the custom domain and shows **Also available at** with the default address.
+
+## Domain statuses
+
+| Status on the domain card | On the Application URL card | What it means |
+| --- | --- | --- |
+| **Setting up** | **Waiting for domain setup** | Deployz is requesting the certificate. |
+| **Waiting for DNS** | **Waiting for domain setup** | Deployz is waiting for your customer's two DNS records. |
+| **Connecting** | **Connecting** | The domain is verified. Deployz is configuring HTTPS. |
+| **Active** | **Active** | The domain serves the deployment over HTTPS. |
+| **Needs attention** | **Needs attention** | Setup stopped. Deployz doesn't retry it. |
+| **Removing** | **Removing domain…** | Deployz is removing the domain. |
+
+While a domain is waiting or connecting, the card can show the latest check result, such as **Verification record not found** or **Domain isn't pointing to this deployment**. These are normal until the records are in place.
+
+When a domain shows **Needs attention**, the card explains why, for example **The HTTPS certificate couldn't be issued**. Remove the domain, fix the cause, then add it again. See [Fix HTTPS and custom domain problems](/troubleshooting/https-and-domains).
+
+## Change or remove the domain
+
+**Who:** you (the vendor). Open the domain card from **Manage custom domain** or **Check custom domain** in the **Application URL** card.
+
+You can't edit a domain's hostname. To change it, remove the domain, then add the new one.
+
+1. Select **Remove domain**.
+2. In **Remove custom domain?**, select **Remove domain**.
+
+The domain stops routing to the deployment once removal finishes. The default address keeps working. After removal, you can add a new domain. You can remove a domain in any status except **Removing**.
+
+Deployz doesn't delete your customer's DNS records. Ask your customer to delete the two records when they no longer need them.
+
+Removing the deployment also removes its custom domain. See [Remove a deployment](/operate/remove).
