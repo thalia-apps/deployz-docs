@@ -44,14 +44,18 @@
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:support@mintlify.com"
+        "href": "https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur",
+        "label": "Contact"
+      },
+      {
+        "href": "/changelog",
+        "label": "Changelog"
       }
     ],
     "primary": {
       "type": "button",
       "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+      "href": "https://app.deployz.dev"
     }
   },
   "contextual": {
@@ -65,13 +69,6 @@
       "cursor",
       "vscode"
     ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
   },
   "description": "Documentation Site for Deployz.dev",
   "appearance": {
