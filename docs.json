@@ -74,17 +74,23 @@
             "group": "Troubleshooting",
             "pages": [
               "troubleshooting/overview",
-              "troubleshooting/analysis",
-              "troubleshooting/install",
-              "troubleshooting/startup-and-health",
-              "troubleshooting/connector",
-              "troubleshooting/https-and-domains"
+              "reference/failure-codes",
+              {
+                "group": "By stage",
+                "expanded": false,
+                "pages": [
+                  "troubleshooting/analysis",
+                  "troubleshooting/install",
+                  "troubleshooting/startup-and-health",
+                  "troubleshooting/connector",
+                  "troubleshooting/https-and-domains"
+                ]
+              }
             ]
           },
           {
             "group": "Reference",
             "pages": [
-              "reference/failure-codes",
               "reference/aws-resources",
               "reference/glossary"
             ]

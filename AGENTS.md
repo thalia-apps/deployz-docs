@@ -135,6 +135,8 @@ The content plan is in `planning/content-strategy.md`, which `.mintignore` keeps
 - Start each procedure by saying who does it: the vendor in the Deployz dashboard, or the customer on the install page or in their AWS console.
 - State consequences before the action, especially for rollback, removal, Region, and size choices.
 - Mark features at Preview maturity with a Preview label.
+- Add a new troubleshooting issue as a section on the matching stage page in `troubleshooting/`, and add a row for its symptom on the hub page (`troubleshooting/overview`). Don't add a menu item per issue. Split a stage page into sub-pages inside the **By stage** group only when it has more than about 10 issues.
+- Add a new failure code as a section on `reference/failure-codes`, not as a new page.
 
 ### Content boundaries
 
