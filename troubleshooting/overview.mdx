@@ -68,6 +68,11 @@ Start here when something goes wrong. Find your symptom in the table, or open th
 
 When a deployment fails or needs attention, its page in the dashboard opens with a recovery panel. Read it from top to bottom:
 
+<Frame caption="The parts of a recovery panel, shown for a failed migration.">
+  <img className="dz-diagram-wide" src="/images/diagrams/recovery-panel.svg" alt="The recovery panel for a failed update, read from top to bottom. 1, what happened: Update failed, the database migration step failed, so the new version was not started. 2, impact: Release v1.3.0 is still live and unaffected. 3, cause and fix: why it happened and how to fix it. 4, recoverability: needs a change before a retry can succeed. 5, actions: Retry update. 6, Technical details, collapsed by default, with the failure code." />
+  <img className="dz-diagram-narrow" src="/images/diagrams/recovery-panel-mobile.svg" alt="The recovery panel for a failed update, read from top to bottom. 1, what happened: Update failed, the database migration step failed, so the new version was not started. 2, impact: Release v1.3.0 is still live and unaffected. 3, cause and fix: why it happened and how to fix it. 4, recoverability: needs a change before a retry can succeed. 5, actions: Retry update. 6, Technical details, collapsed by default, with the failure code." />
+</Frame>
+
 1. **What happened.** The heading names the failure, such as **Install failed**, **Application couldn't start**, **Update failed**, or **Removal failed**. The sentence below it says what happened in plain language.
 2. **Impact.** What still works. After a failed update, for example, the panel says that the previous release is still live and unaffected.
 3. **Cause and fix.** **Why it happened** and **How to fix it**. For some failures that come from the application, Deployz writes the explanation from the failure signals instead. It then shows **Likely cause** and **Suggested fix**, and may say how sure it is. Check that kind of explanation against **Technical details** before you act on it.

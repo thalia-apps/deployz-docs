@@ -33,6 +33,11 @@ The deployment changes to **Updating**, and the detail page shows **Updating you
 
 An update changes only the release. The deployment's configuration stays as it is. If your application has scheduled jobs (**Preview**), they move to the new release only after the update succeeds.
 
+<Frame caption="An update moves forward only after each step succeeds. A failure leaves the previous release serving.">
+  <img className="dz-diagram-wide" src="/images/diagrams/update-flow.svg" alt="Deploying an update. You select Deploy update. Deployz runs the database migration once as a one-shot task; it must exit with code 0. Then each service moves to the new release while the current release keeps serving. Then the connector verifies that the new release is running and healthy, and the deployment is live on the new release. If the migration fails, no service changes and the previous release keeps serving. If the rollout or verification fails, the previous release stays live, and a migration that already ran stays applied. Either failure shows Update failed." />
+  <img className="dz-diagram-narrow" src="/images/diagrams/update-flow-mobile.svg" alt="Deploying an update. You select Deploy update. Deployz runs the database migration once as a one-shot task; it must exit with code 0. Then each service moves to the new release while the current release keeps serving. Then the connector verifies that the new release is running and healthy, and the deployment is live on the new release. If the migration fails, no service changes and the previous release keeps serving. If the rollout or verification fails, the previous release stays live, and a migration that already ran stays applied. Either failure shows Update failed." />
+</Frame>
+
 ## If the update fails
 
 A failed update never takes down the release that was running. The deployment returns to its previous status, and:

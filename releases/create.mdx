@@ -7,6 +7,11 @@ A release is one version of your application: a container image that Deployz bui
 
 Creating a release doesn't update any customer. Running deployments keep their current release until you [deploy an update](/operate/deploy-update). New installs get your newest release that built successfully.
 
+<Frame caption="Each deployment stays on its release until you deploy another one.">
+  <img className="dz-diagram-wide" src="/images/diagrams/releases-deployments.svg" alt="Releases and deployments are separate. Commits on main become releases: v1.2.0 and v1.3.0 are Ready, and v1.4.0 is Building. The newest Ready release, v1.3.0, is labeled Customer installs; new installs get it. Customer A runs v1.3.0. Customer B still runs v1.2.0, and its deployment shows Update available. Creating a release doesn't change any deployment." />
+  <img className="dz-diagram-narrow" src="/images/diagrams/releases-deployments-mobile.svg" alt="Releases and deployments are separate. Commits on main become releases: v1.2.0 and v1.3.0 are Ready, and v1.4.0 is Building. The newest Ready release, v1.3.0, is labeled Customer installs; new installs get it. Customer A runs v1.3.0. Customer B still runs v1.2.0, and its deployment shows Update available. Creating a release doesn't change any deployment." />
+</Frame>
+
 ## Before you start
 
 - Your application's analysis has finished. See [Application requirements](/prepare/requirements).

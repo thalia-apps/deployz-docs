@@ -74,6 +74,11 @@ After a rollback, the previous release runs against the newer schema. To keep th
 - Don't rename or drop a column in the same release that stops using it. Stop using it in one release, then remove it in a later one.
 - Avoid changing a column's type in place. Add a new column, copy the data, and switch reads over in a later release.
 
+<Frame caption="Spread a schema change across releases so that each rollback still works.">
+  <img className="dz-diagram-wide" src="/images/diagrams/migrations-rollback-safe.svg" alt="Changing a column across three releases so that a rollback always works. Release v1.4.0 adds the new column, nullable or with a default; the old code ignores it. Release v1.5.0 switches reads and writes to the new column. Release v1.6.0 drops the old column, which no release you might roll back to uses. Rolling back from any of them is safe. Avoid renaming or dropping a column in the same release that stops using it: after a rollback, the previous release runs against a schema it can't use." />
+  <img className="dz-diagram-narrow" src="/images/diagrams/migrations-rollback-safe-mobile.svg" alt="Changing a column across three releases so that a rollback always works. Release v1.4.0 adds the new column, nullable or with a default; the old code ignores it. Release v1.5.0 switches reads and writes to the new column. Release v1.6.0 drops the old column, which no release you might roll back to uses. Rolling back from any of them is safe. Avoid renaming or dropping a column in the same release that stops using it: after a rollback, the previous release runs against a schema it can't use." />
+</Frame>
+
 ## Migrations and releases
 
 A release doesn't carry its own migration command. Every deployment runs the command from the application's **Database migrations** setting, described above. To change what runs, change that setting.

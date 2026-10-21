@@ -9,7 +9,7 @@ Three parties take part in every deployment: you (the vendor), Deployz, and your
 
 ```mermaid
 flowchart LR
-  subgraph vendor["You, in the Deployz dashboard"]
+  subgraph vendor["You (the vendor)"]
     repo["GitHub repository"]
   end
   subgraph deployz["Deployz"]
@@ -57,6 +57,11 @@ The connector is a small AWS Lambda function, with its own roles, that the custo
 - **It's limited to Deployz resources.** Its permissions are restricted by an IAM permissions boundary. [Security and AWS access](/customers/security) lists exactly what it can do.
 
 To reconnect or update a connector, see [Reconnect or update the Deployz connector](/operate/connector).
+
+<Frame caption="How a change you start in the dashboard reaches the customer's AWS account.">
+  <img className="dz-diagram-wide" src="/images/diagrams/connector-check-in.svg" alt="How a change reaches the customer's account. 1: you select Deploy update in the dashboard, and Deployz records the request. 2: the connector in the customer's AWS account checks in with Deployz every minute. 3: Deployz returns the pending request. 4: the connector applies the change with AWS services such as CloudFormation and Amazon ECS. 5: the connector reports status and health to Deployz. 6: the dashboard shows the new status. Every connection between Deployz and the account starts from the connector." />
+  <img className="dz-diagram-narrow" src="/images/diagrams/connector-check-in-mobile.svg" alt="How a change reaches the customer's account. 1: you select Deploy update in the dashboard, and Deployz records the request. 2: the connector in the customer's AWS account checks in with Deployz every minute. 3: Deployz returns the pending request. 4: the connector applies the change with AWS services such as CloudFormation and Amazon ECS. 5: the connector reports status and health to Deployz. 6: the dashboard shows the new status. Every connection between Deployz and the account starts from the connector." />
+</Frame>
 
 ## Deployz never holds customer AWS credentials
 

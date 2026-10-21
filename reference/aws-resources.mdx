@@ -12,6 +12,11 @@ Each deployment creates two AWS CloudFormation stacks in the customer's AWS acco
 
 All resources are tagged with `deployz:managed=true`, and with `deployz:installation` set to the deployment's installation ID. The connector's permissions are limited to resources with that installation tag. For the permissions themselves, see [Security and AWS access](/customers/security). For what these resources cost, see [Sizes and AWS cost](/share/sizes-and-cost).
 
+<Frame caption="The connector stack and the application stack in one customer AWS account. Queues, scheduled jobs, the migration task, and security groups aren't shown.">
+  <img className="dz-diagram-wide" src="/images/diagrams/aws-resources.svg" alt="The customer's AWS account holds two CloudFormation stacks. The Deployz connector stack connects outbound to Deployz over HTTPS and applies the application stack with CloudFormation. The application stack contains a dedicated VPC with public subnets (NAT gateway, Application Load Balancer) and private subnets (web service, workers, database, cache), plus S3 file storage, Secrets Manager secrets, and CloudWatch Logs. Internet traffic enters through the internet gateway and the load balancer." />
+  <img className="dz-diagram-narrow" src="/images/diagrams/aws-resources-mobile.svg" alt="The customer's AWS account holds two CloudFormation stacks. The Deployz connector stack connects outbound to Deployz over HTTPS and applies the application stack with CloudFormation. The application stack contains a dedicated VPC with public subnets (NAT gateway, Application Load Balancer) and private subnets (web service, workers, database, cache), plus S3 file storage, Secrets Manager secrets, and CloudWatch Logs. Internet traffic enters through the internet gateway and the load balancer." />
+</Frame>
+
 ## Deployz connector stack
 
 **Stack name:** `deployz-bootstrap-<application>-<id>`, where `<application>` is a short form of the application name and `<id>` is the first eight characters of the deployment ID. A retried attempt adds a suffix such as `-r2`.
