@@ -156,5 +156,8 @@
   "appearance": {
     "strict": true,
     "default": "light"
+  },
+  "background": {
+    "decoration": "gradient"
   }
 }
