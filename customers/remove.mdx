@@ -22,12 +22,13 @@ While this runs, the install page shows **Removing deployment**. When it finishe
 
 ### What remains after removal
 
-Removal keeps these resources so that your data isn't lost:
+Removal keeps these resources, mainly so that your data isn't lost:
 
 - The database, with deletion protection on. Its AWS automated backups continue.
 - The database's credentials, in AWS Secrets Manager
 - The storage bucket
 - The network parts the database uses
+- The HTTPS certificates, in AWS Certificate Manager
 - The Deployz connector stack
 
 <Warning>
@@ -57,7 +58,8 @@ The retained resources carry the `deployz:installation` tag with your deployment
 1. Turn off deletion protection on the database, then delete the database. The database is set to keep its automated backups after deletion. AWS keeps them for the rest of their 7-day retention period unless you delete them.
 2. Empty the storage bucket, then delete it.
 3. Delete the database's secrets in Secrets Manager.
-4. Delete the remaining network resources: the database's subnet group and security group, the subnets, and the VPC.
+4. Delete the certificates in AWS Certificate Manager.
+5. Delete the remaining network resources: the database's subnet group and security group, the subnets, and the VPC.
 
 ## 3. Delete the connector stack
 

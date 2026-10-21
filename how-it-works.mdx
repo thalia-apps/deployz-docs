@@ -7,27 +7,10 @@ Three parties take part in every deployment: you (the vendor), Deployz, and your
 
 ## From repository to running deployment
 
-```mermaid
-flowchart LR
-  subgraph vendor["You (the vendor)"]
-    repo["GitHub repository"]
-  end
-  subgraph deployz["Deployz"]
-    analysis["Analysis"]
-    release["Release"]
-    link["Install link or invitation"]
-  end
-  subgraph customer["Customer's AWS account"]
-    quick["Quick Create stack"]
-    connector["Deployz connector"]
-    app["Deployment with a permanent HTTPS address"]
-  end
-  repo --> analysis --> release --> link
-  link -- "customer opens the install page" --> quick
-  quick --> connector
-  connector -- "outbound only" --> deployz
-  connector --> app
-```
+<Frame caption="The numbers match the steps below.">
+  <img className="dz-diagram-wide" src="/images/diagrams/how-it-works-flow.svg" alt="From repository to running deployment, in eight numbered steps. 1: you connect a GitHub repository, with read-only access. 2: Deployz analyzes it. 3: you create a release, such as v1.3.0. 4: you share an install link or invitation. 5: your customer approves the Quick Create stack in their AWS account. 6: the stack creates the Deployz connector, which runs every minute and connects outbound to Deployz only. 7: the deployment goes live at a permanent HTTPS address, d-<deployment-id>.deployz.dev. 8: you operate it from the dashboard, and the connector carries out each request." />
+  <img className="dz-diagram-narrow" src="/images/diagrams/how-it-works-flow-mobile.svg" alt="From repository to running deployment, in eight numbered steps. 1: you connect a GitHub repository, with read-only access. 2: Deployz analyzes it. 3: you create a release, such as v1.3.0. 4: you share an install link or invitation. 5: your customer approves the Quick Create stack in their AWS account. 6: the stack creates the Deployz connector, which runs every minute and connects outbound to Deployz only. 7: the deployment goes live at a permanent HTTPS address, d-<deployment-id>.deployz.dev. 8: you operate it from the dashboard, and the connector carries out each request." />
+</Frame>
 
 1. **You connect a repository.** You install the Deployz GitHub App and choose a repository. Deployz requests read-only access to your code.
 2. **Deployz analyzes it.** Analysis reads the repository and detects what the application needs, such as its port, health check, environment variables, database, and cache. It tells you what to change if something doesn't fit. See [Application requirements](/prepare/requirements).
