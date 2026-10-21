@@ -11,3 +11,9 @@ planning/
 
 # Agent skill copies
 .reasonix/
+
+# Agent instructions (internal rules; keep in the repo, off the site)
+AGENTS.md
+
+# Repository tooling
+scripts/
