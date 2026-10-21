@@ -64,7 +64,8 @@ The retained resources carry the `deployz:installation` tag with your deployment
 1. Turn off deletion protection on the database, then delete the database. The Amazon RDS console asks whether to create a final snapshot and whether to keep the automated backups. Choose based on whether you still need the data. Kept backups remain for the rest of their 7-day retention period.
 2. Empty the storage bucket, then delete it.
 3. Delete the database's secrets in Secrets Manager.
-4. Delete the remaining network resources: the database's subnet group and security group, the subnets, and the VPC.
+4. Delete any certificates tagged with your installation ID that remain in AWS Certificate Manager. Removal normally deletes them, but one can remain if the removal didn't finish.
+5. Delete the remaining network resources: the database's subnet group and security group, the subnets, and the VPC.
 
 ## 3. Delete the connector stack
 
