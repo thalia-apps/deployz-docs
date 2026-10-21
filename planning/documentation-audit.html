@@ -1,0 +1,512 @@
+<title>Deployz Docs Audit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column (~860px) — summary first, then must-fix cards, then a filterable issue register. */
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --ink:#18202b; --muted:#5b6676; --line:#dfe3ea;
+  --accent:#1f5f8b; --accent-soft:#e3eef6;
+  --high:#b42318; --high-soft:#fde8e6; --med:#a15c07; --med-soft:#fdf1dc; --low:#3d6b4f; --low-soft:#e5f1e9;
+  --pass:#2e7d4f;
+  --f-display:"Manrope",system-ui,sans-serif; --f-body:"Source Sans 3",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#11161d; --surface:#18202a; --ink:#e6eaf0; --muted:#9aa5b4; --line:#2a3542;
+  --accent:#7db8e0; --accent-soft:#1c3346;
+  --high:#ff8a7a; --high-soft:#3a1c1a; --med:#f0b45a; --med-soft:#36290f; --low:#8fcca6; --low-soft:#183025; --pass:#7fd3a0;
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#11161d; --surface:#18202a; --ink:#e6eaf0; --muted:#9aa5b4; --line:#2a3542;
+  --accent:#7db8e0; --accent-soft:#1c3346;
+  --high:#ff8a7a; --high-soft:#3a1c1a; --med:#f0b45a; --med-soft:#36290f; --low:#8fcca6; --low-soft:#183025; --pass:#7fd3a0;
+  color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55}
+.wrap{max-width:880px;margin:0 auto;padding-block:40px 80px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:2.1rem;font-weight:800;letter-spacing:-.01em}
+h2{font-size:1.45rem;font-weight:700;margin-top:56px;margin-bottom:6px}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+.lede{color:var(--muted);margin-top:10px;max-width:65ch}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.sub{color:var(--muted);max-width:65ch;margin-bottom:18px}
+code,.mono{font-family:var(--f-mono);font-size:.85em}
+code{background:var(--accent-soft);padding:1px 5px;border-radius:4px;word-break:break-word}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:16px;font-size:.9rem;color:var(--muted)}
+
+/* at a glance */
+.glance{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:28px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.stat b{display:block;font-family:var(--f-display);font-size:1.9rem;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat span{font-size:.88rem;color:var(--muted)}
+.stat.h b{color:var(--high)} .stat.m b{color:var(--med)} .stat.l b{color:var(--low)}
+@media (max-width:620px){.glance{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.checks{list-style:none;padding:0;margin:16px 0 0;display:grid;gap:6px}
+.checks li{display:flex;gap:10px;align-items:baseline}
+.checks li::before{content:"✓";color:var(--pass);font-weight:700}
+.checks li.warn::before{content:"!";color:var(--med)}
+
+/* themes */
+.themes{display:grid;gap:12px;margin-top:8px}
+.theme{display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;padding:14px 0;border-top:1px solid var(--line)}
+.theme:first-child{border-top:0}
+.theme .tag{font-family:var(--f-mono);font-size:.78rem;color:var(--muted);padding-top:3px}
+@media (max-width:560px){.theme{grid-template-columns:1fr;gap:4px}}
+
+/* must-fix cards */
+.cards{display:grid;gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--high);border-radius:8px;padding:16px 18px}
+.card header{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:baseline;margin-bottom:10px}
+.card .id{font-family:var(--f-mono);font-size:.8rem;color:var(--high);font-weight:500}
+.card .where{font-family:var(--f-mono);font-size:.78rem;color:var(--muted);margin-left:auto}
+.compare{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.compare div{font-size:.95rem}
+.compare .lbl{display:block;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.fix{margin-top:10px;font-size:.95rem}
+.fix .lbl{font-weight:700}
+.pill{display:inline-block;font-family:var(--f-mono);font-size:.7rem;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.pill.dec{background:var(--med-soft);color:var(--med)}
+.pill.sec{background:var(--high-soft);color:var(--high)}
+.pill.bill{background:var(--accent-soft);color:var(--accent)}
+@media (max-width:560px){.compare{grid-template-columns:1fr}.card .where{margin-left:0;width:100%}}
+
+/* register */
+.controls{position:sticky;top:env(safe-area-inset-top,0px);z-index:2;background:var(--bg);padding:12px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-bottom:1px solid var(--line)}
+.controls button{font:600 .85rem var(--f-body);border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px;border-radius:99px;cursor:pointer}
+.controls button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.controls button:focus-visible,.controls input:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.controls input{flex:1 1 200px;min-width:0;font:inherit;font-size:.95rem;padding:6px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.count{font-size:.85rem;color:var(--muted);width:100%}
+details.group{border-bottom:1px solid var(--line)}
+details.group > summary{cursor:pointer;list-style:none;display:flex;gap:10px;align-items:center;padding:14px 2px;font-family:var(--f-display);font-weight:700}
+details.group > summary::-webkit-details-marker{display:none}
+details.group > summary::before{content:"▸";color:var(--muted);transition:transform .15s}
+details.group[open] > summary::before{transform:rotate(90deg)}
+details.group > summary .n{margin-left:auto;display:flex;gap:4px}
+.mini{font-family:var(--f-mono);font-size:.72rem;padding:1px 7px;border-radius:99px}
+.mini.H{background:var(--high-soft);color:var(--high)} .mini.M{background:var(--med-soft);color:var(--med)} .mini.L{background:var(--low-soft);color:var(--low)}
+.page{margin:0 0 14px 22px}
+.page h4{font-family:var(--f-mono);font-weight:500;font-size:.85rem;color:var(--accent);margin:10px 0 6px}
+.issue{display:grid;grid-template-columns:62px minmax(0,1fr);gap:10px;padding:7px 0;border-top:1px dashed var(--line);font-size:.95rem}
+.issue:first-of-type{border-top:0}
+.issue .sev{font-family:var(--f-mono);font-size:.7rem;font-weight:500;padding:2px 0;text-align:center;border-radius:4px;height:fit-content}
+.sev.H{background:var(--high-soft);color:var(--high)} .sev.M{background:var(--med-soft);color:var(--med)} .sev.L{background:var(--low-soft);color:var(--low)}
+.issue .kind{font-family:var(--f-mono);font-size:.72rem;color:var(--muted);margin-right:6px;text-transform:uppercase;letter-spacing:.04em}
+.empty{padding:24px 0;color:var(--muted)}
+@media (max-width:560px){.page{margin-left:0}}
+
+/* simple tables */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.93rem}
+th,td{text-align:left;vertical-align:top;padding:10px 12px;border-top:1px solid var(--line)}
+th{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-top:0;font-weight:500}
+td:first-child{white-space:nowrap}
+ol.steps,ul.plain{padding-left:1.3em;display:grid;gap:8px;max-width:70ch}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:.88rem;color:var(--muted);margin-bottom:14px}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+footer{margin-top:64px;font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">Documentation audit · 21 October 2026</p>
+  <h1>Deployz docs audit</h1>
+  <p class="lede">We read every page of the Deployz docs and compared what each one says with what the product actually does. This page lists everything that's wrong, missing or unclear, starting with what matters most.</p>
+  <div class="meta">
+    <span>41 pages reviewed</span>
+    <span>Docs version <code>c78bd5e</code></span>
+    <span>Checked against app code <code>0b77379c</code></span>
+  </div>
+
+  <div class="glance" id="glance">
+    <div class="stat h"><b id="cH">16</b><span>High — misleads readers</span></div>
+    <div class="stat m"><b id="cM">–</b><span>Medium — wrong or missing</span></div>
+    <div class="stat l"><b id="cL">–</b><span>Low — polish</span></div>
+    <div class="stat"><b>7</b><span>Planned pages not written</span></div>
+  </div>
+
+  <h2>What already works</h2>
+  <ul class="checks">
+    <li>No broken links: all 278 internal links and 37 anchors resolve (<code>mint broken-links</code> and <code>mint validate</code> both pass).</li>
+    <li>Every one of the 25 failure codes in the product has its own section in the docs.</li>
+    <li>No banned words (simply, just, easy, obviously) and no British spellings.</li>
+    <li>Every page has a title and description, and headings are in the right order.</li>
+    <li>Most button names, status labels and on-screen text match the product exactly.</li>
+    <li class="warn">The product doesn't link to the docs anywhere yet, and <b>Contact Deployz support</b> isn't a link.</li>
+  </ul>
+
+  <h2>The big picture</h2>
+  <p class="sub">Most problems fall into five groups.</p>
+  <div class="themes">
+    <div class="theme"><span class="tag">Security</span><p>The customer security page says Deployz's AWS permissions are limited to one deployment. Several actually reach the whole AWS account, and the page doesn't say that web traffic to the default address goes through Deployz's Cloudflare service.</p></div>
+    <div class="theme"><span class="tag">Wrong steps</span><p>Some pages describe behavior the product doesn't have, such as migrations being skipped on retry, or setting changes reaching existing deployments. A reader who follows them gets surprised.</p></div>
+    <div class="theme"><span class="tag">Dead ends</span><p>Some instructions point to buttons that don't exist in that situation, like "deploy again" after a failed first install, or "revoke" for an invitation.</p></div>
+    <div class="theme"><span class="tag">Missing pieces</span><p>Real behavior isn't documented anywhere: install links that expire after 30 days, billing that continues while a deployment is broken, team roles, and the variables Deployz sets for you.</p></div>
+    <div class="theme"><span class="tag">Tidiness</span><p>Tables are copied across pages and have started to differ. The troubleshooting hub is missing 11 problems, the glossary is missing many terms, and Preview labels are used inconsistently.</p></div>
+  </div>
+
+  <h2>Fix these first</h2>
+  <p class="sub">These 16 issues could lead a reader to do the wrong thing, or misstate security or billing. Items marked “needs a decision” can't be fixed in the docs until someone decides how the product should behave.</p>
+  <div class="cards" id="cards"></div>
+
+  <h2>Every issue, page by page</h2>
+  <p class="sub">Use the filters to narrow the list, or search for a page or word. Select a section to open it.</p>
+  <div class="legend">
+    <span><i class="mini H">HIGH</i> could mislead readers into a wrong action</span>
+    <span><i class="mini M">MED</i> wrong or missing information</span>
+    <span><i class="mini L">LOW</i> polish and wording</span>
+  </div>
+  <div class="controls" role="group" aria-label="Filter issues">
+    <button id="f-all" data-sev="all" aria-pressed="true">All</button>
+    <button id="f-H" data-sev="H" aria-pressed="false">High</button>
+    <button id="f-M" data-sev="M" aria-pressed="false">Medium</button>
+    <button id="f-L" data-sev="L" aria-pressed="false">Low</button>
+    <input id="q" type="search" placeholder="Search, for example “billing” or “connector”" aria-label="Search issues">
+    <span class="count" id="count"></span>
+  </div>
+  <div id="register"></div>
+
+  <h2>Pages that are planned but not written</h2>
+  <p class="sub">The content plan lists these pages, but they don't exist yet. In each case the product has behavior that readers currently can't find anywhere.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Page</th><th>What it would cover</th><th>Priority</th></tr></thead>
+    <tbody>
+      <tr><td><code>account/organization-and-team</code></td><td>Owner, admin and member roles; inviting teammates (invitations expire after 7 days); transferring ownership; deleting an organization or account; switching organizations. The Concepts page currently gets admin permissions wrong.</td><td><span class="mini H">Write now</span></td></tr>
+      <tr><td><code>prepare/analysis</code></td><td>How to read analysis results. This is currently spread across three pages, one of them a troubleshooting page.</td><td><span class="mini M">Soon</span></td></tr>
+      <tr><td><code>prepare/fix-findings</code></td><td>The <b>Get fix instructions</b> button and the coding-agent instructions it produces.</td><td><span class="mini M">Soon</span></td></tr>
+      <tr><td><code>reference/limits</code></td><td>All fixed limits in one place: link expiry, one test deployment, 17 Regions, storage size, the secret size limit, the 60-minute build timeout, and more.</td><td><span class="mini M">Soon</span></td></tr>
+      <tr><td><code>prepare/data-services</code></td><td>Databases, cache and storage, including the variables Deployz sets for you.</td><td><span class="mini M">Later</span></td></tr>
+      <tr><td><code>prepare/workers-queues-schedules</code></td><td>Workers, plus queues and scheduled jobs (Preview), including that queues are detected only in JavaScript and TypeScript.</td><td><span class="mini M">Later</span></td></tr>
+      <tr><td><code>account/github</code></td><td>Connecting GitHub, and that one GitHub connection can belong to only one Deployz organization.</td><td><span class="mini L">Short section</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Things to fix in the product itself</h2>
+  <p class="sub">We found these while checking the docs, but they're product problems. Several docs fixes depend on them.</p>
+  <ol class="steps">
+    <li>After a failed first install, some failures leave the vendor with no button to try again.</li>
+    <li>A deployment's install link expires after 30 days, and there's no way to extend it from the dashboard.</li>
+    <li>There's no way to revoke an invitation from the dashboard.</li>
+    <li>Some product text contradicts the buttons, for example “run the install link again” and “a new link invalidates the old one”. On customer pages, “<b>Vendor recommended</b>” should say “your software provider”.</li>
+    <li>Security questions: whether to tell customers about the Cloudflare proxy, whether several deployments can share one AWS account and Region, and whether the permissions that reach the whole account should be narrowed.</li>
+    <li>Some statuses and failure codes are never shown: <b>Disconnected</b>, <b>Applying configuration</b>, and three failure codes.</li>
+    <li>The “Infrastructure requirements changed” warning can appear when nothing is blocked.</li>
+    <li>After a failed configuration update, the new secret values stay in AWS.</li>
+    <li>A deployment the customer never installed can't be removed from the dashboard.</li>
+    <li>The cost estimate always includes a load balancer, even when none is created.</li>
+    <li>The product tells vendors to set a start command in Deployz, but there's no field for it.</li>
+    <li>Any team member can manage billing, remove deployments and add domains. Is that intended?</li>
+    <li>Repeat installs from the same email address create duplicate customer records.</li>
+  </ol>
+
+  <h2>Questions for the product owner</h2>
+  <ol class="steps">
+    <li>What should a vendor do after a failed first install that has no retry button?</li>
+    <li>Which AWS Regions can customers actually install in today? The docs claim 17, but the code defaults to one.</li>
+    <li>Should the security page mention the Cloudflare proxy, and list every permission that reaches the whole account?</li>
+    <li>Should the docs keep the <b>Revoked</b> invitation status until a revoke button exists?</li>
+    <li>Is the 30-day expiry of a deployment's own install link intended?</li>
+    <li>Should any team member be able to manage billing and remove deployments?</li>
+    <li>Can the docs use “container image” and “build” as nouns when talking about Docker?</li>
+    <li>Should repeated tables, such as costs and Regions, become shared snippets?</li>
+    <li>Should the changelog list changes made before launch?</li>
+    <li>How long does Deployz keep a customer's data and secrets after a deployment is removed?</li>
+  </ol>
+
+  <h2>Suggested order of work</h2>
+  <ol class="steps">
+    <li><b>Security and billing:</b> fix the security page, the billing page and the quickstart subscription note, and hide <code>AGENTS.md</code> from the public site.</li>
+    <li><b>Wrong instructions we can fix now:</b> migrations, build variables, setting changes, connector links, custom domain timeouts and configuration scope.</li>
+    <li><b>After product decisions:</b> first-install recovery, invitation revoking, link expiry and Regions.</li>
+    <li><b>Troubleshooting and glossary:</b> add the 11 missing hub rows and the missing failure headings, and fill in the glossary.</li>
+    <li><b>New pages:</b> the team page first, then the analysis and fix-findings pages, then limits.</li>
+    <li><b>Polish:</b> remove duplicate tables, use consistent Preview labels, add “who does this” lines, start the changelog, and clean up starter files.</li>
+  </ol>
+
+  <footer>Full details with code references for each issue are in <code>planning/documentation-audit.md</code> in the docs repository.</footer>
+</div>
+
+<script>
+const HIGH = [
+ {id:"H1",where:"customers/security",tag:"sec",title:"Some permissions aren't limited to the deployment",
+  says:"Only a short list of read-only and storage actions aren't limited to the customer's deployment.",
+  truth:"Several write and delete actions work on any resource in the account. For example, the connector can delete files from any storage bucket, and can start or stop containers.",
+  fix:"List every unrestricted action, and update the security text in the app at the same time."},
+ {id:"H2",where:"customers/security",tag:"sec",title:"“Limited to this deployment” is too strong",
+  says:"Queues, schedules and role permissions are limited to this deployment.",
+  truth:"They're limited by a name pattern that covers every Deployz deployment in the same AWS account and Region.",
+  fix:"Say “resources named deployz-app* in this account and Region”."},
+ {id:"H3",where:"customers/security",tag:"sec",title:"Cloudflare isn't mentioned",
+  says:"Nothing about where web traffic goes.",
+  truth:"Traffic to the default deployz.dev address passes through Deployz's Cloudflare service, where the HTTPS connection is decrypted. Traffic to a custom domain goes directly to the customer's load balancer.",
+  fix:"Add a short section about this to the docs and the app."},
+ {id:"H4",where:"share/invitations",tag:"dec",title:"There's no way to revoke an invitation",
+  says:"Invitations can show a Revoked status.",
+  truth:"The dashboard has no revoke button. A leaked invitation keeps working until it's used or expires.",
+  fix:"Remove the status or say “contact support”, until the product adds a revoke button."},
+ {id:"H5",where:"share/* pages",tag:"dec",title:"Install links expire after 30 days, and the docs don't say so",
+  says:"Nothing.",
+  truth:"A deployment's own install link stops working 30 days after the deployment is created, and you can't extend it.",
+  fix:"State the limit and how to recover, once product confirms."},
+ {id:"H6",where:"account/billing",tag:"bill",title:"Billing doesn't pause when a deployment breaks",
+  says:"A deployment counts only while it's live.",
+  truth:"Once a deployment has been ready, it's billed until you remove it, even if it later fails or disconnects.",
+  fix:"Say that plainly."},
+ {id:"H7",where:"quickstart",tag:"bill",title:"The quickstart doesn't mention the subscription",
+  says:"“Your application is ready for customers.”",
+  truth:"Customers can't install until your organization has an active subscription.",
+  fix:"Add a note before the step that creates an install link."},
+ {id:"H8",where:"concepts",title:"Some application changes reach live customers",
+  says:"Changes to the application only affect new deployments.",
+  truth:"Runtime variables reach customers' running deployments within minutes.",
+  fix:"Explain what each kind of change affects, with a warning."},
+ {id:"H9",where:"prepare/migrations",title:"Existing deployments keep their original migration command",
+  says:"Every deployment runs the application's current migration command.",
+  truth:"An existing deployment keeps the command it started with, unless you set one explicitly.",
+  fix:"Explain when a new command takes effect."},
+ {id:"H10",where:"prepare/not-supported",title:"Port and health check changes don't reach existing deployments",
+  says:"These changes don't need a new deployment.",
+  truth:"The product's own dialog says existing deployments are not modified.",
+  fix:"Say which changes reach existing deployments and which don't."},
+ {id:"H11",where:"prepare/environment-variables",title:"Build values need a Dockerfile line",
+  says:"Nothing.",
+  truth:"Build values reach the build only if the Dockerfile declares them with an ARG line. Otherwise they're silently missing.",
+  fix:"Add this as a step, with an example."},
+ {id:"H12",where:"operate/deploy-update",title:"Migrations do run again on retry",
+  says:"A migration that already succeeded won't run again on retry.",
+  truth:"Retry update starts a new job, so the migration runs again.",
+  fix:"Correct this, and advise writing migrations that are safe to run twice."},
+ {id:"H13",where:"operate/connector",title:"A “new” install link keeps the same address",
+  says:"The new link replaces the old one, and the old one stops working.",
+  truth:"The address stays the same. Only the connection details behind it change.",
+  fix:"Rewrite the warning. The product text has the same mistake."},
+ {id:"H14",where:"failure codes, troubleshooting",tag:"dec",title:"“Deploy again” isn't possible after a failed first install",
+  says:"Deploy again, select Retry deployment, or reload the page.",
+  truth:"For some failures on a first install, the dashboard only shows the text “Check again”. There's no button, and nothing re-runs the install.",
+  fix:"Needs a product decision on how vendors should recover."},
+ {id:"H15",where:"troubleshooting/startup-and-health",title:"Advice for a failure that never happens",
+  says:"The RDS_UNAVAILABLE failure often clears on its own.",
+  truth:"Nothing in the product ever reports that failure code.",
+  fix:"Remove the claim."},
+ {id:"H16",where:".mintignore",tag:"sec",title:"Internal guidelines are probably public",
+  says:"Not applicable.",
+  truth:"AGENTS.md isn't excluded from the published site, so it's probably public at /AGENTS. This needs checking in a preview.",
+  fix:"Add AGENTS.md to .mintignore."}
+];
+
+// [group, page, severity, kind, text]
+const R = [
+// Get started
+["Get started","index","L","Wording","Say “one test deployment at a time”: you can create another one after removing the first."],
+["Get started","index","L","Guideline","Queues and scheduled jobs are called Preview only in the text. Use the standard Preview label."],
+["Get started","index","L","Guideline","“Supports one architecture well” sounds like marketing. State it plainly."],
+["Get started","how-it-works","M","Missing","The “what runs where” table doesn't say that Deployz stores configuration values, and holds secrets until they're delivered."],
+["Get started","how-it-works","M","Missing","Step 5 skips what the customer does first: choose a Region and size, enter their details, and select Continue to setup."],
+["Get started","how-it-works","L","Wrong","“Limited to Deployz resources” and “the only part that calls AWS” both overstate it."],
+["Get started","how-it-works","L","Clarity","The diagram puts GitHub inside the vendor dashboard and has no text description."],
+["Get started","concepts","H","Wrong","Application changes aren't only “defaults for new deployments”: runtime variables reach live deployments (see H8)."],
+["Get started","concepts","M","Wrong","A customer's configuration overrides apply to all of their deployments of that application, not just one."],
+["Get started","concepts","M","Missing","Invitations expire after 30 days. The page also mentions revoking, which the dashboard can't do."],
+["Get started","concepts","M","Wrong","Admins can't change or remove other admins; only the owner can. Any member can also manage billing."],
+["Get started","concepts","L","Missing","Install links: the customer enters a name and email, and you can disable, regenerate or revoke a link."],
+["Get started","concepts","L","Wrong","Removing a passed test deployment before you have customers hides the install link again."],
+["Get started","concepts","L","Wrong","The tab order is Overview, Releases, Configuration. Re-analyze and Remove application are under Settings."],
+["Get started","concepts","L","Missing","A release can later become Unavailable."],
+["Get started","quickstart","H","Missing","Doesn't say you need a subscription before customers can install (see H7)."],
+["Get started","quickstart","M","Missing","Warn before the reader removes the test deployment: doing so too early makes the install link unavailable."],
+["Get started","quickstart","M","Missing","The test is blocked if a required customer value is empty. Explain what to do."],
+["Get started","quickstart","M","Clarity","A release isn't required first: the test deployment page can build one."],
+["Get started","quickstart","L","Wrong","Use the exact field names: Customer name, Customer email, Company (optional)."],
+["Get started","quickstart","L","Missing","Signing up accepts the Terms and Privacy Policy. Say so before the step."],
+["Get started","quickstart","L","Missing","The progress steps include Run migrations."],
+["Get started","glossary","M","Wrong","The “Retained data” and “Remove a deployment” entries don't match what removal actually deletes and keeps."],
+["Get started","glossary","M","Clarity","The “Install link” entry mixes up the reusable link and a deployment's own link."],
+["Get started","glossary","M","Missing","Many status labels and terms are missing, for example Live, Ready to share, connector stack, customer override and Quick Create."],
+["Get started","glossary","L","Wrong","The install page section is called Technical details, not Deployment details."],
+["Get started","glossary","L","Wrong","Preview isn't a dashboard label. The Customer and Deployment entries conflict with the Concepts page."],
+["Get started","changelog","M","Missing","There are no entries, although user-visible changes have shipped (#573–#575)."],
+["Get started","site settings","H","Security","AGENTS.md is probably public (see H16)."],
+["Get started","site settings","L","Clarity","The Dashboard and Support links appear twice in the navigation."],
+["Get started","site settings","L","Clarity","Mintlify starter leftovers: unused logos, favicon and README text."],
+// Prepare
+["Prepare your application","requirements","M","Missing","How Deployz builds isn't explained: on x86 machines, from the Dockerfile's folder."],
+["Prepare your application","requirements","M","Missing","Queues are detected only in JavaScript and TypeScript."],
+["Prepare your application","requirements","M","Duplicate","The results table is repeated on the analysis troubleshooting page."],
+["Prepare your application","requirements","L","Wrong","There can be more than one queue and more than one scheduled job."],
+["Prepare your application","requirements","L","Missing","Queued messages are deleted when the deployment is removed."],
+["Prepare your application","requirements","L","Wrong","“Set the start command in Deployz” isn't possible: there's no field for it."],
+["Prepare your application","requirements","L","Wrong","Workers: Deployz recommends declaring the worker in your repository. It doesn't ask you about it."],
+["Prepare your application","not-supported","H","Wrong","Port, health check path and migration changes don't reach existing deployments (see H10)."],
+["Prepare your application","not-supported","M","Wrong","The rule for when something counts as “Not supported” is described wrong."],
+["Prepare your application","not-supported","M","Wrong","Get fix instructions is under Configuration › Resources, not on the Overview."],
+["Prepare your application","not-supported","L","Missing","Listening only on localhost is a common finding, but it's missing from the table."],
+["Prepare your application","not-supported","L","Guideline","No “who does this” line, and some headings contain apostrophes."],
+["Prepare your application","environment-variables","H","Missing","Build values need an ARG line in the Dockerfile (see H11)."],
+["Prepare your application","environment-variables","M","Wrong","The button is Review required changes, and it only appears before you have customers."],
+["Prepare your application","environment-variables","M","Missing","No page lists the variables Deployz sets for you, such as NODE_ENV=production, DATABASE_URL and REDIS_URL."],
+["Prepare your application","environment-variables","L","Missing","Secrets are limited to 4 KB. The build-variable prefix list is incomplete."],
+["Prepare your application","environment-variables","L","Missing","Explain how Deployz suggests who provides each value."],
+["Prepare your application","migrations","H","Wrong","Existing deployments keep their original migration command (see H9)."],
+["Prepare your application","migrations","M","Missing","Deployz detects a migration command only for Node.js. Django, Rails and Laravel need it entered by hand."],
+["Prepare your application","migrations","M","Missing","The migration tool must be installed in the final container. Development-only tools are rejected."],
+["Prepare your application","migrations","L","Wrong","Reset to detected appears only after a change. A deploy without a migration step is refused, not failed."],
+// Releases
+["Releases","create","M","Wrong","The “Infrastructure requirements changed” notice checks only one deployment, and can be a false alarm."],
+["Releases","create","M","Missing","The first release can be built from the test deployment page. Its version is then a commit ID."],
+["Releases","create","L","Missing","Not covered: the “commit doesn't exist” error, the 60-minute build limit, and automatic retries."],
+["Releases","build-failures","M","Wrong","Explain with AI is always offered. Only the coding-agent option is replaced."],
+["Releases","build-failures","L","Clarity","Say exactly how much of the log is shown: the last 3,000 lines."],
+["Releases","build-failures","L","Guideline","Two “contact support” mentions have no link."],
+// Share
+["Test and share","test-deployment","H","Missing","The test deployment's install link expires after 30 days (see H5)."],
+["Test and share","test-deployment","M","Missing","Removing a passed test before you have customers takes away Create install link."],
+["Test and share","test-deployment","M","Wrong","Checks run when you pick the application, not after you select Run free test deployment."],
+["Test and share","test-deployment","L","Missing","You can build a release from this page, and the link is still on the deployment page after you close the dialog."],
+["Test and share","install-links","M","Missing","Regenerate always turns a disabled link back on."],
+["Test and share","install-links","M","Missing","After the customer confirms, they continue on a link that expires after 30 days."],
+["Test and share","install-links","L","Wrong","Regenerating raises the recommended size to the minimum. The revoked-link message is quoted wrong."],
+["Test and share","install-links","L","Missing","Each confirmation creates a new customer record, even from the same email."],
+["Test and share","invitations","H","Wrong","There's no revoke button for invitations (see H4)."],
+["Test and share","invitations","M","Missing","There's no “Before you start”: invitations need a built release, but not a test deployment."],
+["Test and share","invitations","L","Guideline","Send the invitation has no “who does this” line."],
+["Test and share","sizes-and-cost","M","Missing","Queues and schedules aren't priced, and the page doesn't explain “+ usage” or “Estimate unavailable”."],
+["Test and share","sizes-and-cost","L","Missing","Small costs the estimate never includes: logs, secrets and public IP addresses."],
+["Test and share","sizes-and-cost","L","Guideline","The heading says “recommended”, but the screen says Default size."],
+["Test and share","sizes-and-cost","L","Clarity","Explain the rounding, which is why the totals don't add up exactly."],
+["Test and share","regions","M","Unverified","The page says 17 Regions are supported, but production may allow fewer. Confirm the list."],
+// Account
+["Account","billing","H","Wrong","Billing continues while a deployment is broken (see H6)."],
+["Account","billing","M","Wrong","The fee starts when you start a subscription, not when you add your first customer."],
+["Account","billing","L","Wrong","Changes in the number of deployments are charged or credited right away."],
+["Account","billing","L","Missing","What a canceled subscription looks like. Any member can manage billing."],
+// Operate
+["Operate deployments","deployment-status","M","Wrong","Needs attention · Disconnected never appears."],
+["Operate deployments","deployment-status","M","Wrong","The default list hides removed deployments; it doesn't sort them last."],
+["Operate deployments","deployment-status","M","Wrong","Applying configuration never appears: the badge stays Live."],
+["Operate deployments","deployment-status","M","Missing","The 30-minute window before a deployment is marked “couldn't start”."],
+["Operate deployments","deployment-status","M","Missing","The Retry HTTPS setup button."],
+["Operate deployments","deployment-status","L","Missing","Some status variants and next steps are missing."],
+["Operate deployments","deploy-update","H","Wrong","Migrations run again on retry (see H12)."],
+["Operate deployments","deploy-update","M","Guideline","The migration warning comes after the steps instead of before."],
+["Operate deployments","deploy-update","L","Clarity","Retry update asks you to choose the release again."],
+["Operate deployments","rollback","L","Missing","Rollback is refused if the previous release is no longer available."],
+["Operate deployments","rollback","L","Link","The link text doesn't match where it goes, and it doesn't link to the right section."],
+["Operate deployments","restart","L","Wrong","A restart also waits for health checks to pass."],
+["Operate deployments","configuration","M","Wrong","Overrides apply to all of that customer's deployments of the application."],
+["Operate deployments","configuration","M","Wrong","After a failed update, new secret values are already in AWS. The old configuration isn't fully restored."],
+["Operate deployments","custom-domains","L","Wrong","Check now isn't always shown, and is limited to once every 30 seconds."],
+["Operate deployments","custom-domains","L","Missing","Checks pause while the deployment isn't running."],
+["Operate deployments","connector","H","Wrong","A new install link keeps the same address (see H13)."],
+["Operate deployments","connector","M","Missing","“Update the connector stack” when it's offline gives the customer nothing to update with."],
+["Operate deployments","remove","M","Wrong","A deployment whose connector never connected can't be removed from the menu."],
+["Operate deployments","remove","L","Wrong","Delete retained data deletes the database credentials, not the application secrets."],
+["Operate deployments","remove","L","Guideline","The connector stack is listed as retained data, but it's never deleted by Delete retained data."],
+// Troubleshooting
+["Troubleshooting","failure-codes","H","Dead end","“Deploy again” isn't possible after some failed first installs (see H14)."],
+["Troubleshooting","failure-codes","M","Conflict","The product says “run the install link again”, but the docs and the button say Retry deployment."],
+["Troubleshooting","failure-codes","M","Missing","Failures without a code: credential mismatch and “stack already exists”."],
+["Troubleshooting","failure-codes","L","Wrong","Three codes are never reported by the product. Mark them as such."],
+["Troubleshooting","failure-codes","L","Clarity","Link each code to its matching troubleshooting section."],
+["Troubleshooting","overview","M","Missing","11 troubleshooting sections have no row in the hub's symptom table."],
+["Troubleshooting","overview","M","Missing","Rollback failed, Restart failed and Configuration update failed aren't covered."],
+["Troubleshooting","overview","L","Link","Two rows point to the wrong place."],
+["Troubleshooting","overview","L","Wrong","Check again and Contact Deployz support are plain text, not buttons."],
+["Troubleshooting","install","M","Wrong","For some failures, the customer's page tells them to change something, but the docs say they don't need to."],
+["Troubleshooting","install","M","Dead end","“Wait, then reload the page” doesn't help after a failed first install."],
+["Troubleshooting","install","L","Guideline","Missing “who does this” lines."],
+["Troubleshooting","startup-and-health","H","Wrong","Advice for a failure code that's never reported (see H15)."],
+["Troubleshooting","startup-and-health","L","Guideline","“Release image” should be “release”."],
+["Troubleshooting","https-and-domains","M","Wrong","A domain timeout doesn't fail the deployment. The domain card shows a generic message instead."],
+["Troubleshooting","https-and-domains","M","Missing","The domain card's specific messages aren't explained, for example “Verification record not found”."],
+["Troubleshooting","connector","L","Wrong","Say the failure appears “after about a day”."],
+["Troubleshooting","analysis","M","Wrong","The page says Re-analyze isn't available, then tells you to use it. Explain where each one appears."],
+["Troubleshooting","analysis","L","Wrong","Questions can also show as Blocking."],
+// Customer guide
+["Customer guide","security","H","Security","Some permissions reach the whole account (see H1 and H2)."],
+["Customer guide","security","H","Security","Cloudflare isn't mentioned (see H3)."],
+["Customer guide","security","M","Security","The connector can also delete tagged secrets, and see the names of all secrets in the account."],
+["Customer guide","security","M","Security","Application permissions to pull containers and write logs are broader than described."],
+["Customer guide","security","M","Wrong","Configuration values are stored in Deployz, with secrets encrypted. They don't only pass through."],
+["Customer guide","security","M","Missing","Deployz keeps basic records after removal. The app says so; the docs don't."],
+["Customer guide","security","M","Wrong","Deleting the connector stack leaves log groups and settings behind."],
+["Customer guide","security","L","Missing","Helper roles in the template aren't listed."],
+["Customer guide","before-you-install","M","Wrong","The permissions list is incomplete and mentions log groups the template doesn't create."],
+["Customer guide","before-you-install","M","Missing","Some company policies can block setup and aren't listed, for example blocking images from Deployz's registry."],
+["Customer guide","before-you-install","M","Unverified","Same Region question as the Regions page."],
+["Customer guide","remove","M","Wrong","Backup retention when you delete the database yourself is the customer's choice, not automatic."],
+["Customer guide","remove","M","Missing","Some things are left behind and not listed: logs, system roles and Deployz's own records."],
+["Customer guide","install","L","Guideline","The product label Vendor recommended conflicts with the customer-guide wording rule."],
+["Customer guide","costs","M","Wrong","The load balancer is created only for public web apps, not always."],
+["Customer guide","costs","M","Duplicate","The cost table copies the vendor page, and the two have already drifted."],
+["Customer guide","overview","L","Guideline","The table has an empty header cell, which hurts accessibility."],
+// Reference
+["Reference","aws-resources","M","Wrong","“Everything is tagged” and “the connector is limited to tagged resources” both overstate it."],
+["Reference","aws-resources","M","Missing","Several helper resources in the connector stack aren't listed."],
+["Reference","aws-resources","M","Wrong","With a database, each service runs two containers, not one."],
+["Reference","aws-resources","M","Wrong","Certificates are deleted at removal, not kept."],
+["Reference","aws-resources","L","Missing","A second network range and a storage cleanup rule aren't mentioned."],
+// Across all pages
+["Across all pages","several pages","M","Duplicate","Copies of the same content have started to differ: cost tables, Regions, retained data, the migration warning and the connector description."],
+["Across all pages","several pages","M","Guideline","“Image” and “build” are used as nouns. Decide whether the guidelines allow them."],
+["Across all pages","several pages","L","Guideline","Seven mentions of queues and schedules have no Preview label, and the label style varies."],
+["Across all pages","several pages","L","Guideline","About 20 headings contain apostrophes. Rename any that become link targets."],
+["Across all pages","several pages","L","Guideline","Four “contact support” mentions have no link."],
+["Across all pages","several pages","L","Guideline","Most pages don't record which code version they were checked against."],
+["Across all pages","content plan","L","Clarity","The content plan is out of date in a few places, such as page names and section references."]
+];
+
+const tagLabel={sec:["Security","sec"],dec:["Needs a decision","dec"],bill:["Billing","bill"]};
+const esc=s=>s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+document.getElementById("cards").innerHTML=HIGH.map(h=>{
+  const t=h.tag?`<span class="pill ${tagLabel[h.tag][1]}">${tagLabel[h.tag][0]}</span>`:"";
+  return `<article class="card"><header><span class="id">${h.id}</span><h3>${esc(h.title)}</h3>${t}<span class="where">${esc(h.where)}</span></header>
+  <div class="compare"><div><span class="lbl">The docs say</span>${esc(h.says)}</div><div><span class="lbl">What actually happens</span>${esc(h.truth)}</div></div>
+  <p class="fix"><span class="lbl">Fix:</span> ${esc(h.fix)}</p></article>`;}).join("");
+
+const tally={H:0,M:0,L:0}; R.forEach(r=>tally[r[2]]++);
+document.getElementById("cM").textContent=tally.M;
+document.getElementById("cL").textContent=tally.L;
+
+let sev="all", q="";
+let openState={};
+try{openState=JSON.parse(localStorage.getItem("audit-open")||"{}")}catch(e){}
+function render(){
+  const ql=q.trim().toLowerCase();
+  const rows=R.filter(r=>(sev==="all"||r[2]===sev)&&(!ql||r.join(" ").toLowerCase().includes(ql)));
+  document.getElementById("count").textContent=`Showing ${rows.length} of ${R.length} issues`;
+  const groups=[...new Set(R.map(r=>r[0]))];
+  let html="";
+  groups.forEach(g=>{
+    const gr=rows.filter(r=>r[0]===g); if(!gr.length) return;
+    const c={H:0,M:0,L:0}; gr.forEach(r=>c[r[2]]++);
+    const minis=["H","M","L"].filter(k=>c[k]).map(k=>`<i class="mini ${k}">${c[k]}</i>`).join("");
+    const pages=[...new Set(gr.map(r=>r[1]))];
+    const isOpen = ql||sev!=="all" ? true : !!openState[g];
+    html+=`<details class="group" data-g="${esc(g)}" ${isOpen?"open":""}><summary>${esc(g)}<span class="n">${minis}</span></summary>`;
+    pages.forEach(p=>{
+      html+=`<div class="page"><h4>${esc(p)}</h4>`;
+      gr.filter(r=>r[1]===p).sort((a,b)=>"HML".indexOf(a[2])-"HML".indexOf(b[2])).forEach(r=>{
+        html+=`<div class="issue"><span class="sev ${r[2]}">${{H:"HIGH",M:"MED",L:"LOW"}[r[2]]}</span><p><span class="kind">${esc(r[3])}</span>${esc(r[4])}</p></div>`;
+      });
+      html+=`</div>`;
+    });
+    html+=`</details>`;
+  });
+  document.getElementById("register").innerHTML=html||`<p class="empty">No issues match. Try another word, or select All.</p>`;
+  document.querySelectorAll("details.group").forEach(d=>d.addEventListener("toggle",()=>{
+    if(q||sev!=="all") return;
+    openState[d.dataset.g]=d.open; try{localStorage.setItem("audit-open",JSON.stringify(openState))}catch(e){}
+  }));
+}
+document.querySelectorAll(".controls button").forEach(b=>b.addEventListener("click",()=>{
+  sev=b.dataset.sev;
+  document.querySelectorAll(".controls button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+  render();
+}));
+document.getElementById("q").addEventListener("input",e=>{q=e.target.value;render();});
+render();
+</script>
