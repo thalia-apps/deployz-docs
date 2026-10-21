@@ -83,7 +83,7 @@ Every failure code belongs to one recoverability class. The class tells you who 
 
 | Class | Line in the recovery panel | Who acts | What to do |
 | --- | --- | --- | --- |
-| Can recover on its own | "This can recover on its own" | Nobody, at first | Wait. Deployz keeps checking. Retry only if the failure persists. On a failed first install, the dashboard shows **Check again** instead of **Retry deployment**. |
+| Can be temporary | "This can be temporary. Retry when the cause clears." | You, once the cause clears | Retry when the cause clears, for example when the connector is back online. If it continues, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). On a failed first install, select **Retry deployment**. While a release is still running, there's no retry button, and the deployment recovers when the cause clears. |
 | Needs a change | "Needs a change before a retry can succeed" | You, or your customer in their AWS account | Make the change the fix describes, then retry. |
 | Needs Deployz | "This needs a fix on the Deployz side" | Deployz | [Contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). Don't retry in a loop. On a failed first install, the dashboard shows **Contact Deployz support** instead of **Retry deployment**. |
 | Can't be retried as is | "Retrying will not help until the underlying requirement changes" | You | Change the requirement, for example the Region or the application itself. |
