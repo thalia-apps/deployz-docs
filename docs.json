@@ -168,6 +168,7 @@
   },
   "description": "Run your web application in your customers' own AWS accounts. Guides for software vendors and their customers.",
   "appearance": {
-    "strict": true
+    "strict": true,
+    "default": "light"
   }
 }
