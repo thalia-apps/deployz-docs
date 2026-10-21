@@ -120,21 +120,7 @@
           "changelog"
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Dashboard",
-          "href": "https://app.deployz.dev",
-          "icon": "gauge"
-        },
-        {
-          "anchor": "Support",
-          "href": "https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur",
-          "icon": "life-ring"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
     "light": "/images/android-chrome-192x192.png",
