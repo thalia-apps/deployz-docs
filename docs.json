@@ -130,8 +130,8 @@
     ]
   },
   "logo": {
-    "light": "/images/ChatGPTImageOct21,2026,04_29_27PM-3.png",
-    "dark": "/images/ChatGPTImageOct21,2026,04_29_26PM-2.png",
+    "light": "/images/android-chrome-192x192.png",
+    "dark": "/images/app-icon-dark-180x180.png",
     "href": "https://deployz.dev"
   },
   "navbar": {
