@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="360" height="1290" viewBox="0 0 360 1290" role="img" aria-labelledby="title desc">
   <title id="title">Deployz access in your AWS account</title>
-  <desc id="desc">The Deployz connector in your AWS account starts every connection to Deployz over outbound HTTPS. Deployz has no inbound path into the account. The connector role is capped by a permissions boundary and limited to resources tagged for this deployment. It asks CloudFormation to apply the application template with the CloudFormation execution role, which can create IAM roles only under the /deployz/ path and only with the application role boundary. Application roles can pull the image, write logs, read tagged secrets, and use deployz-app S3 buckets and SQS queues, with no IAM management. The internet reaches only the load balancer. Your data and logs stay in your account.</desc>
+  <desc id="desc">The Deployz connector in your AWS account starts every connection to Deployz over outbound HTTPS. Deployz has no inbound path into the account. The connector role is capped by a permissions boundary and limited to this deployment&#x27;s resources. It asks CloudFormation to apply the application template with the CloudFormation execution role, which can create IAM roles only under the /deployz/ path and only with the application role boundary. Application roles can pull the image, write logs, read tagged secrets, and use deployz-app S3 buckets and SQS queues, with no IAM management. The internet reaches only the load balancer. Your data and logs stay in your account.</desc>
 
   <!--
     Deployz docs illustration. Style: deployz-website DESIGN.md section 7 (scene system).
@@ -117,8 +117,8 @@
     <use href="#i-check" class="icon" x="36" y="210" width="14" height="14" style="stroke:#15803D" />
     <text class="body" x="58" y="221">Capped by a permissions boundary</text>
     <use href="#i-check" class="icon" x="36" y="236" width="14" height="14" style="stroke:#15803D" />
-    <text class="body" x="58" y="247">Only resources tagged</text>
-    <text class="body" x="58" y="264"><tspan class="mono-dark">deployz:installation</tspan></text>
+    <text class="body" x="58" y="247">Limited to this deployment&#x27;s</text>
+    <text class="body" x="58" y="264">resources</text>
     <use href="#i-x" class="icon" x="36" y="279" width="14" height="14" style="stroke:#B91C1C" />
     <text class="body" x="58" y="290">Can&#x27;t create the network,</text>
     <text class="body" x="58" y="307">database, or IAM roles</text>
@@ -138,8 +138,8 @@
     <text class="mono" x="72" y="437">assumed only by CloudFormation</text>
     <line x1="20" y1="450" x2="340" y2="450" stroke="#E4E4E7" />
     <use href="#i-check" class="icon" x="36" y="468" width="14" height="14" style="stroke:#15803D" />
-    <text class="body" x="58" y="479">Creates, changes, or deletes</text>
-    <text class="body" x="58" y="496">only tagged resources</text>
+    <text class="body" x="58" y="479">Changes only this deployment&#x27;s</text>
+    <text class="body" x="58" y="496">resources</text>
     <use href="#i-check" class="icon" x="36" y="511" width="14" height="14" style="stroke:#15803D" />
     <text class="body" x="58" y="522">Creates roles only under <tspan class="mono-dark">/deployz/</tspan></text>
     <text class="body" x="58" y="539">with the role boundary</text>
