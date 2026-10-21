@@ -124,6 +124,16 @@ If your customer already created a second connector stack, they delete that extr
   You can't change a deployment's Region after you create it. To move to another Region, you remove the deployment and create a new one.
 </Warning>
 
+## The application template predates the role boundary
+
+**Symptom:** The install fails right away, before the application stack is created. **Technical details** says that the application template predates the IAM role boundary the connector requires.
+
+**Cause:** Your customer's connector requires a permissions boundary on every IAM role in the application stack. This deployment was prepared before Deployz added that boundary, so the connector refuses it rather than letting AWS CloudFormation fail partway through.
+
+**Fix:** Create a new deployment for this customer. A new deployment is prepared with the boundary. No application resources were created, so there's nothing to clean up.
+
+**Who acts:** you.
+
 ## Retry a failed install
 
 **Who:** you (the vendor), in the Deployz dashboard.

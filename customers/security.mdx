@@ -3,7 +3,7 @@ title: "Security and AWS access"
 description: "What Deployz creates in your AWS account, what it can access, and how to revoke access."
 ---
 
-{/* Last checked against deployz commit 76a4b779 on 2026-10-20 */}
+{/* Last checked against deployz commit 0b77379c on 2026-10-21 */}
 
 This page is for the person who reviews this deployment for security. It describes the Deployz connector, the AWS permissions it holds, the data Deployz receives, and how to revoke access.
 
@@ -24,6 +24,7 @@ The connector stack, named `deployz-bootstrap-` followed by an identifier, creat
 - The connector function (AWS Lambda) and an Amazon EventBridge schedule that runs it every minute
 - The connector role, with a permissions boundary and the provisioner policy
 - A CloudFormation execution role for your application stack
+- A permissions boundary for the IAM roles in your application stack
 - An AWS Secrets Manager secret that holds the connector's Deployz credential
 - Helper functions that create the installation ID and set the connector log's one-week retention
 
@@ -51,16 +52,36 @@ CloudFormation uses this role to build your application stack.
 
 - Only CloudFormation can assume it, and only on behalf of your account.
 - Creating a resource requires the request to carry this deployment's `deployz:installation` tag. Changing or deleting a resource requires the resource to carry the tag.
-- It can create IAM roles for your application and attach any policy to them.
-- It has no permissions boundary.
+- It can create IAM roles for your application only under the `/deployz/` path, and only when each role carries the application role boundary below. The same conditions apply when it adds or attaches a policy to a role.
+- The only managed policy it can attach is `AmazonECSTaskExecutionRolePolicy`.
+- It has no permissions boundary of its own, because a boundary on this role wouldn't carry over to the roles it creates. The application role boundary limits those roles instead.
+
+### Application role boundary
+
+Every IAM role in your application stack must carry this boundary. It sets the most any of those roles can do, even if a policy grants more:
+
+- Pull the application's container image
+- Write logs
+- Read the secrets tagged for this deployment
+- Use S3 buckets and SQS queues whose names start with `deployz-app`
+- Run tasks from the application's own task definitions (names starting with `DeployzApp`)
+- Pass roles under `/deployz/` to Amazon ECS tasks
+
+It grants no IAM management, so a role under the boundary can't create or widen other roles.
+
+AWS can't limit which accounts a role trusts. A role in your application stack could be set up to trust another account, but it can still do only the actions above.
+
+<Note>
+  An application stack keeps the roles it was created with. A deployment created before your connector included this boundary keeps roles without it. Ask your software provider if you're not sure which applies to your deployment.
+</Note>
 
 ### Exceptions to tag scoping
 
 Some AWS actions don't support tag conditions, so they're scoped another way:
 
 - **Read-only actions** (describe and list calls) aren't limited to this deployment.
-- **Amazon S3 bucket actions** don't support tag conditions. Before the connector deletes a bucket, it checks the bucket's `deployz:installation` tag.
-- **Passing roles** (`iam:PassRole`) is limited by the receiving service rather than by resource.
+- **Amazon S3 bucket actions** don't support tag conditions. CloudFormation can change only buckets whose names start with `deployz-app`. Before the connector deletes a bucket, it checks the bucket's `deployz:installation` tag.
+- **Passing roles** (`iam:PassRole`) is limited to roles under `/deployz/`, passed to the services that run your application.
 - **Queues and schedules** are limited by resource name to this deployment's application stack. Queues and scheduled jobs are at **Preview** maturity in Deployz.
 
 The **Security details** page for your deployment lists each of these with its resources and conditions.

@@ -23,6 +23,7 @@ All resources are tagged with `deployz:managed=true`, and with `deployz:installa
 | Connector role | AWS IAM role | The permissions the connector function uses. A permissions boundary limits it. |
 | Permissions boundary and provisioner policy | AWS IAM managed policies | Define the most the connector can do. |
 | Application execution role | AWS IAM role | The role CloudFormation uses to create and change the application stack. Only CloudFormation in this account can use it. |
+| Application role boundary | AWS IAM managed policy | The most any IAM role in the application stack can do. Every role the application stack creates must carry it. |
 | Connector credential | AWS Secrets Manager secret | Stores the credential the connector uses to identify itself to Deployz. |
 | Installation ID function | AWS Lambda | Generates the installation ID when the stack is created. |
 | Log groups | Amazon CloudWatch Logs | The connector's own logs. Entries are kept for one week. |
