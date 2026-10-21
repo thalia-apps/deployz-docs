@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="360" height="778" viewBox="0 0 360 778" role="img" aria-labelledby="title desc">
   <title id="title">What happens during an update</title>
-  <desc id="desc">Deploying an update. You select Deploy update. Deployz runs the database migration once as a one-shot task; it must exit with code 0. Then each service moves to the new release while the current release keeps serving. Then the connector verifies that the new release is running and healthy, and the deployment is live on the new release. If the migration fails, no service changes and the previous release keeps serving. If the rollout or verification fails, the previous release stays live, and a migration that already ran stays applied. Either failure shows Update failed.</desc>
+  <desc id="desc">Deploying an update. You select Deploy update. If the application has a separate migration step, Deployz first runs the database migration as a one-off task; it must exit with code 0. Then each service moves to the new release while the current release keeps serving. Then the connector verifies that the new release is running and healthy, and the deployment is live on the new release. If the migration fails, no service changes and the previous release keeps serving. If the rollout or verification fails, the previous release stays live, and a migration that already ran stays applied. Either failure shows Update failed.</desc>
 
   <!--
     Deployz docs illustration. Style: deployz-website DESIGN.md section 7 (scene system).
@@ -90,7 +90,7 @@
     <circle cx="40" cy="104" r="10" fill="#2563EB" />
     <text class="num" x="40" y="108" text-anchor="middle">1</text>
     <text class="title" x="60" y="107">Run the migration</text>
-    <text class="note" x="60" y="126">One-shot task. It must exit with code 0.</text>
+    <text class="note" x="60" y="126">One-off task, if any. It must exit with code 0.</text>
   </g>
     <text class="note" x="60" y="173">If it fails</text>
   <g id="failure-migration">

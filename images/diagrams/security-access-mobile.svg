@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="360" height="1290" viewBox="0 0 360 1290" role="img" aria-labelledby="title desc">
   <title id="title">Deployz access in your AWS account</title>
-  <desc id="desc">The Deployz connector in your AWS account starts every connection to Deployz over outbound HTTPS. Deployz has no inbound path into the account. The connector role is capped by a permissions boundary and limited to this deployment&#x27;s resources. It asks CloudFormation to apply the application template with the CloudFormation execution role, which can create IAM roles only under the /deployz/ path and only with the application role boundary. Application roles can pull the image, write logs, read tagged secrets, and use deployz-app S3 buckets and SQS queues, with no IAM management. The internet reaches only the load balancer. Your data and logs stay in your account.</desc>
+  <desc id="desc">The Deployz connector in your AWS account starts every connection to Deployz over outbound HTTPS. Deployz has no inbound path into the account. The connector role is capped by a permissions boundary and limited to this deployment&#x27;s resources. It asks CloudFormation to apply the application template with the CloudFormation execution role, which can create IAM roles only under the /deployz/ path and only with the application role boundary. Application roles can pull container images, write logs, read tagged secrets, and use this deployment&#x27;s S3 buckets and SQS queues, with no IAM management. The internet reaches only the load balancer. Your data and logs stay in your account.</desc>
 
   <!--
     Deployz docs illustration. Style: deployz-website DESIGN.md section 7 (scene system).
@@ -163,10 +163,10 @@
     <text class="mono" x="84" y="718">path /deployz/</text>
     <line x1="32" y1="731" x2="328" y2="731" stroke="#E4E4E7" />
     <use href="#i-check" class="icon" x="48" y="749" width="14" height="14" style="stroke:#15803D" />
-    <text class="body" x="70" y="760">Pull the image, write logs,</text>
+    <text class="body" x="70" y="760">Pull container images, write logs,</text>
     <text class="body" x="70" y="777">read tagged secrets</text>
     <use href="#i-check" class="icon" x="48" y="792" width="14" height="14" style="stroke:#15803D" />
-    <text class="body" x="70" y="803">Use <tspan class="mono-dark">deployz-app*</tspan> S3 buckets</text>
+    <text class="body" x="70" y="803">Use this deployment&#x27;s S3 buckets</text>
     <text class="body" x="70" y="820">and SQS queues</text>
     <use href="#i-x" class="icon" x="48" y="835" width="14" height="14" style="stroke:#B91C1C" />
     <text class="body" x="70" y="846">No IAM management, so it</text>

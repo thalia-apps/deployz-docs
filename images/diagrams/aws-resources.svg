@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="780" viewBox="0 0 720 780" role="img" aria-labelledby="title desc">
   <title id="title">AWS resources in a customer's account</title>
-  <desc id="desc">The customer's AWS account holds two CloudFormation stacks. The Deployz connector stack connects outbound to Deployz over HTTPS and applies the application stack with CloudFormation. The application stack contains a dedicated VPC with public subnets (NAT gateway, Application Load Balancer) and private subnets (web service, workers, database, cache), plus S3 file storage, Secrets Manager secrets, and CloudWatch Logs. Internet traffic enters through the internet gateway and the load balancer.</desc>
+  <desc id="desc">The customer's AWS account holds two CloudFormation stacks. The Deployz connector stack connects outbound to Deployz over HTTPS and applies the application stack with CloudFormation. The application stack contains a dedicated VPC with public subnets (NAT gateway, Application Load Balancer) and private subnets (web service, workers, database, cache), plus S3 file storage, Secrets Manager secrets, and CloudWatch Logs. The connector also creates the ACM certificates, outside the application stack. Internet traffic enters through the internet gateway and the load balancer.</desc>
 
   <!--
     Deployz docs illustration. Style: deployz-website DESIGN.md section 7 (scene system).
@@ -147,9 +147,9 @@
     <text class="note" x="78" y="266" style="fill:#111111">Connector credential</text>
     <text class="mono" x="344" y="266" text-anchor="end">Secrets Manager</text>
 
-    <use href="#i-file" class="icon" x="56" y="281" width="14" height="14" />
-    <text class="note" x="78" y="292" style="fill:#111111">Connector logs</text>
-    <text class="mono" x="344" y="292" text-anchor="end">CloudWatch Logs</text>
+    <use href="#i-zap" class="icon" x="56" y="281" width="14" height="14" />
+    <text class="note" x="78" y="292" style="fill:#111111">Helper functions</text>
+    <text class="mono" x="344" y="292" text-anchor="end">Lambda</text>
   </g>
 
   <!-- Certificates: created by the connector, outside the application stack -->

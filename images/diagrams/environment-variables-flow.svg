@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="658" viewBox="0 0 720 658" role="img" aria-labelledby="title desc">
   <title id="title">Where environment variable values go</title>
-  <desc id="desc">Where environment variable values go. You, each customer, and Deployz provide values. Deployz stores saved secrets encrypted with AWS KMS and delivers each value where it&#x27;s used. Build values, which only you provide, go into the release image, which is the same for every customer, so don&#x27;t use them for secrets. Runtime values go to each customer&#x27;s AWS account: your runtime values, that customer&#x27;s own values, and secrets Deployz generates for that deployment. The account owner can read them there.</desc>
+  <desc id="desc">Where environment variable values go. You, each customer, and Deployz provide values. Deployz stores saved secrets encrypted with AWS KMS and delivers each value where it&#x27;s used. Build values, which only you provide, go into the release&#x27;s container image, which is the same for every customer, so don&#x27;t use them for secrets. Runtime values go to each customer&#x27;s AWS account: your runtime values, that customer&#x27;s own values, and secrets Deployz generates for that deployment. Plain values are set on the Amazon ECS task definition, and secret values are stored in AWS Secrets Manager. The account owner can read them there.</desc>
 
   <!--
     Deployz docs illustration. Style: deployz-website DESIGN.md section 7 (scene system).
@@ -131,7 +131,7 @@
     <rect class="tile" x="476" y="40" width="228" height="146" rx="12" filter="url(#shadow)" />
     <rect x="490" y="52" width="28" height="28" rx="7" class="icon-tile" />
     <use href="#i-box" class="icon" x="497" y="59" width="14" height="14" />
-    <text class="title" x="528" y="63">Release image</text>
+    <text class="title" x="528" y="63">Container image</text>
     <text class="mono" x="528" y="79">build values</text>
     <line x1="476" y1="92" x2="704" y2="92" stroke="#E4E4E7" />
     <rect x="495" y="114" width="6" height="6" rx="3" style="fill:#A1A1AA" />
@@ -149,7 +149,7 @@
     <rect x="490" y="246" width="28" height="28" rx="7" class="icon-tile" />
     <use href="#i-key" class="icon" x="497" y="253" width="14" height="14" />
     <text class="title" x="528" y="257">Runtime values</text>
-    <text class="mono" x="528" y="273">Secrets Manager</text>
+    <text class="mono" x="528" y="273">ECS and Secrets Manager</text>
     <line x1="476" y1="286" x2="704" y2="286" stroke="#E4E4E7" />
     <rect x="495" y="308" width="6" height="6" rx="3" style="fill:#A1A1AA" />
     <text class="body" x="514" y="315">Your runtime values</text>
@@ -166,7 +166,7 @@
     <rect x="490" y="444" width="28" height="28" rx="7" class="icon-tile" />
     <use href="#i-key" class="icon" x="497" y="451" width="14" height="14" />
     <text class="title" x="528" y="455">Runtime values</text>
-    <text class="mono" x="528" y="471">Secrets Manager</text>
+    <text class="mono" x="528" y="471">ECS and Secrets Manager</text>
     <line x1="476" y1="484" x2="704" y2="484" stroke="#E4E4E7" />
     <rect x="495" y="506" width="6" height="6" rx="3" style="fill:#A1A1AA" />
     <text class="body" x="514" y="513">Your runtime values</text>
@@ -186,7 +186,7 @@
   </g>
   <g id="note">
     <use href="#i-alert" class="icon" x="22" y="603" width="14" height="14" style="stroke:#A16207" />
-    <text class="note" x="42" y="614">Build values are part of the image. Runtime values are stored in each customer&#x27;s AWS account, where the</text>
-    <text class="note" x="42" y="630">account owner can read them.</text>
+    <text class="note" x="42" y="614">Build values are part of the container image. Runtime values are stored in each customer&#x27;s AWS account,</text>
+    <text class="note" x="42" y="630">where the account owner can read them.</text>
   </g>
 </svg>

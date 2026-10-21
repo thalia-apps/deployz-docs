@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="429" viewBox="0 0 720 429" role="img" aria-labelledby="title desc">
   <title id="title">What happens during an update</title>
-  <desc id="desc">Deploying an update. You select Deploy update. Deployz runs the database migration once as a one-shot task; it must exit with code 0. Then each service moves to the new release while the current release keeps serving. Then the connector verifies that the new release is running and healthy, and the deployment is live on the new release. If the migration fails, no service changes and the previous release keeps serving. If the rollout or verification fails, the previous release stays live, and a migration that already ran stays applied. Either failure shows Update failed.</desc>
+  <desc id="desc">Deploying an update. You select Deploy update. If the application has a separate migration step, Deployz first runs the database migration as a one-off task; it must exit with code 0. Then each service moves to the new release while the current release keeps serving. Then the connector verifies that the new release is running and healthy, and the deployment is live on the new release. If the migration fails, no service changes and the previous release keeps serving. If the rollout or verification fails, the previous release stays live, and a migration that already ran stays applied. Either failure shows Update failed.</desc>
 
   <!--
     Deployz docs illustration. Style: deployz-website DESIGN.md section 7 (scene system).
@@ -91,9 +91,10 @@
     <text class="num" x="44" y="112" text-anchor="middle">1</text>
     <text class="title" x="64" y="111">Run the</text>
     <text class="title" x="64" y="128">migration</text>
-    <text class="note" x="64" y="149">One-shot task.</text>
-    <text class="note" x="64" y="165">It must exit</text>
-    <text class="note" x="64" y="181">with code 0.</text>
+    <text class="note" x="64" y="149">One-off task, if</text>
+    <text class="note" x="64" y="165">there is one. It</text>
+    <text class="note" x="64" y="181">must exit with</text>
+    <text class="note" x="64" y="197">code 0.</text>
     <rect class="tile" x="200" y="84" width="160" height="134" rx="12" filter="url(#shadow)" />
     <circle cx="224" cy="108" r="10" fill="#2563EB" />
     <text class="num" x="224" y="112" text-anchor="middle">2</text>

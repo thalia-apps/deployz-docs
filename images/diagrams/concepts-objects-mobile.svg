@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="360" height="770" viewBox="0 0 360 770" role="img" aria-labelledby="title desc">
   <title id="title">How applications, customers, and deployments relate</title>
-  <desc id="desc">How the main Deployz objects relate. Your organization holds applications and customers. An application owns analysis, configuration, releases, and its one live install link. A customer owns contact details and invitations. A deployment combines one application release with one customer, and has its own status, actions, configuration, Region, and size. Each deployment runs in one customer AWS account and Region, where the Deployz connector carries out its changes.</desc>
+  <desc id="desc">How the main Deployz objects relate. Your organization holds applications and customers. An application owns analysis, configuration, releases, and its one live install link. A customer owns contact details, invitations, and its configuration overrides for each application. A deployment combines one application release with one customer, has its own status, actions, Region, and size, and runs with the application&#x27;s configuration defaults plus that customer&#x27;s overrides. Each deployment runs in one customer AWS account and Region, where the Deployz connector carries out its changes.</desc>
 
   <!--
     Deployz docs illustration. Style: deployz-website DESIGN.md section 7 (scene system).
@@ -105,9 +105,9 @@
     <text class="note" x="80" y="253">Example Corp</text>
     <line x1="28" y1="266" x2="332" y2="266" stroke="#E4E4E7" />
     <rect x="47" y="288" width="6" height="6" rx="3" style="fill:#A1A1AA" />
-    <text class="body" x="66" y="295">Name and email</text>
+    <text class="body" x="66" y="295">Name, email, invitations</text>
     <rect x="47" y="314" width="6" height="6" rx="3" style="fill:#A1A1AA" />
-    <text class="body" x="66" y="321">Invitations</text>
+    <text class="body" x="66" y="321">Overrides per application</text>
   </g>
   <g id="organization-boundary">
     <rect class="boundary" x="12" y="28" width="336" height="330" rx="14" />
@@ -133,7 +133,7 @@
     <rect x="47" y="524" width="6" height="6" rx="3" style="fill:#A1A1AA" />
     <text class="body" x="66" y="531">Status and actions</text>
     <rect x="47" y="550" width="6" height="6" rx="3" style="fill:#A1A1AA" />
-    <text class="body" x="66" y="557">Its own configuration</text>
+    <text class="body" x="66" y="557">Defaults + overrides</text>
   </g>
     <line class="beam" x1="180" y1="570" x2="180" y2="616" marker-end="url(#arrow)" />
     <text class="mono-brand" x="192" y="598">runs in</text>
@@ -145,7 +145,7 @@
     <rect class="tile" x="28" y="674" width="146" height="44" rx="10" filter="url(#shadow)" />
     <rect x="37" y="682" width="28" height="28" rx="7" class="icon-tile" />
     <use href="#i-box" class="icon" x="44" y="689" width="14" height="14" />
-    <text class="title" x="73" y="693">Your app</text>
+    <text class="title" x="73" y="693">Application</text>
     <text class="mono" x="73" y="709">eu-west-1</text>
     <rect class="tile" x="186" y="674" width="146" height="44" rx="10" filter="url(#shadow)" />
     <rect x="195" y="682" width="28" height="28" rx="7" class="icon-tile" />

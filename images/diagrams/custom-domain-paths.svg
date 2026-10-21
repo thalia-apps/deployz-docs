@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="474" viewBox="0 0 720 474" role="img" aria-labelledby="title desc">
   <title id="title">How a custom domain reaches the deployment</title>
-  <desc id="desc">Two addresses for one deployment. Visitors to the default address, d-&lt;deployment-id&gt;.deployz.dev, pass through Deployz&#x27;s Cloudflare edge before they reach the load balancer in the customer&#x27;s AWS account. Visitors to a custom domain such as app.example.com go straight to the load balancer. The customer creates two CNAME records at their DNS provider: Verify ownership, so AWS Certificate Manager can issue the HTTPS certificate in the customer&#x27;s account, and Route traffic, which points the domain at the load balancer. Deployz only reads these records.</desc>
+  <desc id="desc">Two addresses for one deployment. Visitors to the default address, d-&lt;deployment-id&gt;.deployz.dev, pass through the Deployz Cloudflare network before they reach the load balancer in the customer&#x27;s AWS account. Visitors to a custom domain such as app.example.com go straight to the load balancer. The customer creates two CNAME records at their DNS provider: Verify ownership, so AWS Certificate Manager can issue the HTTPS certificate in the customer&#x27;s account, and Route traffic, which points the domain at the load balancer. Deployz only reads these records.</desc>
 
   <!--
     Deployz docs illustration. Style: deployz-website DESIGN.md section 7 (scene system).
