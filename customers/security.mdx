@@ -3,7 +3,7 @@ title: "Security and AWS access"
 description: "What Deployz creates in your AWS account, what it can access, and how to revoke access."
 ---
 
-{/* Last checked against deployz commit 0b77379c on 2026-10-21 */}
+{/* Last checked against deployz commit a3830513 (main), plus 7c783036 for the IAM installation scope (deployz PR #580, not yet merged), on 2026-10-21 */}
 
 This page is for the person who reviews this deployment for security. It describes the Deployz connector, the AWS permissions it holds, the data Deployz receives, and how to revoke access.
 
@@ -41,12 +41,19 @@ The installation ID is created inside your account when the stack is created. It
 
 The connector holds broad permissions so it can install, update, and remove the application without manual setup. Both roles below receive all their permissions when you create the connector stack, not after the connector first connects. Deployz chooses the commands and the application template that the connector applies.
 
+Each change these roles can make is limited to this deployment, its installation scope:
+
+- **By tag**, where AWS supports tag conditions. The resource must carry the `deployz:installation` tag with this deployment's installation ID. Creating a resource requires the request to carry that tag, and changing or deleting a resource requires the resource to carry it. A request can't add this deployment's tag to a resource that already carries another deployment's tag.
+- **By name**, where AWS doesn't support tag conditions. The resource's name must start with this deployment's application stack name: `deployz-app-` followed by the first part of the installation ID, for example `deployz-app-1a2b3c4d-`.
+
+Other Deployz deployments in the same AWS account and Region are outside this scope. A few actions can't be limited either way. See [Exceptions to installation scoping](#exceptions-to-installation-scoping).
+
 ### Connector role
 
 The connector function runs with this role. Only AWS Lambda can assume it.
 
 - **Permissions boundary.** A permissions boundary caps the role. The role can never exceed it.
-- **Tag-scoped permissions.** Where AWS supports it, actions are limited to resources tagged `deployz:installation` with this deployment's installation ID. Creating a resource requires the request to carry that tag, and changing or deleting a resource requires the resource to carry it.
+- **Installation-scoped permissions.** Changes are limited to this deployment's resources, by tag or by name, as described above.
 - **Scoped secrets access.** The role can read and update the connector's own credential secret, and the application's secrets tagged for this deployment.
 - **No log reads.** The role writes the connector's own activity log. It can't read log events (`logs:GetLogEvents` and `logs:FilterLogEvents` aren't granted).
 - **No network, database, or IAM role creation.** The connector role has no permission to create the network, the database, or IAM roles. It asks CloudFormation to apply the application template with the execution role below.
@@ -56,8 +63,8 @@ The connector function runs with this role. Only AWS Lambda can assume it.
 CloudFormation uses this role to build your application stack.
 
 - Only CloudFormation can assume it, and only on behalf of your account.
-- Creating a resource requires the request to carry this deployment's `deployz:installation` tag. Changing or deleting a resource requires the resource to carry the tag.
-- It can create IAM roles for your application only under the `/deployz/` path, and only when each role carries the application role boundary below. The same conditions apply when it adds or attaches a policy to a role.
+- Its changes are limited to this deployment's resources, by tag or by name, as described above.
+- It can create IAM roles for your application only under the `/deployz/` path, with names that start with this deployment's application stack name, and only when each role carries the application role boundary below. The same conditions apply when it adds or attaches a policy to a role.
 - The only managed policy it can attach is `AmazonECSTaskExecutionRolePolicy`.
 - It has no permissions boundary of its own, because a boundary on this role wouldn't carry over to the roles it creates. The application role boundary limits those roles instead.
 
@@ -66,34 +73,55 @@ CloudFormation uses this role to build your application stack.
 Every IAM role in your application stack must carry this boundary. It sets the most any of those roles can do, even if a policy grants more:
 
 - Pull the application's container image
-- Write logs
+- Write logs to this deployment's log groups
 - Read the secrets tagged for this deployment
-- Use S3 buckets and SQS queues whose names start with `deployz-app`
-- Run tasks from the application's own task definitions (names starting with `DeployzApp`)
-- Pass roles under `/deployz/` to Amazon ECS tasks
+- Use this deployment's S3 buckets and SQS queues
+- Run tasks from the application's own task definitions (names starting with `DeployzApp`), only in this deployment's Amazon ECS cluster
+- Pass this deployment's roles under `/deployz/` to Amazon ECS tasks
 
 It grants no IAM management, so a role under the boundary can't create or widen other roles.
 
 AWS can't limit which accounts a role trusts. A role in your application stack could be set up to trust another account, but it can still do only the actions above.
 
 <Note>
-  A connector stack created before Deployz added this boundary doesn't have it until you update the connector stack. Your software provider sends you the update steps. An application that's already installed keeps the roles it was created with and keeps working. Ask your software provider if you're not sure which applies to your deployment.
+  A connector stack keeps the permissions it was created with until you update it. A connector stack created before Deployz added this boundary doesn't have it. A connector stack created before Deployz added the installation scope keeps its earlier, wider permissions, where some actions reach any Deployz application in the same AWS account and Region, not only this deployment. Updating the connector stack applies the current permissions. Your software provider sends you the update steps. An application that's already installed keeps the roles it was created with and keeps working. Ask your software provider if you're not sure which applies to your deployment.
 </Note>
 
-### Exceptions to tag scoping
+### Resources limited by name
 
-Some AWS actions don't support tag conditions, so they're scoped another way:
+These resources don't support tag conditions, so their actions are limited by name to this deployment:
 
-- **Read-only actions** (describe and list calls) aren't limited to this deployment.
-- **Amazon S3 bucket actions** don't support tag conditions. CloudFormation can change only buckets whose names start with `deployz-app`. Before the connector deletes a bucket, it checks the bucket's `deployz:installation` tag.
-- **Passing roles** (`iam:PassRole`) is limited to roles under `/deployz/`, passed to the services that run your application.
-- **Queues and schedules** are limited by resource name to this deployment's application stack. Queues and scheduled jobs are at **Preview** maturity in Deployz.
+- **Amazon S3 buckets.** CloudFormation and the connector can change or delete only buckets whose names start with this deployment's application stack name. Before the connector deletes a bucket, it also checks the bucket's `deployz:installation` tag.
+- **Log groups.** CloudFormation can set retention on, and delete, only this deployment's log groups.
+- **Queues and schedules.** CloudFormation can manage only this deployment's queues and schedules. Queues and scheduled jobs are at **Preview** maturity in Deployz.
+- **One-off tasks**, such as database migrations. The connector can run and stop them only in this deployment's Amazon ECS cluster.
+- **Passing roles** (`iam:PassRole`). The connector and CloudFormation can pass only this deployment's roles, and only to the services that run your application: Amazon ECS, and Amazon EventBridge Scheduler for scheduled jobs. The connector can pass to CloudFormation only the execution role from its own stack.
+
+### Exceptions to installation scoping
+
+AWS can't limit these actions by tag or by name, so they apply to any resource of their type. Each is controlled another way:
+
+- **Read-only actions.** Describe, list, and get calls aren't limited to this deployment. The connector uses them to observe the application, and to find this deployment's retained resources when your software provider deletes retained data. They don't change anything.
+- **Removing old task-definition revisions** (`ecs:DeregisterTaskDefinition`). Amazon ECS doesn't support resource limits on this action. The connector removes only old revisions of this application's own task definitions, after a successful update. A removed revision doesn't stop a task that uses it.
+- **Generating a random password** (`secretsmanager:GetRandomPassword`). A random password isn't an AWS resource. Only CloudFormation can use the role that holds this action.
+- **Writing the connector's own log** (`logs:CreateLogGroup`, `logs:CreateLogStream`, and `logs:PutLogEvents`). AWS Lambda uses these actions to write the connector's activity log. They add log entries. They can't read or delete logs.
+- **Creating service-linked roles** (`iam:CreateServiceLinkedRole`). This is limited to the AWS services the application uses: Amazon ECS, Elastic Load Balancing, Amazon RDS, and Amazon ElastiCache.
+- **Cache parameter groups and cache nodes.** Creating, changing, or deleting the cache also uses the default parameter group and the cache nodes. The cache itself must carry this deployment's tag.
 
 The **Security details** page for your deployment lists each of these with its resources and conditions.
 
 ## No inbound access
 
 The connector only starts outbound HTTPS requests to Deployz. No inbound connection to your account is required, and Deployz has no path into your account. Inside the application's network, the internet-facing load balancer is the only component that accepts traffic from the internet, on ports 80 and 443.
+
+## Application traffic
+
+How your users' traffic reaches the load balancer depends on the address they use:
+
+- **The default `deployz.dev` address.** Traffic passes through the Deployz Cloudflare network. HTTPS ends at Cloudflare. Cloudflare then sends the traffic over a new HTTPS connection to the load balancer in your AWS account.
+- **A custom domain.** Traffic goes directly to the load balancer in your AWS account. It doesn't pass through Deployz.
+
+If you don't want your application traffic to pass through Deployz, ask your software provider to add a custom domain, and use only that address. The default address stays available. See [Create custom domain DNS records](/customers/custom-domain-dns).
 
 ## Enrollment
 
@@ -126,7 +154,9 @@ These stay in your AWS account:
 - Your S3 data
 - Your application's CloudWatch logs
 
-Deployz doesn't automatically copy your raw application logs outside your AWS account. Deployz doesn't ask for or store your AWS credentials.
+Deployz doesn't automatically copy your raw application logs outside your AWS account.
+
+Application traffic to the default `deployz.dev` address passes through the Deployz Cloudflare network, so it doesn't stay inside your AWS account. Traffic to a custom domain does. See [Application traffic](#application-traffic). Deployz doesn't ask for or store your AWS credentials.
 
 ## Secrets you enter
 

@@ -34,11 +34,13 @@ The analysis result is one of these:
     In **Use for deployment**, enter a command the built image can run, for example `npm run migrate`. If your application doesn't need a separate migration step, turn on **No separate migration** instead.
   </Step>
   <Step title="Save">
-    Select **Save**. To go back to the command the analysis found, open the setting again and select **Reset to detected**.
+    Select **Save**.
   </Step>
 </Steps>
 
 New deployments use your choice. Each existing deployment uses it the next time you deploy a release to it, and keeps running as it is until then.
+
+To undo your choice, open the setting again and select **Reset to detected**. New deployments then use the command the analysis found, and existing deployments go back to the command they were created with.
 
 <Note>
   You can't add a migration command to a deployment that was created without a separate migration step. Deploying to it fails with "This deployment was created without a separate migration step, so a migration command cannot be added to it." Choose **No separate migration** for the application, or create a new deployment for that customer.
@@ -56,9 +58,11 @@ The migration succeeds only when the command exits with code `0`. Deployz runs t
 
 If the migration fails, Deployz doesn't update any service. The previous release keeps serving customers, and the deployment shows **Migration failed**. Fix the migration in your repository and create a new release, or correct the migration command, then deploy again. See [Failure codes](/reference/failure-codes).
 
-### A migration that already ran isn't repeated
+### When a migration runs again
 
-Deployz records each migration that succeeds on a deployment, by its command and release image. If you deploy the same release again with the same command, for example to retry a failed rollout, the migration doesn't run again. A changed command counts as a new migration, so it runs even for the same release.
+Deployz skips the migration only when an earlier update of the deployment finished successfully with the same command and release image. A changed command counts as a new migration, so it runs even for the same release.
+
+**Retry update** starts a new update. If an earlier attempt ran the migration and then failed, for example during the rollout, the migration runs again. Write migrations that are safe to run more than once, for example by using a migration tool that records which migrations it has applied.
 
 ### Rollback and restart don't run migrations
 
@@ -81,4 +85,6 @@ After a rollback, the previous release runs against the newer schema. To keep th
 
 ## Migrations and releases
 
-A release doesn't carry its own migration command. Every deployment runs the command from the application's **Database migrations** setting, described above. To change what runs, change that setting.
+A release doesn't carry its own migration command. Each deployment keeps the migration command it was created with. Re-analyzing the application doesn't change the command for existing deployments.
+
+When you set a command or choose **No separate migration** on the **Database migrations** setting, every deployment uses your choice on its next release deployment. **Reset to detected** returns existing deployments to the command they were created with.

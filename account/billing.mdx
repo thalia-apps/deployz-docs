@@ -3,7 +3,7 @@ title: "Pricing and billing"
 description: "What's free, what you pay for, and how billing works."
 ---
 
-You can evaluate Deployz for free, with no card and no time limit. You pay once you subscribe to install your application for customers: a $49/month platform fee, plus $19/month for each customer deployment while it's live.
+You can evaluate Deployz for free, with no card and no time limit. You pay once you subscribe to install your application for customers: a $49/month platform fee, plus $19/month for each customer deployment while it runs for your customer.
 
 Deployz fees cover the platform. AWS bills your customer directly for the resources their deployment uses. You don't resell infrastructure. See [Sizes and AWS cost](/share/sizes-and-cost).
 
@@ -22,9 +22,9 @@ A test deployment is never charged. AWS bills the account you install it into fo
 | Charge | Price | Starts | Stops |
 | --- | --- | --- | --- |
 | Platform | $49/month | When you subscribe | When you cancel your subscription |
-| Each customer deployment | $19/month | When the deployment first becomes ready | When you remove it, as soon as Deployz accepts the removal |
+| Each customer deployment | $19/month | When the deployment first becomes ready | When you remove it, as soon as Deployz accepts the removal. Paused while the deployment has failed or its connector is offline. |
 
-Prices are in US dollars. For example, with five live customer deployments, you pay $49 + 5 × $19 = $144 a month.
+Prices are in US dollars. For example, with five customer deployments running for your customers, you pay $49 + 5 × $19 = $144 a month.
 
 ### When the platform fee starts
 
@@ -32,15 +32,25 @@ The platform fee starts when you subscribe. You subscribe before a customer can 
 
 ### When a deployment's charge starts and stops
 
-A customer deployment counts only while it's live. Deployz starts charging for it the first time it reaches a verified ready state, with the application running and reachable over HTTPS. A deployment that's waiting for the customer, still installing, or failed its first install isn't charged.
+A customer deployment is charged only while it runs for your customer.
 
-The charge stops as soon as Deployz accepts your request to remove the deployment. Retained data that you haven't deleted can keep costing money in your customer's AWS account, but it doesn't add to your Deployz bill. See [Remove a deployment](/operate/remove).
+- **Start.** Deployz starts charging the first time the deployment reaches a verified ready state, with the application running and reachable over HTTPS. A deployment that's waiting for the customer, still installing, or failed its first install isn't charged.
+- **Pause.** Deployz pauses the charge while the deployment has failed with nothing running for your customer, or while its Deployz connector is offline. The connector counts as offline after 15 minutes without a check-in, so a short gap doesn't pause billing. Deployz checks every 15 minutes, so a pause can take up to 15 minutes to apply.
+- **Resume.** The charge resumes when the deployment is ready again, or when its connector reconnects and the application is healthy.
+- **Failed updates.** A failed update that keeps the previous release running for your customer is still charged.
+- **Stop.** The charge stops as soon as Deployz accepts your request to remove the deployment.
 
-When the number of live deployments changes during a billing period, our billing partner adjusts the charge for the rest of the period.
+A test deployment is never charged.
+
+While a deployment is paused, its page in the dashboard shows **Billing paused — not counted while it is failed or disconnected**.
+
+After removal, retained data that you haven't deleted can keep costing money in your customer's AWS account, but it doesn't add to your Deployz bill. See [Remove a deployment](/operate/remove).
+
+When the number of charged deployments changes during a billing period, our billing partner adjusts the charge for the rest of the period.
 
 ### Included production deployments
 
-Your organization might have a number of included production deployments. They're shared across all your applications and customers. You're charged $19/month only for each live customer deployment beyond that number. Included deployments don't replace the platform fee. When your organization has any, the **Billing** page shows how many.
+Your organization might have a number of included production deployments. They're shared across all your applications and customers. You're charged $19/month only for each charged customer deployment beyond that number. Included deployments don't replace the platform fee. When your organization has any, the **Billing** page shows how many.
 
 ## Start a subscription
 
@@ -59,7 +69,7 @@ When the payment goes through, your customers can confirm their install links an
 Select **Billing** in the sidebar.
 
 - **During evaluation**, the page shows **Evaluation — free**, what's included, and what starts billing.
-- **With a subscription**, **Current charges** shows your subscription status, the next billing date, the platform fee, the number of active, included, and billed production deployments, the live deployments by customer, and your monthly total.
+- **With a subscription**, **Current charges** shows your subscription status, the next billing date, the platform fee, the number of active, paused, included, and billed production deployments, the deployments by customer, and your monthly total. Paused deployments appear only when you have any.
 
 ## Manage payment details and invoices
 

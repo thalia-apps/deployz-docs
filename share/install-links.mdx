@@ -59,4 +59,6 @@ Disabling, regenerating, or revoking a link never affects deployments that custo
 2. Deployz creates a customer record from the name and email the customer entered, and a customer deployment with the Region and size they chose. The Region and size can't change after this.
 3. The deployment appears in **Deployments** and the customer in **Customers**. The customer continues on the install page to connect their AWS account.
 
+The new deployment has its own install link, valid for 30 days after the customer confirms. The deployment's **Install link** card shows the expiry date. If the link expires before the customer's AWS account connects, select **Issue new install link** on the deployment to make it valid for 30 more days. See [Reconnect or update the Deployz connector](/operate/connector#you-issue-a-new-install-link).
+
 Billing for the deployment starts only when it first becomes ready. See [Pricing and billing](/account/billing).

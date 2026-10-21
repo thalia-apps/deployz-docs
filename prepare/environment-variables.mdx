@@ -93,6 +93,13 @@ In **When used**, choose when your application reads the variable:
 Build values have limits:
 
 - Only you can provide a build value. **Set by customer** and **Managed by Deployz** are runtime only, because every customer gets the same image.
+- Deployz passes each build value to Docker as a build argument. Your Dockerfile must declare an `ARG` with the same name, in the build stage that uses it and before the step that reads it. Without that declaration, the build doesn't receive the value. For example:
+
+  ```dockerfile
+  ARG NEXT_PUBLIC_API_URL
+  RUN npm run build
+  ```
+
 - A build value is part of the release image. Anyone who can pull the image might be able to read it, so don't use build values for secrets.
 - If a required build value has no value, you can't create a release. The **New release** form lists the missing names with a **Review configuration** link.
 

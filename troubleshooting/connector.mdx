@@ -32,17 +32,17 @@ If **Retry connection** says the deployment was already installed, your customer
 
 **Symptom:** Your customer created the connector stack, but the install page keeps showing **Still connecting**, and the stack in AWS completed without errors.
 
-**Cause:** The stack was created from an install link that was replaced afterward, so its credential no longer matches. Deployz refuses a connector whose credential doesn't match. This happens when you issue a new install link after your customer has already opened the old one.
+**Cause:** The stack was created with values from before you issued a new install link. A new install link keeps the same address, but it changes the connection code and the connector credential. Deployz refuses a connector whose credential doesn't match. This happens when you issue a new install link after your customer has already started the setup.
 
 **Fix:**
 
 **Who:** your customer, in their AWS console and on the install page.
 
-1. Open the latest install link you sent.
+1. Reopen the install link, so the page shows the current values.
 2. If the page shows **Reconnect the existing connector**, update the existing connector stack with the values shown. Don't create a second stack.
-3. Otherwise, select **Retry connection** and create the stack from the new link. The stack created from the old link can't connect, so your customer can delete it in CloudFormation.
+3. Otherwise, select **Retry connection** and create the stack from the page. The stack created with the old values can't connect, so your customer can delete it in CloudFormation.
 
-**Who acts:** your customer. If you aren't sure which link is current, select **Issue new install link** on the deployment's install link card and send that link.
+**Who acts:** your customer. If you aren't sure which values your customer used, select **Issue new install link** in the deployment's **Install link** card, and ask your customer to reopen the link.
 
 ## The connector is offline
 
@@ -79,11 +79,11 @@ Operations you started before the connector went offline wait for it. If it does
 
 1. In the dialog, select **Issue new install link**.
 2. Send the new link to your customer.
-3. Your customer opens the link and follows **Reconnect the existing connector** to update the existing stack. See [Your customer reconnects the existing connector](/operate/connector#your-customer-reconnects-the-existing-connector).
-4. When the connector is back online, select **Retry deployment** again.
+3. Your customer opens the link and follows the steps it shows. If it shows **Reconnect the existing connector**, they update the existing stack. See [Your customer reconnects the existing connector](/operate/connector#your-customer-reconnects-the-existing-connector).
+4. When the connector connects, Deployz starts the install again. You don't need to select **Retry deployment** again.
 
 <Warning>
-  A new install link replaces the old one. The old link stops working. If the connector is already installed, your customer must update the existing connector stack, not create a second one. A second connector stack for the same deployment isn't supported.
+  A new install link keeps the same address, but it changes the connection code and the connector credential. A connector stack or Quick Create link started with the old values stops working. If the connector is already installed, your customer must update the existing connector stack, not create a second one. A second connector stack for the same deployment isn't supported.
 </Warning>
 
 ## The connector needs an update

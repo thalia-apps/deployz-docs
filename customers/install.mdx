@@ -106,13 +106,13 @@ AWS can report a failed resource before the deployment stops. When it does, the 
 
 ### If the deployment fails
 
-The page shows **Deployment failed** with what happened and whether anything from the attempt remains in your account. Unless the page says otherwise, no action is required from you: your software provider is notified and can retry the deployment. If something in your AWS account or setup must change first, such as a quota or an organization policy, the page says so. Make the change, then contact your software provider to retry.
+The page shows **Deployment failed** with what happened and whether anything from the attempt remains in your account. Unless the page says otherwise, no action is required from you: your software provider is notified and can retry the deployment. If something in your AWS account or setup must change first, such as a quota or an organization policy, the page says so. Make the change, then contact your software provider to retry. This page has no retry for a failed install. Your software provider starts it.
 
 ## Open the application
 
 When the page shows **Your application is ready**, select **Open application**.
 
-Under **Access**, the page shows the address where the application is available. This is a permanent HTTPS address that Deployz provides on `deployz.dev`, so you don't need to change any DNS. Traffic to this address passes through Deployz's Cloudflare edge before it reaches the load balancer in your account.
+Under **Access**, the page shows the address where the application is available. This is a permanent HTTPS address that Deployz provides on `deployz.dev`, so you don't need to change any DNS. Traffic to this address passes through the Deployz Cloudflare network, where HTTPS ends, before it reaches the load balancer in your account over a new HTTPS connection. If you don't want your application traffic to pass through Deployz, ask your software provider to add a custom domain, and use only that address. See [Security and AWS access](/customers/security#application-traffic).
 
 If your software provider sets up a custom domain for the application, a **Custom domain** card on this page shows the DNS records to create. See [Create custom domain DNS records](/customers/custom-domain-dns).
 

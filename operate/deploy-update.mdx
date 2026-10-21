@@ -27,7 +27,7 @@ The deployment changes to **Updating**, and the detail page shows **Updating you
 
 ## What happens during an update
 
-1. **The database migration runs first.** If your application has a separate migration step, Deployz runs it once, after the infrastructure and database are ready and before any service changes. The migration must finish with exit code `0`. If Deployz retries the same update, a migration that already succeeded doesn't run again. To set up migrations, see [Database migrations](/prepare/migrations).
+1. **The database migration runs first.** If your application has a separate migration step, Deployz runs it once, after the infrastructure and database are ready and before any service changes. The migration must finish with exit code `0`. **Retry update** starts a new update, so a migration that succeeded in a failed attempt runs again. Your migrations must be safe to run more than once. To set up migrations, see [Database migrations](/prepare/migrations#when-a-migration-runs-again).
 2. **Each service moves to the new release.** Your current release keeps serving until the new one is running.
 3. **The connector verifies the new release.** The update succeeds only when the connector confirms that the new release is running and healthy. See [Deployment status and health](/operate/deployment-status).
 

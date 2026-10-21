@@ -104,15 +104,14 @@ To see them, ask your customer to open CloudWatch Logs in the deployment's Regio
 
 ## The application fails to reach its database
 
-**Symptom:** Failure code `DATABASE_CONNECTION_FAILED` or `RDS_UNAVAILABLE`. The recovery panel says the application can't reach its database, or that the database isn't reachable right now.
+**Symptom:** Failure code `DATABASE_CONNECTION_FAILED`. The recovery panel says the application started but can't reach its database.
 
 **Checks:**
 
-1. **Is the database still starting?** `RDS_UNAVAILABLE` during a first install often clears on its own. Wait a few minutes, then deploy again.
-2. **Does the application read its connection settings from the environment?** Deployz provides `DATABASE_URL`, plus `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`, `DATABASE_USER`, and `DATABASE_PASSWORD`. A hard-coded host or a different variable name won't connect.
-3. **Does the application accept an encrypted connection?** The connection settings Deployz provides use TLS. For PostgreSQL, `DATABASE_URL` includes `sslmode=require`. The certificate bundle for the database is in the container, and `NODE_EXTRA_CA_CERTS` points to it. Make sure your database client doesn't turn TLS off.
+1. **Does the application read its connection settings from the environment?** Deployz provides `DATABASE_URL`, plus `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`, `DATABASE_USER`, and `DATABASE_PASSWORD`. A hard-coded host or a different variable name won't connect.
+2. **Does the application accept an encrypted connection?** The connection settings Deployz provides use TLS. For PostgreSQL, `DATABASE_URL` includes `sslmode=require`. The certificate bundle for the database is in the container, and `NODE_EXTRA_CA_CERTS` points to it. Make sure your database client doesn't turn TLS off.
 
-**Fix:** Change the application to read the provided values and accept TLS, create a new release, and deploy it. If the database stays unreachable, ask your customer to check it in their AWS account.
+**Fix:** Change the application to read the provided values and accept TLS, create a new release, and [deploy it](#deploy-again-after-a-fix). If the database stays unreachable, ask your customer to check it in their AWS account.
 
 **Who acts:** you. Your customer checks the database only if it stays unavailable.
 
@@ -122,7 +121,7 @@ To see them, ask your customer to open CloudWatch Logs in the deployment's Regio
 
 **Checks:** Make sure the application reads `REDIS_URL`, or `REDIS_HOST` and `REDIS_PORT`, from the environment. The cache connection isn't encrypted, so the URL starts with `redis://`. A client that requires `rediss://` (TLS) can't connect.
 
-**Fix:** Deploy again. If it keeps failing, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur).
+**Fix:** [Retry](#deploy-again-after-a-fix). If it keeps failing, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur).
 
 **Who acts:** you.
 
