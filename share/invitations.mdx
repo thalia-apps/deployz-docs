@@ -56,7 +56,7 @@ You can create an invitation from the **Invite customer** page or from a custome
 On the **Invite customer** page, **Invitation created** also offers **Set up configuration**. Use it to enter this customer's configuration values for them, instead of having the customer enter them on the install page.
 
 <Warning>
-  Treat the invitation link like a password. Anyone who has it can review and confirm the install for this customer, until it's used or expires.
+  Treat the invitation link like a password. Anyone who has it can review and confirm the install for this customer, until it's used, expires, or you [revoke it](#revoke-an-invitation).
 </Warning>
 
 ## What your customer does next
@@ -67,6 +67,8 @@ On the **Invite customer** page, **Invitation created** also offers **Set up con
 2. They choose the AWS Region and size, enter any values you asked them to provide, and review the resources and estimated monthly AWS cost.
 3. They confirm. Deployz creates the deployment, with the Region and size they chose. Neither can be changed later.
 4. They connect their AWS account and follow the install progress until the application is ready.
+
+After the customer confirms, the new deployment has its own install link, valid for 30 days. The deployment's **Install link** card shows the expiry date. If the link expires before the customer's AWS account connects, select **Issue new install link** on the deployment to make it valid for 30 more days. See [Reconnect or update the Deployz connector](/operate/connector#you-issue-a-new-install-link).
 
 [Install the application](/customers/install) covers each step from the customer's side.
 
@@ -81,4 +83,16 @@ Open the customer in **Customers**. **Invitations** lists each invitation with i
 | **Active** | The customer can still open and confirm it. |
 | **Used** | The customer confirmed it. The deployment is listed under the customer. |
 | **Expired** | 30 days passed without a confirmation. Create a new invitation. |
-| **Revoked** | The invitation was revoked and can't be used. |
+| **Revoked** | You revoked the invitation. It can't be used. |
+
+## Revoke an invitation
+
+**Who:** you, in the Deployz dashboard.
+
+Revoke an invitation when it was sent to the wrong person, or when you no longer want the customer to install from it. You can revoke only an **Active** invitation, and you can't undo it.
+
+1. In **Customers**, open the customer.
+2. In **Invitations**, select **Revoke** next to the invitation.
+3. In **Revoke this invitation?**, select **Revoke**.
+
+The invitation link stops working, and the customer can't start an install from it. No AWS resources are removed. To let the customer install, create a new invitation.

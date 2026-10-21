@@ -145,15 +145,15 @@ Before you retry, make sure the cause is fixed. Retrying a failure that needs a 
 3. Review the dialog. Deployz removes the failed infrastructure from the previous attempt in your customer's account, then runs the install again. No data is lost.
 4. Select **Retry deployment** to confirm.
 
-Your customer doesn't need to do anything for the retry. Progress shows on the deployment page and on their install page.
+Your customer doesn't need to do anything for the retry, and their install page has no retry for a failed install. Progress shows on the deployment page and on their install page.
 
 What you see instead of **Retry deployment** depends on the failure:
 
 | You see | What it means |
 | --- | --- |
-| **Retry deployment** | You can retry once the cause is fixed. |
-| **Check again** | The failure can clear on its own. Wait, then reload the page. |
+| **Retry deployment** | You can retry once the cause is fixed. Deployz offers it for every failure code except those that need Deployz. |
 | **Contact Deployz support** | The fault is on the Deployz side. [Contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur) instead of retrying. |
-| A message that the connector is disconnected | The retry needs the connector. See [Fix connector problems](/troubleshooting/connector). |
+| **Issue new install link** in the **Retry deployment** dialog, with the retry button unavailable | The connector is disconnected or never connected, and the retry needs it. Issue a new install link and send it to your customer. When the connector connects, the install starts again. See [Retry deployment says the connector is disconnected](/troubleshooting/connector#retry-deployment-says-the-connector-is-disconnected). |
+| **Deploy update** | The install succeeded, but no release started. Deploy a release instead. See [Deploy an update](/operate/deploy-update). |
 
 **Retry deployment** is only for a first install that failed. Once an install has succeeded, you recover by deploying again with **Deploy update** or **Retry update**. See [Deploy an update](/operate/deploy-update).

@@ -23,8 +23,20 @@ In practice:
 An application is one GitHub repository connected to Deployz. Each repository can be added once per organization. The application's page has three tabs:
 
 - **Overview:** the application's status and its one next action.
-- **Configuration:** the detected services, size presets, environment variables, and settings. Changes here are the defaults for new deployments.
+- **Configuration:** the detected services, size presets, environment variables, and settings.
 - **Releases:** the versions Deployz has built.
+
+Changes on **Configuration** reach deployments at different times:
+
+- **Runtime environment variables** reach running deployments within minutes.
+- **Build environment variables** apply to releases built after the change.
+- **The migration command** applies to new deployments, and to an existing deployment on its next release deployment. See [Database migrations](/prepare/migrations).
+- **Size presets** apply only to new install links and new deployments.
+- **The container port, the health check path, and services** (database, cache, and file storage) apply only to new deployments.
+
+Existing deployments keep the size, values, and resources they were created with.
+
+To change one customer's values, see [Change a customer's configuration](/operate/configuration).
 
 Deployz analyzes the repository when you add the application, and again when you select **Re-analyze application**. Analysis decides whether the application fits the supported architecture. See [Application requirements](/prepare/requirements).
 
