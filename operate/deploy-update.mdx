@@ -3,6 +3,8 @@ title: "Deploy an update"
 description: "Deploy a new release to a customer's deployment, and what happens if the update fails."
 ---
 
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
 Deploy an update to move a customer's deployment to a different release of your application. Your customer doesn't need to do anything. The application keeps serving its current release until the new one passes its health checks.
 
 ## Before you start
@@ -11,12 +13,16 @@ Deploy an update to move a customer's deployment to a different release of your 
 - The deployment must be installed, its Deployz connector must be **Online**, and no other operation can be running on it. See [When an update is unavailable](#when-an-update-is-unavailable).
 - If the release adds infrastructure, such as a database, a cache, or a new worker, it can't go to an existing deployment. See [Changes that need a new deployment](#changes-that-need-a-new-deployment).
 
+<Warning>
+If your application has a separate migration step, the update runs it before any service changes. A migration that succeeded stays applied, even if the rest of the update fails, and rolling back doesn't reverse it. A retried update can run the migration again. Make your migrations safe to run more than once and compatible with the previous release. See [Keep migrations safe for rollback](/prepare/migrations#keep-migrations-safe-for-rollback).
+</Warning>
+
 ## Deploy the update
 
 **Who:** you (the vendor), in the Deployz dashboard.
 
 1. In **Deployments**, open the customer's deployment.
-2. Select **Deploy update**. When a newer release is ready, the button reads **Deploy update to `<version>`**. After a failed update, it reads **Retry update**.
+2. Select **Deploy update**. When a newer release is ready, the button reads **Deploy update to `<version>`**. After a failed update, it reads **Retry update** and opens the same release picker, so you choose the release again.
 3. In **Release to deploy**, choose the release. The list shows releases that built successfully, newest first, except the one already running.
 4. Check the summary. **Current** and **New** show the two versions. **Infrastructure** shows **Unchanged**, or **Requirements changed** if the application now needs different infrastructure than this deployment has.
 5. Select **Deploy update**.
@@ -27,11 +33,13 @@ The deployment changes to **Updating**, and the detail page shows **Updating you
 
 ## What happens during an update
 
-1. **The database migration runs first.** If your application has a separate migration step, Deployz runs it once, after the infrastructure and database are ready and before any service changes. The migration must finish with exit code `0`. **Retry update** starts a new update, so a migration that succeeded in a failed attempt runs again. Your migrations must be safe to run more than once. To set up migrations, see [Database migrations](/prepare/migrations#when-a-migration-runs-again).
+1. **The database migration runs first.** If your application has a separate migration step, Deployz runs it after the infrastructure and database are ready and before any service changes. The migration must finish with exit code `0`. **Retry update** starts a new update, so a migration that succeeded in a failed attempt runs again. See [When a migration runs again](/prepare/migrations#when-a-migration-runs-again).
 2. **Each service moves to the new release.** Your current release keeps serving until the new one is running.
 3. **The connector verifies the new release.** The update succeeds only when the connector confirms that the new release is running and healthy. See [Deployment status and health](/operate/deployment-status).
 
 An update changes only the release. The deployment's configuration stays as it is. If your application has scheduled jobs (**Preview**), they move to the new release only after the update succeeds.
+
+An update keeps the container port and health check path the deployment was created with. Changes to those settings on the application apply only to new deployments. If you saved a different migration command on the application, the update uses it. If you select **Reset to detected** for the migration command, the deployment goes back to the command it was created with. See [Database migrations](/prepare/migrations).
 
 ## If the update fails
 
@@ -42,10 +50,6 @@ A failed update never takes down the release that was running. The deployment re
 - If the migration failed, no service was changed, and the previous release keeps serving.
 
 The recovery panel on the detail page explains what failed and what to do next. Fix the cause, then select **Retry update**, or deploy a different release. See [Find your problem](/troubleshooting/overview) and [Failure codes](/reference/failure-codes).
-
-<Warning>
-A migration that succeeded stays applied, even if the rest of the update fails. Rolling back to an earlier release doesn't reverse it. Write migrations that the previous release can still run against. See [Roll back a deployment](/operate/rollback).
-</Warning>
 
 ## When an update is unavailable
 

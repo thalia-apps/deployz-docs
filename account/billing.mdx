@@ -3,11 +3,13 @@ title: "Pricing and billing"
 description: "What's free, what you pay for, and how billing works."
 ---
 
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
 You can evaluate Deployz for free, with no card and no time limit. You pay once you subscribe to install your application for customers: a $49/month platform fee, plus $19/month for each customer deployment while it runs for your customer.
 
 Deployz fees cover the platform. AWS bills your customer directly for the resources their deployment uses. You don't resell infrastructure. See [Sizes and AWS cost](/share/sizes-and-cost).
 
-## What's free
+## Free evaluation
 
 Evaluation is free and never expires. It includes:
 
@@ -28,9 +30,9 @@ Prices are in US dollars. For example, with five customer deployments running fo
 
 ### When the platform fee starts
 
-The platform fee starts when you subscribe. You subscribe before a customer can confirm an invitation, or when you add your first customer deployment. The first charge covers the platform fee only, because no customer deployment is live yet.
+The platform fee starts when you subscribe. Subscribe before your first customer confirms an install link or invitation, because a customer can confirm only while your subscription is active. You start the subscription from the **Invite customer** page. See [Start a subscription](#start-a-subscription). The first charge covers the platform fee only, because no customer deployment is live yet.
 
-### When a deployment's charge starts and stops
+### When a customer deployment is charged
 
 A customer deployment is charged only while it runs for your customer.
 
@@ -46,11 +48,15 @@ While a deployment is paused, its page in the dashboard shows **Billing paused â
 
 After removal, retained data that you haven't deleted can keep costing money in your customer's AWS account, but it doesn't add to your Deployz bill. See [Remove a deployment](/operate/remove).
 
-When the number of charged deployments changes during a billing period, our billing partner adjusts the charge for the rest of the period.
+When the number of charged deployments changes during a billing period, Deployz updates your subscription with its billing partner, Paddle. The change is prorated for the rest of the period and applied right away, not at your next billing date. If Deployz can't reach Paddle at that moment, it retries later, so an update can take some time to appear.
 
 ### Included production deployments
 
 Your organization might have a number of included production deployments. They're shared across all your applications and customers. You're charged $19/month only for each charged customer deployment beyond that number. Included deployments don't replace the platform fee. When your organization has any, the **Billing** page shows how many.
+
+## Who can manage billing
+
+Any member of your organization can start a subscription, open the billing portal, and update payment details. Billing isn't limited to the owner or admins. See [Roles](/account/organization-and-team#roles).
 
 ## Start a subscription
 
@@ -60,7 +66,9 @@ Your organization might have a number of included production deployments. They'r
 2. In **Start your subscription**, select **Start subscription**.
 3. Enter your payment details in the checkout window and complete the payment.
 
-When the payment goes through, your customers can confirm their install links and invitations.
+When the payment goes through, the page shows "Payment received. Customers can now confirm installations." Your customers can now confirm install links and invitations.
+
+The **Start your subscription** section appears on the **Invite customer** page while you're evaluating or after your subscription was canceled. If your payment failed or your subscription is paused, the page shows **Update your payment details** or **Resume your subscription** instead.
 
 ## Check your charges
 
@@ -70,6 +78,9 @@ Select **Billing** in the sidebar.
 
 - **During evaluation**, the page shows **Evaluation â€” free**, what's included, and what starts billing.
 - **With a subscription**, **Current charges** shows your subscription status, the next billing date, the platform fee, the number of active, paused, included, and billed production deployments, the deployments by customer, and your monthly total. Paused deployments appear only when you have any.
+- **After you cancel**, the page still shows **Current charges**, with a **Canceled** badge. A banner across the dashboard says **Your subscription has ended**.
+
+If your last payment failed, a banner across the dashboard says **Your last payment did not go through**, with **Update payment details**. A paused subscription shows no banner.
 
 ## Manage payment details and invoices
 

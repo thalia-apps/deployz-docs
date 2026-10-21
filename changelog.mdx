@@ -3,8 +3,40 @@ title: "Changelog"
 description: "Changes to Deployz and its documentation that affect vendors and their customers."
 ---
 
-{/* Add an <Update> entry for each user-visible change: new Regions, features leaving Preview, pricing changes, removed flows. */}
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
 
-<Note>
-  The first entries will appear here when Deployz launches.
-</Note>
+{/* Add an <Update> entry for each user-visible change: new Regions, features leaving Preview, pricing changes, removed flows. Newest entry first. */}
+
+<Update label="2026-10-21" description="Security, billing, and recovery" tags={["Security", "Billing", "Deployments", "Analysis"]}>
+  **Security**
+
+  - The Deployz connector's permissions are now limited to its own deployment, by tag or by resource name. Several deployments can share one AWS account and Region. A few actions can't be limited this way, and connector stacks created earlier keep their wider permissions until your customer updates them. See [Exceptions to installation scoping](/customers/security#exceptions-to-installation-scoping).
+  - New connector stacks include an application role boundary. Every IAM role the application stack creates must carry it, which caps what those roles can do. See [Application role boundary](/customers/security#application-role-boundary).
+  - The **Security details** page now explains how application traffic reaches the customer's account: traffic to the default `deployz.dev` address passes through the Deployz Cloudflare network, and traffic to a custom domain doesn't. See [Application traffic](/customers/security#application-traffic).
+
+  **Billing**
+
+  - A production deployment that has failed or lost contact with its connector is now paused for billing and isn't charged. Charges start again when it's live. See [Pricing and billing](/account/billing).
+
+  **Deployments and recovery**
+
+  - A failed first install now offers **Retry deployment** in cases that used to have no recovery action, such as failures that said the problem could clear on its own. If the connector is offline, the **Retry deployment** dialog offers **Issue new install link** instead. Failures that need Deployz still ask you to [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur).
+  - A deployment whose install finished but never started a release now offers **Deploy update**.
+  - The customer's install page no longer offers a retry after a failed install. You retry it from the dashboard.
+  - **Issue new install link** now renews the deployment's install link for 30 days, and the deployment page shows when the link expires.
+  - You can now revoke an active customer invitation from the customer's page with **Revoke**. See [Invite a specific customer](/share/invitations).
+  - The `RDS_UNAVAILABLE` failure code is removed, because nothing raised it. A deployment that recorded it now shows `UNKNOWN`. See [Failure codes](/reference/failure-codes).
+
+  **Analysis and configuration**
+
+  - When analysis finds no health check route, the health check now uses `/` and accepts a redirect as healthy. Analysis asks you only when it finds a health handler whose route it can't resolve.
+  - Analysis asks fewer questions that didn't need an answer, for example about migrations your application already runs when it starts.
+  - **Reset to detected** now works for the container port, the health check path, and the migration command. The edit dialogs say when each change reaches deployments, and that a build value needs a matching `ARG` in your Dockerfile. See [Configure environment variables](/prepare/environment-variables).
+</Update>
+
+<Update label="2026-10-20" description="Analysis outcome and release form" tags={["Analysis", "Releases", "Billing"]}>
+  - The application's **Overview** now shows one deployability outcome: **Deployable with Deployz settings**, **Deployable after repository changes**, or **Not deployable on Deployz**. Required changes are grouped under **Set in Deployz**, **Change in your repository**, and **Not supported**. See [Quickstart](/quickstart).
+  - Fewer applications are wrongly reported as not deployable.
+  - The **New release** form no longer has a migration command field, because nothing used it. The migration command is an application setting. See [Database migrations](/prepare/migrations).
+  - The billing page now says that the platform fee starts when you subscribe. See [Pricing and billing](/account/billing).
+</Update>

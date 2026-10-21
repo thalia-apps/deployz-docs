@@ -1,0 +1,13 @@
+{/* Source: packages/contracts/src/pricing.ts (REGION_PRICE_FACTOR). Last checked against deployz commit 0c21c52e on 2026-10-21. */}
+
+The estimate multiplies each baseline range by a factor for the AWS Region:
+
+| Factor | Regions |
+| --- | --- |
+| 1.0 | US East (N. Virginia), US East (Ohio), US West (Oregon) |
+| 1.1 | US West (N. California), Canada (Central), Europe (Ireland), Europe (Frankfurt), Europe (Stockholm), Asia Pacific (Mumbai), Asia Pacific (Singapore) |
+| 1.2 | Europe (London), Europe (Paris), Asia Pacific (Tokyo), Asia Pacific (Seoul), Asia Pacific (Osaka) |
+| 1.3 | Asia Pacific (Sydney) |
+| 1.5 | South America (São Paulo) |
+
+The factors are approximate. They don't reproduce each Region's exact AWS prices.

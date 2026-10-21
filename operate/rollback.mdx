@@ -3,12 +3,14 @@ title: "Roll back a deployment"
 description: "Return a deployment to the release it ran before the current one."
 ---
 
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
 Roll back when the current release causes problems and you want the customer's deployment back on the release it ran before. A rollback restores the previous release of your application. It doesn't touch the database or stored files.
 
 <Warning>
 Application rollback does not automatically reverse database migrations.
 
-A rollback never runs migrations, in either direction. If the current release changed the database schema, the previous release runs against the changed schema. Write migrations that the previous release can still run against, and check this before you roll back.
+A rollback never runs migrations, in either direction. If the current release changed the database schema, the previous release runs against the changed schema. Check that the previous release still works with it before you roll back. See [Keep migrations safe for rollback](/prepare/migrations#keep-migrations-safe-for-rollback).
 </Warning>
 
 ## What a rollback changes
@@ -35,10 +37,12 @@ The deployment changes to **Updating**, and the detail page shows **Rolling back
 
 If the rollback fails, the detail page shows **Rollback failed**, and the release that was running stays live. See [Find your problem](/troubleshooting/overview).
 
-## When rollback isn't available
+## When rollback is unavailable
 
 **Rollback** is unavailable in the **More actions** menu when:
 
 - **No previous successful release to roll back to.** The deployment has run only one release.
 - **The previous release is already running.** For example, you already rolled back after a failed update.
-- The deployment can't take actions right now: it isn't installed, the connector is offline, or another operation is running. The detail page shows the reason. See [When you can't deploy an update](/operate/deploy-update), which uses the same rules.
+- The deployment can't take actions right now: it isn't installed, the connector is offline, or another operation is running. The detail page shows the reason. The rules are the same as in [When an update is unavailable](/operate/deploy-update#when-an-update-is-unavailable).
+
+Deployz also refuses a rollback when the previous release no longer has a container image to deploy. The **Rollback deployment?** dialog then shows the reason. To move the deployment to a release that built successfully, use [Deploy an update](/operate/deploy-update).

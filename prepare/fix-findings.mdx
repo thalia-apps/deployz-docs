@@ -1,0 +1,58 @@
+---
+title: "Fix analysis findings"
+sidebarTitle: "Fix findings with a coding agent"
+description: "Get instructions for the findings the analysis reported, give them to your coding agent, and re-analyze."
+---
+
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
+Some findings need a change in your repository, such as adding a Dockerfile or moving file writes to S3. Deployz can write instructions for these changes that you paste into your coding agent, or follow yourself. Deployz doesn't change your repository.
+
+For a finding that's a setting, such as the port, you don't need instructions. Edit the setting on the **Configuration** screen. For what the findings mean, see [Analyze your application and read the results](/prepare/analysis#read-the-analysis-result).
+
+## What the instructions contain
+
+Deployz writes one document for all the unresolved findings of the latest analysis, required and recommended. For each finding, it describes the change, the evidence the analysis found, and how to tell the change is complete. When a finding is uncertain, the instructions tell the agent to check it before changing anything.
+
+Deployz builds the instructions from the analysis results, using AI to add detail specific to your repository. It doesn't send your repository's files or any environment variable values to the AI model. Generating instructions doesn't change your analysis result.
+
+## Get fix instructions
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+1. Open the application, select **Configuration**, then select **Resources**.
+2. Find a row marked **Change required**, **Recommended**, or **Needs input**.
+3. Select **Get fix instructions** on the row. For a recommended finding on a setting row, select the row's information button first, then **Get fix instructions**.
+
+The **Fix deployment issues with your coding agent** dialog opens and shows "Generating instructions…" while Deployz writes the document.
+
+## Use the instructions
+
+**Who:** you (the vendor), with your coding agent and in the Deployz dashboard.
+
+When the document is ready, the dialog shows it with the time it was generated.
+
+1. Select **Copy instructions**. The button changes to **Copied**.
+2. Paste the instructions into your coding agent, and let it make the changes. You can also follow them yourself.
+3. Review the changes, then push them to the application's branch on GitHub.
+4. In the dialog, select **Re-analyze application**. If you closed the dialog, open the **More actions** menu at the top of the application and select **Re-analyze application**.
+
+When the analysis finishes, check the result on the **Overview**. A finding you resolved is no longer listed. To deliver the change to customers, [create a release](/releases/create).
+
+If copying fails, select the text in the dialog and copy it manually.
+
+### Reused and regenerated instructions
+
+Deployz reuses a document it already wrote for the same commit and the same findings. A reused document shows "Reused from earlier. Regenerate for a new version." next to its date.
+
+To get a new version, select **Regenerate**. The current instructions stay on screen until the new version is ready. A new analysis always produces a new document.
+
+### If generating the instructions fails
+
+The dialog shows an error, such as "We couldn't generate the instructions right now. Try again in a moment." Select **Try again**. The failure doesn't affect your analysis result or your application.
+
+## Next steps
+
+- [Re-analyze the application](/prepare/analysis#re-analyze-the-application)
+- [What Deployz doesn't support](/prepare/not-supported)
+- [Fix analysis problems](/troubleshooting/analysis)

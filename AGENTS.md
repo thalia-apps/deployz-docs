@@ -116,7 +116,7 @@ The content plan is in `planning/content-strategy.md`, which `.mintignore` keeps
 | Use | Don't use |
 | --- | --- |
 | application | app (as a noun in headings), product |
-| release (the version is its label) | build, image (as a noun) |
+| release (the version is its label); "container image" only for the Docker artifact; "build" only for the act of building | build or image as a name for a release |
 | deployment; "install" as the verb for the first deployment | installation, environment |
 | test deployment | test install |
 | install link | deploy link, installation link |
@@ -134,10 +134,10 @@ The content plan is in `planning/content-strategy.md`, which `.mintignore` keeps
 
 - Start each procedure by saying who does it: the vendor in the Deployz dashboard, or the customer on the install page or in their AWS console.
 - State consequences before the action, especially for rollback, removal, Region, and size choices.
-- Mark features at Preview maturity with a Preview label.
+- Mark features at Preview maturity with a Preview label: write `(**Preview**)` after the feature name on its first mention in a section.
 - Add a new troubleshooting issue as a section on the matching stage page in `troubleshooting/`, and add a row for its symptom on the hub page (`troubleshooting/overview`). Don't add a menu item per issue. Split a stage page into sub-pages inside the **By stage** group only when it has more than about 10 issues.
 - Add a new failure code as a section on `reference/failure-codes`, not as a new page. Use the literal code in backticks as the `###` heading, which gives an anchor such as `#missing_secret`.
-- Keep apostrophes and other punctuation out of headings that other pages or the app link to. Mintlify keeps a curly apostrophe in the anchor, so `#the-port-doesnt-match` wouldn't resolve.
+- Keep apostrophes and other punctuation out of headings, since any heading can become a link target. Mintlify keeps a curly apostrophe in the anchor, so `#the-port-doesnt-match` wouldn't resolve.
 
 ### Content boundaries
 
@@ -146,7 +146,8 @@ The content plan is in `planning/content-strategy.md`, which `.mintignore` keeps
 - Don't document internal API routes. Deployz has no public API.
 - Don't document the legacy deploy link.
 - Keep the customer guide (`customers/*`) vendor-neutral until vendor branding is added.
-- Page URLs are linked from the Deployz app. Don't rename or move a page without adding a redirect in `docs.json`.
+- Treat page URLs and failure-code anchors as stable: the Deployz app may link to them. Don't rename or move a page without adding a redirect in `docs.json`.
+- Put a table that several pages need in `snippets/` and import it, instead of copying it. Keep snippets audience-neutral.
 - Send every "contact support" link to the support form linked in `docs.json`.
 
 ### Customer security content
@@ -155,3 +156,7 @@ The content plan is in `planning/content-strategy.md`, which `.mintignore` keeps
 - Verify each claim against its source: `packages/cdk/src/bootstrap/` (IAM permissions and tag conditions), `packages/relay/` (outbound-only connection, data sent to Deployz), the pending-secret code (secret deletion and backup periods), and the removal code (what is retained).
 - Report each claim as still true, changed, or can't verify, with the file and line as evidence. Don't publish a changed claim until both the docs and the in-app text are updated.
 - Record on each security page the `deployz` commit it was last checked against.
+
+### Verification markers
+
+- After you check a page against the code, put `{/* Last checked against deployz commit <sha> on <YYYY-MM-DD> */}` right after its frontmatter.

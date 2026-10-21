@@ -1,6 +1,8 @@
 # Documentation audit: issues list
 
-Status: findings for review · Audited 2026-10-21 · Docs at `c78bd5e` · Code at `deployz` `origin/main` `0b77379c` (#575)
+Status: docs items resolved · Audited 2026-10-21 · Docs at `c78bd5e` · Code at `deployz` `origin/main` `0b77379c` (#575)
+
+> **Update, 2026-10-21.** All high-priority items (H1–H16) are fixed in the docs, and so are the medium and low items. Most were fixed in the app as well, by `deployz` #576–#582. The docs were rechecked against `deployz` `0c21c52e`. The seven missing pages in section 4 now exist. The product issues in section 5 that remain open are still open in the app; the docs describe current behavior for each of them.
 
 `.mintignore` keeps this file off the published site, along with the rest of `planning/`.
 

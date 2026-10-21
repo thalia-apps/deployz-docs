@@ -3,7 +3,7 @@ title: "Remove the application from your AWS account"
 description: "What removal deletes, what remains in your AWS account, and how to delete it."
 ---
 
-{/* Last checked against deployz commit a3830513 (main), plus 7c783036 for the IAM installation scope (deployz PR #580, not yet merged), on 2026-10-21 */}
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
 
 Removing the application happens in up to three parts: your software provider removes the deployment, the data it kept is deleted, and you delete the Deployz connector stack. Do them in that order.
 
@@ -11,7 +11,7 @@ Removing the application happens in up to three parts: your software provider re
 
 **Who:** your software provider, in Deployz. You can't remove the deployment in Deployz yourself.
 
-Ask your software provider to remove the deployment. The connector then removes the application and most of its networking. It removes only resources tagged for this deployment.
+Ask your software provider to remove the deployment. The connector then removes the application and most of its networking, including the HTTPS certificates for the default address and any custom domain. It removes only resources tagged for this deployment.
 
 While this runs, the install page shows **Removing deployment**. When it finishes, it shows **Deployment removed** and lists **What can remain in your AWS account**.
 
@@ -29,19 +29,26 @@ Removal keeps these resources so that your data isn't lost:
   These retained resources keep costing money in your AWS account until they're deleted.
 </Warning>
 
+These also remain, at no cost:
+
+- Task-definition revisions that the connector registered in Amazon ECS
+- Service-linked roles that AWS created for Amazon ECS, Elastic Load Balancing, Amazon RDS, or Amazon ElastiCache. Other workloads in the account can use them too.
+
+Outside your account, Deployz keeps its operational records for the deployment, such as IDs, states, and timestamps, for records and billing history.
+
 ## 2. Delete the retained data
 
 You can ask your software provider to delete the retained data, or delete it yourself in the AWS console. Either way, the deletion is permanent.
 
 <Warning>
-  Deleting retained data deletes the database without a final snapshot, and deletes the storage bucket and its files. If you need the data, export it or take your own database snapshot first.
+  Deleting retained data deletes the database without a final snapshot, together with its automated backups, and deletes the storage bucket and its files. If you need the data, export it or take your own database snapshot first.
 </Warning>
 
 ### Ask your software provider
 
 **Who:** your software provider, in Deployz, while the connector is still in your account.
 
-**Delete retained data** is a separate step your software provider confirms explicitly. It deletes the database, the bucket, the application's secrets, the certificates, and the remaining network. It runs through the connector, so keep the connector stack until it finishes.
+**Delete retained data** is a separate step your software provider confirms explicitly. It deletes the database, the bucket, the application's secrets, any cache or certificates that removal didn't delete, the task-definition revisions the connector registered, and the remaining network. It runs through the connector, so keep the connector stack until it finishes.
 
 ### Delete it yourself
 
@@ -49,7 +56,7 @@ You can ask your software provider to delete the retained data, or delete it you
 
 The retained resources carry the `deployz:installation` tag with your deployment's installation ID. You can find them with the Tag Editor in AWS Resource Groups, in the application's Region.
 
-1. Turn off deletion protection on the database, then delete the database. The database is set to keep its automated backups after deletion. AWS keeps them for the rest of their 7-day retention period unless you delete them.
+1. Turn off deletion protection on the database, then delete the database. The Amazon RDS console asks whether to create a final snapshot and whether to keep the automated backups. Choose based on whether you still need the data. Kept backups remain for the rest of their 7-day retention period.
 2. Empty the storage bucket, then delete it.
 3. Delete the database's secrets in Secrets Manager.
 4. Delete the remaining network resources: the database's subnet group and security group, the subnets, and the VPC.
@@ -64,7 +71,12 @@ Delete the connector stack last. The connector stack holds the role that CloudFo
 2. Select the connector stack. Its name starts with `deployz-bootstrap-`, and the install page shows the exact name.
 3. Delete the stack.
 
-This deletes the connector function, its schedule, and its roles. Deployz shows the connector as disconnected once it stops checking in. For more on what this revokes, see [Security and AWS access](/customers/security).
+This deletes the connector function, its schedule, and its roles. Deployz shows the connector as disconnected once it stops checking in. For more on what this revokes, see [Security and AWS access](/customers/security#revoke-access).
+
+These remain after you delete the stack. You can delete them in the AWS console:
+
+- The CloudWatch Logs log groups of the connector and its helper functions, whose names start with `/aws/lambda/deployz-bootstrap-`. Their entries expire after one week.
+- Systems Manager parameters under `/deployz/<installation ID>/`, if a command was still unfinished
 
 ## If you delete the connector first
 

@@ -1,0 +1,100 @@
+---
+title: "Databases, cache, and file storage"
+sidebarTitle: "Databases, cache, and storage"
+description: "The database, cache, and S3 bucket Deployz creates for each deployment, and the environment variables your application reads to connect to them."
+---
+
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
+Deployz creates the data services your application needs inside each deployment, in the customer's AWS account. Your application connects to them through environment variables that Deployz sets. You don't create the services or enter their connection details yourself.
+
+The analysis decides which services your application needs. To change its decision, see [Choose which data services to create](/prepare/analysis#choose-which-data-services-to-create).
+
+<Warning>
+  A deployment keeps the data services it was created with. If your application later needs a database or cache that an existing deployment doesn't have, create a new deployment for that customer. See [Changing what a deployment contains](/prepare/not-supported#changing-what-a-deployment-contains).
+</Warning>
+
+## Database
+
+When your application needs a relational database, Deployz creates one Amazon RDS instance for the deployment:
+
+- **Engine:** PostgreSQL 16 or MySQL 8.0, depending on the driver your application uses.
+- **Database and user:** a database named `deployz` and a user named `deployz_app`. Deployz generates the password and stores it in AWS Secrets Manager in the customer's account.
+- **Storage:** starts at 20 GB of gp3 storage and grows automatically up to 100 GB. The instance class depends on the deployment's size. See [Sizes and AWS cost](/share/sizes-and-cost).
+- **Network:** private. The database isn't publicly accessible, and only the deployment's own containers can reach it.
+- **Encryption:** storage is encrypted at rest.
+- **Backups:** automated daily backups, kept for 7 days, taken between 03:00 and 05:00 UTC.
+- **TLS:** Deployz downloads the Amazon RDS certificate bundle for the Region into each container when it starts, at `/deployz/certs/rds-ca-bundle.pem`, and points the usual variables at it. The PostgreSQL connection URL includes `sslmode=require`. If the download fails, the container starts without the bundle.
+
+If your application runs migrations, see [Database migrations](/prepare/migrations).
+
+<Warning>
+  When a deployment is removed, the database, its backups, and its credentials stay in the customer's AWS account and keep costing money until the data is deleted. See [Remove a deployment](/operate/remove).
+</Warning>
+
+## Cache
+
+When your application needs Redis, Deployz creates a single-node Valkey cache with Amazon ElastiCache. Valkey is compatible with standard Redis clients.
+
+- **One node:** no replicas, no automatic failover, and no cluster mode.
+- **No TLS:** connections use `redis://`, not `rediss://`. The cache has no password.
+- **Network:** private. Only addresses inside the deployment's own network can reach it, on port `6379`.
+- **Removal:** the cache and its data are deleted when the deployment is removed.
+
+Applications that need Redis Stack modules, cluster mode, or TLS connections aren't supported. See [What Deployz doesn't support](/prepare/not-supported#redis-features).
+
+## File storage
+
+Every deployment gets one Amazon S3 bucket, whether or not your application uses it.
+
+- **Access:** your application's containers can read, write, list, and delete objects in the bucket. Credentials come from the container's AWS role through the AWS SDK's default credential chain, so your application doesn't need access keys.
+- **Security:** public access is blocked, and the bucket refuses requests that don't use HTTPS. Objects are encrypted with S3-managed keys.
+- **Versioning:** on. A lifecycle rule deletes old object versions 30 days after they're replaced or deleted, and removes incomplete multipart uploads after 7 days.
+
+<Warning>
+  When a deployment is removed, the bucket and its files stay in the customer's AWS account and keep costing money until they're deleted. See [Remove a deployment](/operate/remove).
+</Warning>
+
+## Variables Deployz sets
+
+Deployz sets these variables in every container of the deployment: the web service, each worker, the migration task, and each scheduled job. Queue variables are the exception: only the containers that send to or receive from a queue get them.
+
+| Variable | Value | Set when |
+| --- | --- | --- |
+| `NODE_ENV` | `production` | Always |
+| `PORT` | The container port from your application's **Port** setting | Always |
+| `APP_API_KEY` | A random value Deployz generates for each deployment | Always |
+| `APP_SIGNING_SECRET` | A random value Deployz generates for each deployment | Always |
+| `STORAGE_BUCKET`, `S3_BUCKET`, `AWS_S3_BUCKET` | The name of the deployment's S3 bucket | Always |
+| `AWS_REGION` | The deployment's AWS Region, for example `us-east-1` | Always |
+| `DATABASE_URL` | The full connection URL, including the password. Secret. | The deployment has a database |
+| `DATABASE_HOST` | The database host name | The deployment has a database |
+| `DATABASE_PORT` | `5432` for PostgreSQL, `3306` for MySQL | The deployment has a database |
+| `DATABASE_NAME` | `deployz` | The deployment has a database |
+| `DATABASE_USER` | `deployz_app` | The deployment has a database |
+| `DATABASE_PASSWORD` | The generated password. Secret. | The deployment has a database |
+| `NODE_EXTRA_CA_CERTS` | `/deployz/certs/rds-ca-bundle.pem` | The deployment has a database |
+| `PGSSLROOTCERT` | `/deployz/certs/rds-ca-bundle.pem` | The database is PostgreSQL |
+| `MYSQL_URL` | The same value as `DATABASE_URL`. Secret. | The database is MySQL |
+| `MYSQL_HOST`, `MYSQL_PORT` | The database host name, and `3306` | The database is MySQL |
+| `MYSQL_SSL_CA`, `MYSQL_ATTR_SSL_CA` | `/deployz/certs/rds-ca-bundle.pem` | The database is MySQL |
+| `REDIS_URL` | `redis://<host>:6379` | The deployment has a cache |
+| `REDIS_HOST`, `REDIS_PORT` | The cache host name, and `6379` | The deployment has a cache |
+| A queue URL, such as `QUEUE_URL` or `ORDERS_QUEUE_URL` | The queue's URL | The deployment has a queue (**Preview**). Set under the name your code reads. See [Queues](/prepare/workers-queues-schedules#queues). |
+| A queue ARN, such as `ORDERS_QUEUE_ARN` | The queue's Amazon Resource Name (ARN) | Your code reads it for a queue the deployment has |
+
+Values marked "Secret" are stored in AWS Secrets Manager in the customer's account and passed to the container when it starts.
+
+### Names your application reads
+
+Your application might read the same values under its own names, such as `SPRING_DATASOURCE_URL` or a JDBC URL. When the analysis recognizes such a name, Deployz sets it too, with the matching value. A name of your own never replaces one of the names in the table above. To connect a name the analysis didn't recognize, map it to a managed value. See [Map a variable to a managed value](/prepare/environment-variables#map-a-variable-to-a-managed-value).
+
+Deployz can also fill in variables that hold your application's own public URL, or the S3 Region and endpoint, from the deployment's address and Region.
+
+### When you set a variable with the same name
+
+If you or your customer save a value under the same name as a variable Deployz sets, your value replaces Deployz's value. This lets you point `DATABASE_URL` at an external database, for example.
+
+`PORT` must match the port the load balancer sends traffic to. To change it, change the **Port** setting on the **Configuration** screen instead of setting a `PORT` variable.
+
+For how to set your own variables, see [Configure environment variables](/prepare/environment-variables). For every AWS resource in a deployment, see [AWS resources Deployz creates](/reference/aws-resources).

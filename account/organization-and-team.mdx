@@ -1,0 +1,172 @@
+---
+title: "Organization and team"
+description: "Invite teammates, understand roles, and manage your Deployz organization and account."
+---
+
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
+An organization is where your team works in Deployz. It holds your applications, releases, customers, deployments, GitHub connection, and subscription. Everyone in the organization sees and works with the same things.
+
+When you sign up, Deployz creates an organization for you, named after the part of your email address before the `@`, and makes you its owner. You can rename it, invite teammates, and create more organizations.
+
+## Roles
+
+Each member of an organization has one role: owner, admin, or member. An organization always has exactly one owner.
+
+Roles control only who can manage the team and the organization itself. Every member, whatever their role, can do everything else in the organization: add and analyze applications, build releases, create test deployments, install links, and invitations, deploy updates, roll back, change configuration, add custom domains, remove deployments, and manage billing.
+
+| Action | Owner | Admin | Member |
+| --- | --- | --- | --- |
+| Work with applications, releases, customers, and deployments | Yes | Yes | Yes |
+| Remove deployments and add custom domains | Yes | Yes | Yes |
+| Start a subscription and manage billing | Yes | Yes | Yes |
+| Rename the organization | Yes | Yes | No |
+| Invite teammates, and resend or revoke team invitations | Yes | Yes | No |
+| Change a role or remove someone from the organization | Anyone except the owner | Members only | No |
+| Transfer ownership | Yes | No | No |
+| Delete the organization | Yes | No | No |
+| Leave the organization | No. Transfer ownership first. | Yes | Yes |
+
+Nobody can change their own role. The owner role can't be given through a role change or an invitation. It moves only when the owner [transfers ownership](#transfer-ownership).
+
+<Warning>
+  Every member can remove customer deployments and manage billing. Invite only people you trust with your customers' deployments.
+</Warning>
+
+The **Settings** page shows your role in **Your role**, and the **Team** page lists everyone's role.
+
+## Invite a teammate
+
+**Who:** the owner or an admin, in the Deployz dashboard.
+
+1. In the sidebar, select **Team**.
+2. Under **Invite someone**, enter the teammate's **Email**.
+3. In **Role**, choose **Member** or **Admin**. The default is **Member**.
+4. Select **Send invitation**.
+
+Deployz emails your teammate an invitation link. The invitation appears under **Pending invitations**, with who invited them and when it expires.
+
+- **Team invitations expire after 7 days.** After that, the invitation shows **Expired** and can't be accepted.
+- **One pending invitation per email address.** If the person already has a pending invitation, resend it instead. If they're already in the organization, Deployz tells you.
+
+Team invitations are separate from the invitations you send customers to install your application. For those, see [Invite a specific customer](/share/invitations).
+
+### Resend or revoke a team invitation
+
+**Who:** the owner or an admin, in the Deployz dashboard.
+
+1. In the sidebar, select **Team**.
+2. Under **Pending invitations**, find the invitation:
+   - Select **Resend** to email it again. The invitation is valid for 7 days from now, including an invitation that already expired.
+   - Select **Revoke**, then **Confirm**, to cancel it. The link stops working. The person sees "This invitation was canceled by the organization." if they open it.
+
+### Accept a team invitation
+
+**Who:** the invited teammate, from the invitation email.
+
+1. Open the link in the invitation email. The page shows **Join** followed by the organization name.
+2. Sign in, or create an account, with the exact email address the invitation was sent to. If you're signed in with a different address, sign out, then sign in with the invited address.
+3. Select **Accept**. To turn the invitation down, select **Decline**.
+
+When you accept, Deployz switches you to the organization you joined. If you're already signed in, you can also accept or decline pending invitations on your **Profile settings** page, under **Invitations**.
+
+## Change a role
+
+**Who:** the owner or an admin, in the Deployz dashboard.
+
+The owner can change anyone's role except their own. An admin can change the role of members only. To change an admin's role, ask the owner.
+
+1. In the sidebar, select **Team**.
+2. Under **Members**, select the new role in the list next to the person: **Admin** or **Member**.
+
+The change applies right away, and Deployz emails the person.
+
+## Remove someone from the organization
+
+**Who:** the owner or an admin, in the Deployz dashboard.
+
+The owner can remove anyone except themselves. An admin can remove members only.
+
+1. In the sidebar, select **Team**.
+2. Under **Members**, select **Remove** next to the person.
+3. Select **Confirm remove**.
+
+The person loses access on their next action in Deployz, and Deployz emails them. Their work in the organization, such as applications and deployments, stays in place.
+
+## Leave an organization
+
+**Who:** an admin or member, in the Deployz dashboard.
+
+The owner can't leave. To leave as the owner, [transfer ownership](#transfer-ownership) first, or [delete the organization](#delete-an-organization).
+
+1. In the sidebar, select **Team**.
+2. Under **Leave organization**, select **Leave organization**.
+3. Select **Confirm leave**.
+
+You lose access to the organization's applications and deployments. Deployz switches you to another organization you belong to. If you don't belong to any, Deployz asks you to create one.
+
+## Transfer ownership
+
+**Who:** the owner, in the Deployz dashboard.
+
+Transfer ownership when someone else should own the organization, for example before you leave it.
+
+1. In the sidebar, select **Team**.
+2. Under **Members**, select **Transfer ownership** next to the new owner.
+3. To confirm, select **Make `<name>` the owner**, where `<name>` is the new owner's name.
+
+The new owner gets the owner role, and you become an admin. Deployz emails the new owner.
+
+## Rename the organization
+
+**Who:** the owner or an admin, in the Deployz dashboard.
+
+1. In the sidebar, select **Settings**.
+2. In **Organization name**, enter the new name.
+3. Select **Update Organization**.
+
+## Delete an organization
+
+**Who:** the owner, in the Deployz dashboard.
+
+Deleting an organization permanently deletes it and everything Deployz stores for it: applications, releases, customers, deployment records, configuration, and team invitations. Every other member loses access, and Deployz emails them. You can't undo it.
+
+Before you delete the organization:
+
+- **Remove its deployments.** Deployz refuses to delete an organization while it has a deployment that's installed, installing, or being removed, including a test deployment. This keeps you from losing track of resources that run in someone's AWS account. Deployments that are still waiting for the AWS account to connect, and deployments that were removed, don't block deletion. See [Remove a deployment](/operate/remove).
+- **Cancel your subscription.** Deleting the organization doesn't cancel your subscription with the billing partner. Cancel it in the billing portal first. See [Manage payment details and invoices](/account/billing#manage-payment-details-and-invoices).
+
+To delete the organization:
+
+1. In the sidebar, select **Settings**.
+2. Under **Danger zone**, type the organization name exactly as shown.
+3. Select **Delete organization**.
+
+If deployments remain, Deployz shows how many to remove first.
+
+## Use several organizations
+
+**Who:** any member, in the Deployz dashboard.
+
+You can belong to several organizations, for example one per company you work with. Each organization has its own applications, customers, deployments, GitHub connection, subscription, and team. Your role can differ in each one.
+
+**Switch organizations.** Select the organization name at the top of the sidebar, then select another organization. The list shows your role in each one.
+
+**Create an organization.** Select the organization name at the top of the sidebar, then **Create organization**. Enter the **Organization name** and select **Create organization**. You become its owner, and Deployz switches you to it. A new organization starts with the free evaluation. See [Pricing and billing](/account/billing).
+
+## Delete your account
+
+**Who:** you, in the Deployz dashboard.
+
+Deleting your account permanently deletes your sign-in and removes you from every organization. It also deletes:
+
+- Each organization you own where you're the only member, under the same rules as [deleting an organization](#delete-an-organization). Remove those organizations' deployments first.
+- The pending team invitations you sent.
+
+If you own an organization that has other members, [transfer ownership](#transfer-ownership) first. Deployz refuses to delete your account until you do, and names the organizations.
+
+1. Open the menu with your name at the bottom of the sidebar, then select **Settings**. The **Profile settings** page opens.
+2. Under **Delete account**, type your email address exactly as shown.
+3. Select **Delete account**.
+
+Deployz signs you out and sends a confirmation email.

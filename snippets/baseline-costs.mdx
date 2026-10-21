@@ -1,0 +1,14 @@
+{/* Source: packages/contracts/src/pricing.ts (BASELINE_PRICING, RDS_PRICING, SIZED_PRICING) and footprint.ts. Last checked against deployz commit 0c21c52e on 2026-10-21. */}
+
+Baseline monthly cost of one of each resource in US East (N. Virginia), in US dollars, before the Region factor:
+
+| Resource | Small | Medium | Large |
+| --- | --- | --- | --- |
+| Application container, per service | $8–$11 | $33–$40 | $68–$80 |
+| Database (Amazon RDS) | $14–$19 | $50–$60 | $100–$115 |
+| Cache (Amazon ElastiCache for Valkey) | $12–$15 | $18–$24 | $36–$45 |
+| Application Load Balancer | $15–$25 | $15–$25 | $15–$25 |
+| NAT gateway | $30–$40 | $30–$40 | $30–$40 |
+| File storage (Amazon S3) | Usage-based | Usage-based | Usage-based |
+
+The ranges use on-demand AWS prices for a resource that runs all month (730 hours). The estimate prices a database or cache only when the application needs one. It always prices one load balancer and one NAT gateway.

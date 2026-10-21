@@ -4,6 +4,8 @@ sidebarTitle: "Connector"
 description: "Resolve a Deployz connector that is offline or never connects."
 ---
 
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
 The Deployz connector is the small service your customer installs in their AWS account. It connects out to Deployz about once a minute, picks up work such as installs and updates, and reports status. If it can't connect, Deployz can't install, update, or check the deployment. For what the connector is and how to update it, see [Reconnect or update the Deployz connector](/operate/connector).
 
 ## The install page shows Still connecting
@@ -61,11 +63,11 @@ Deployz marks the connector offline after about 15 minutes without a check-in. T
 **Fix:**
 
 - If your customer finds and fixes a temporary cause, wait a few minutes. The connector reconnects on its own, and Deployz picks up any waiting operations. No action is needed in Deployz.
-- Otherwise, ask your customer to update the existing connector stack in their AWS account. If they can't, for example because the stack was deleted, [contact Deployz support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur).
+- Otherwise, ask your customer to update the existing connector stack in their AWS account. If they can't, for example because the stack was deleted, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur).
 
-Operations you started before the connector went offline wait for it. If it doesn't return, they eventually fail with `RELAY_DISCONNECTED`. See [Failure codes](/reference/failure-codes).
+Operations you started before the connector went offline wait for it. If the connector stays silent for about a day, they fail with `RELAY_DISCONNECTED`. See [`RELAY_DISCONNECTED`](/reference/failure-codes#relay_disconnected).
 
-**Who acts:** your customer checks and updates their connector stack. You contact Deployz support if they can't.
+**Who acts:** your customer checks and updates their connector stack. You [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur) if they can't.
 
 ## Retry deployment says the connector is disconnected
 
@@ -77,7 +79,7 @@ Operations you started before the connector went offline wait for it. If it does
 
 **Who:** you (the vendor), in the Deployz dashboard, then your customer, on the install page and in their AWS console.
 
-1. In the dialog, select **Issue new install link**.
+1. In the dialog, select **Issue new install link**. The new link is valid for 30 days.
 2. Send the new link to your customer.
 3. Your customer opens the link and follows the steps it shows. If it shows **Reconnect the existing connector**, they update the existing stack. See [Your customer reconnects the existing connector](/operate/connector#your-customer-reconnects-the-existing-connector).
 4. When the connector connects, Deployz starts the install again. You don't need to select **Retry deployment** again.

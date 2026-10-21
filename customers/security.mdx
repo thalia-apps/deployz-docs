@@ -3,9 +3,9 @@ title: "Security and AWS access"
 description: "What Deployz creates in your AWS account, what it can access, and how to revoke access."
 ---
 
-{/* Last checked against deployz commit a3830513 (main), plus 7c783036 for the IAM installation scope (deployz PR #580, not yet merged), on 2026-10-21 */}
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
 
-This page is for the person who reviews this deployment for security. It describes the Deployz connector, the AWS permissions it holds, the data Deployz receives, and how to revoke access.
+This page is for the person who reviews this deployment for security. It describes the Deployz connector, the AWS permissions it holds, the data Deployz receives, and how to revoke access. For a list of every AWS resource, see [AWS resources Deployz creates](/reference/aws-resources).
 
 The install page has a **Security details** page specific to your deployment. It lists every IAM action read from the connector template you deploy, and the AWS resources your application creates. Use it for the exact permission list.
 
@@ -21,14 +21,16 @@ The application, its database, its stored files, and its logs stay in your AWS a
 
 The connector stack, named `deployz-bootstrap-` followed by an identifier, creates:
 
-- The connector function (AWS Lambda) and an Amazon EventBridge schedule that runs it every minute
-- The connector role, with a permissions boundary and the provisioner policy
+- The connector function (AWS Lambda), an Amazon EventBridge rule that runs it every minute, and the permission that lets the rule start the function
+- The connector role, with a permissions boundary and two provisioner policies
 - A CloudFormation execution role for your application stack
 - A permissions boundary for the IAM roles in your application stack
 - An AWS Secrets Manager secret that holds the connector's Deployz credential
-- Helper functions that create the installation ID and set the connector log's one-week retention
+- Helper functions that create the installation ID and set the connector logs' one-week retention
 
-At run time, the connector also writes AWS Systems Manager parameters under `/deployz/<installation ID>/` to track unfinished commands.
+Each helper function has its own IAM role. Each role has the AWS managed policy `AWSLambdaBasicExecutionRole`, which lets it write logs. In addition, one role can start the installation ID function, and one can set or remove the retention period of log groups in the account. They have no other permissions.
+
+When the stack is created, the helper functions also create the CloudWatch Logs log groups for the connector and the helpers. These log groups aren't part of the stack. At run time, the connector writes AWS Systems Manager parameters under `/deployz/<installation ID>/` to track unfinished commands.
 
 The installation ID is created inside your account when the stack is created. It isn't part of the Quick Create link.
 
@@ -36,9 +38,9 @@ The installation ID is created inside your account when the stack is created. It
 
 The connector holds broad permissions so it can install, update, and remove the application without manual setup. Both roles below receive all their permissions when you create the connector stack, not after the connector first connects. Deployz chooses the commands and the application template that the connector applies.
 
-Each change these roles can make is limited to this deployment, its installation scope:
+Most changes these roles can make are limited to this deployment, its installation scope:
 
-- **By tag**, where AWS supports tag conditions. The resource must carry the `deployz:installation` tag with this deployment's installation ID. Creating a resource requires the request to carry that tag, and changing or deleting a resource requires the resource to carry it. A request can't add this deployment's tag to a resource that already carries another deployment's tag.
+- **By tag**, where AWS supports tag conditions. The resource must carry the `deployz:installation` tag with this deployment's installation ID. Creating a resource requires the request to carry that tag, and changing or deleting a resource requires the resource to carry it.
 - **By name**, where AWS doesn't support tag conditions. The resource's name must start with this deployment's application stack name: `deployz-app-` followed by the first part of the installation ID, for example `deployz-app-1a2b3c4d-`.
 
 Other Deployz deployments in the same AWS account and Region are outside this scope. A few actions can't be limited either way. See [Exceptions to installation scoping](#exceptions-to-installation-scoping).
@@ -49,9 +51,9 @@ The connector function runs with this role. Only AWS Lambda can assume it.
 
 - **Permissions boundary.** A permissions boundary caps the role. The role can never exceed it.
 - **Installation-scoped permissions.** Changes are limited to this deployment's resources, by tag or by name, as described above.
-- **Scoped secrets access.** The role can read and update the connector's own credential secret, and the application's secrets tagged for this deployment.
-- **No log reads.** The role writes the connector's own activity log. It can't read log events (`logs:GetLogEvents` and `logs:FilterLogEvents` aren't granted).
-- **No network, database, or IAM role creation.** The connector role has no permission to create the network, the database, or IAM roles. It asks CloudFormation to apply the application template with the execution role below.
+- **Scoped secrets access.** The role can read and update the connector's own credential secret. It can read, update, and delete the application's secrets that are tagged for this deployment. It deletes them only when your software provider deletes the retained data. It can list the secrets in the account and read their descriptions and tags, but not their values.
+- **No log reads.** The role can write logs. It can't read log events (`logs:GetLogEvents` and `logs:FilterLogEvents` aren't granted).
+- **No network, database, or IAM role creation.** The connector role has no permission to create the network, the database, or IAM roles. It asks CloudFormation to apply the application template with the execution role below. The role can create only a few resources itself, each with this deployment's tag: HTTPS certificates, the HTTPS listener on this deployment's load balancer, task-definition revisions, and cache clusters.
 
 ### CloudFormation execution role
 
@@ -67,7 +69,7 @@ CloudFormation uses this role to build your application stack.
 
 Every IAM role in your application stack must carry this boundary. It sets the most any of those roles can do, even if a policy grants more:
 
-- Pull the application's container image
+- Pull container images from Amazon ECR. This isn't limited to one repository. The application's releases are stored in a Deployz registry, which allows your account to pull them.
 - Write logs to this deployment's log groups
 - Read the secrets tagged for this deployment
 - Use this deployment's S3 buckets and SQS queues
@@ -88,18 +90,20 @@ These resources don't support tag conditions, so their actions are limited by na
 
 - **Amazon S3 buckets.** CloudFormation and the connector can change or delete only buckets whose names start with this deployment's application stack name. Before the connector deletes a bucket, it also checks the bucket's `deployz:installation` tag.
 - **Log groups.** CloudFormation can set retention on, and delete, only this deployment's log groups.
-- **Queues and schedules.** CloudFormation can manage only this deployment's queues and schedules. Queues and scheduled jobs are at **Preview** maturity in Deployz.
+- **Queues and schedules** (**Preview**). CloudFormation can manage only this deployment's queues and schedules.
 - **One-off tasks**, such as database migrations. The connector can run and stop them only in this deployment's Amazon ECS cluster.
 - **Passing roles** (`iam:PassRole`). The connector and CloudFormation can pass only this deployment's roles, and only to the services that run your application: Amazon ECS, and Amazon EventBridge Scheduler for scheduled jobs. The connector can pass to CloudFormation only the execution role from its own stack.
+- **The connector's progress records.** The connector can read, write, and delete only the Systems Manager parameters under `/deployz/<installation ID>/`.
 
 ### Exceptions to installation scoping
 
-AWS can't limit these actions by tag or by name, so they apply to any resource of their type. Each is controlled another way:
+These actions aren't fully limited to this deployment, in most cases because AWS doesn't support the conditions for them. Each is controlled another way:
 
-- **Read-only actions.** Describe, list, and get calls aren't limited to this deployment. The connector uses them to observe the application, and to find this deployment's retained resources when your software provider deletes retained data. They don't change anything.
-- **Removing old task-definition revisions** (`ecs:DeregisterTaskDefinition`). Amazon ECS doesn't support resource limits on this action. The connector removes only old revisions of this application's own task definitions, after a successful update. A removed revision doesn't stop a task that uses it.
+- **Read-only actions.** Describe, list, and get calls aren't limited to this deployment. For example, the connector can list the account's S3 buckets and secrets, and read the tags of buckets, secrets, databases, caches, and certificates. It uses them to observe the application, and to find this deployment's leftover resources, including any certificates that weren't deleted at removal, when your software provider deletes retained data. They don't change anything, and they don't return secret values.
+- **Removing old task-definition revisions** (`ecs:DeregisterTaskDefinition`). Amazon ECS doesn't support resource limits on this action. The connector removes only revisions of this application's own task definitions: old revisions after a successful update, and the remaining revisions when your software provider deletes retained data. A removed revision doesn't stop a task that uses it.
+- **Tagging Amazon ECS resources** (`ecs:TagResource`). The permission requires the request to carry this deployment's tag, but doesn't check whether the resource already carries another deployment's tag. The connector uses it only to tag the task-definition revisions it registers.
 - **Generating a random password** (`secretsmanager:GetRandomPassword`). A random password isn't an AWS resource. Only CloudFormation can use the role that holds this action.
-- **Writing the connector's own log** (`logs:CreateLogGroup`, `logs:CreateLogStream`, and `logs:PutLogEvents`). AWS Lambda uses these actions to write the connector's activity log. They add log entries. They can't read or delete logs.
+- **Writing logs** (`logs:CreateLogGroup`, `logs:CreateLogStream`, and `logs:PutLogEvents`). AWS Lambda uses these actions to write the connector's activity log. The permission isn't limited to the connector's log group. It can create log groups and add log entries, but it can't read, change, or delete logs.
 - **Creating service-linked roles** (`iam:CreateServiceLinkedRole`). This is limited to the AWS services the application uses: Amazon ECS, Elastic Load Balancing, Amazon RDS, and Amazon ElastiCache.
 - **Cache parameter groups and cache nodes.** Creating, changing, or deleting the cache also uses the default parameter group and the cache nodes. The cache itself must carry this deployment's tag.
 
@@ -107,7 +111,9 @@ The **Security details** page for your deployment lists each of these with its r
 
 ## No inbound access
 
-The connector only starts outbound HTTPS requests to Deployz. No inbound connection to your account is required, and Deployz has no path into your account. Inside the application's network, the internet-facing load balancer is the only component that accepts traffic from the internet, on ports 80 and 443.
+The connector's only connection to Deployz is outbound HTTPS, which the connector starts. No inbound connection to your account is required, and Deployz has no path into your account. The connector also calls AWS APIs in your account, and sends a request to the application's address to check that it responds.
+
+Inside the application's network, the internet-facing load balancer is the only component that accepts traffic from the internet, on ports 80 and 443.
 
 ## Application traffic
 
@@ -122,7 +128,7 @@ If you don't want your application traffic to pass through Deployz, ask your sof
 
 The Quick Create link carries a single-use enrollment code. It ties the connector to your deployment. Deployz spends the code when the connector first connects and refuses any later attempt to use the same code with a different connector. If you select **Retry connection** on the install page, Deployz issues a new code.
 
-## The connector's credential
+## Connector credential
 
 The connector signs in to Deployz with a token stored in a Secrets Manager secret in your account. The token is either generated by CloudFormation in your account, or created by Deployz and passed in the Quick Create link as a hidden (`NoEcho`) parameter.
 
@@ -131,13 +137,15 @@ The connector signs in to Deployz with a token stored in a Secrets Manager secre
 The connector sends Deployz operational information about the deployment:
 
 - Installation ID, AWS account ID, and AWS Region
-- Connector version, and the release and image version that runs
+- Connector version, and the release and container image version that runs
 - Deployment state, infrastructure status, health state, and timestamps
 - Resource identifiers
 - AWS error messages: stack events, stopped-task reasons, and exit codes
 - Health-check status code and response time (not the response body)
 
-Configuration values and secrets that you or your software provider enter also pass through Deployz.
+Deployz also stores the configuration values that you or your software provider enter, so that it can deliver them to your AWS account. Plain values are stored as entered. Secret values are stored encrypted. For how long Deployz keeps secrets you enter, see [Secrets you enter](#secrets-you-enter). A secret value that your software provider sets for all of its customers stays stored, encrypted, in Deployz.
+
+After the deployment is removed, Deployz keeps its operational records for the deployment, such as IDs, states, and timestamps, for records and billing history.
 
 ## Data Deployz never receives
 
@@ -163,11 +171,11 @@ If the install page asks you for secret values:
 - Encrypted backup copies may remain for up to 7 days.
 - Deployz doesn't display secret values or write them to application logs.
 
-Values your software provider changes after your account connects stay in the update job until the connector collects it. Deployz then removes them from the job.
+Values your software provider changes after your account connects are held in Deployz until the connector collects them. Deployz then deletes its copy.
 
 ## Logs
 
-Application logs are written to CloudWatch Logs in your account. The connector's own log is kept for one week.
+Application logs are written to CloudWatch Logs in your account and kept for seven days. The connector's own log is kept for one week.
 
 ## Revoke access
 
@@ -184,4 +192,10 @@ You can revoke Deployz access at any time by deleting the Deployz connector stac
 
 The connector stops. Because Deployz has no inbound path into your account, it can't reconnect. Deployz shows the connector as disconnected when it stops receiving check-ins.
 
-For the full removal order, see [Remove the application](/customers/remove).
+Deleting the stack doesn't delete:
+
+- The CloudWatch Logs log groups of the connector and its helper functions. Their entries expire after one week.
+- Systems Manager parameters under `/deployz/<installation ID>/`, if a command was still unfinished
+- Any application resources that are still in your account
+
+For the full removal order, and what else can remain, see [Remove the application](/customers/remove).

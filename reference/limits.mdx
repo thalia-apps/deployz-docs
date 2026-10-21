@@ -1,0 +1,77 @@
+---
+title: "Limits and fixed settings"
+sidebarTitle: "Limits"
+description: "The fixed limits, expiry times, and timeouts that apply to Deployz applications, links, deployments, and the data services they create."
+---
+
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
+These limits are fixed. You can't change them for an application, an organization, or a deployment.
+
+## Applications and repositories
+
+| Item | Limit |
+| --- | --- |
+| Applications per repository | One per organization. In the repository list, a repository that's already connected links to its existing application. |
+| GitHub App installation | Connects to one Deployz organization. See [Connect GitHub](/account/github). |
+| Test deployments | One per application at a time. Remove the current one before you create another. See [Run a test deployment](/share/test-deployment). |
+| Live install links | One per application. To replace the link, select **Regenerate**, or revoke it and create a new one. See [Share an install link](/share/install-links). |
+
+## Links and invitations
+
+| Item | Expires |
+| --- | --- |
+| Application install link | Doesn't expire. It works until you disable, regenerate, or revoke it. |
+| Customer invitation | 30 days after you create it, if it isn't used. See [Invite a specific customer](/share/invitations). |
+| A deployment's install link | 30 days after the deployment is created. **Issue new install link** makes it valid for 30 more days from that time. See [Reconnect or update the Deployz connector](/operate/connector). |
+| Team invitation | 7 days after you send it. See [Invite a teammate](/account/organization-and-team#invite-a-teammate). |
+
+## Regions and sizes
+
+| Item | Limit |
+| --- | --- |
+| Supported AWS Regions | 17. See [AWS Regions](/share/regions). |
+| Regions you can install in | Only the Regions the install page lists. This can be fewer than the 17 supported Regions. |
+| Regions per deployment | One. You can't move a deployment to another Region. |
+| Size | Small, Medium, or Large. You can't change a deployment's size after it's created. See [Sizes and AWS cost](/share/sizes-and-cost). |
+| Tasks per web service or worker | One. There's no autoscaling. |
+| Database storage | Starts at 20 GB and grows automatically up to 100 GB. |
+
+## Configuration values
+
+| Item | Limit |
+| --- | --- |
+| Secret value | 4,096 bytes. A longer value is refused when you save it. |
+| Settings a customer can enter on the install page | Up to 200 values. |
+| Customer secret waiting for delivery | 24 hours. Deployz holds a secret entered for one customer, on the install page or as a customer override, encrypted until it reaches the customer's AWS account. If it isn't delivered within 24 hours, Deployz deletes it, and the value must be entered again. |
+
+For how values reach a deployment, see [Configure environment variables](/prepare/environment-variables).
+
+## Build and install timeouts
+
+| Item | Limit |
+| --- | --- |
+| Release build | 60 minutes. A build that runs longer fails. See [Fix a failed build](/releases/build-failures). |
+| Health check grace period | 300 seconds after a web container starts. Failed health checks don't count against the container during this time. |
+| Time for a new install to become healthy | 30 minutes after the install's last step finishes. If the application still fails its health checks after that, the install fails. |
+| Default HTTPS address setup | 30 minutes. If the address isn't ready by then, Deployz stops and reports a failure. |
+| **Check now** for a custom domain | Once every 30 seconds. A check sooner than that shows the latest result. |
+
+## Connector
+
+| Item | Limit |
+| --- | --- |
+| Connector check-in | About once a minute. |
+| Connector shown as disconnected | After 15 minutes without a check-in. See [Reconnect or update the Deployz connector](/operate/connector). |
+
+## Data retention in the customer account
+
+| Item | Kept for |
+| --- | --- |
+| Application logs | 7 days. |
+| Connector logs | 7 days. |
+| Automated database backups | 7 days. |
+| Old versions of files in the S3 bucket | 30 days after they're replaced or deleted. |
+| Messages in a queue (**Preview**) | 4 days. A dead-letter queue keeps messages for 14 days. |
+
+When a deployment is removed, the database, its backups and credentials, and the S3 bucket stay in the customer's account. See [Remove a deployment](/operate/remove).

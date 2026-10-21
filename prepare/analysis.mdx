@@ -1,0 +1,135 @@
+---
+title: "Analyze your application and read the results"
+sidebarTitle: "Analyze your application"
+description: "How Deployz analyzes your repository, what the three results mean, and how to review findings, resources, and re-analyze."
+---
+
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
+When you add an application, Deployz analyzes its repository to work out how to build, start, and host it. The analysis reads your files without building or running anything. It reports whether Deployz can deploy the application, and lists anything you need to set or change first.
+
+This page explains how to read the result and what to do with it. If the analysis itself fails, see [Fix analysis problems](/troubleshooting/analysis).
+
+## How the analysis runs
+
+The first analysis starts automatically when you add the application. Deployz reads the latest commit on the application's branch.
+
+While it runs, the application **Overview** shows **Analyzing application** with "Reading your repository. This usually takes a minute." If it's still running after 2 minutes, the message changes to "Taking longer than usual. Wait, or restart the analysis.", and the card offers **Re-analyze application**.
+
+The analysis asks you something only when the evidence in your repository is unclear. For example, when a boot script runs your migration script, the analysis records that migrations run at startup instead of asking you how they run.
+
+## Read the analysis result
+
+When the analysis finishes, the **Overview** shows one of three results. The most serious required finding decides which one.
+
+| Result | What it means | What you do |
+| --- | --- | --- |
+| **Deployable with Deployz settings** | Deployz can deploy the application. Anything left to do is a setting in Deployz, such as the port. | Enter the settings, then create a release. |
+| **Deployable after repository changes** | Deployz can deploy the application after you change your repository, for example to stop writing files to the local disk. | Change the repository, push, and re-analyze. |
+| **Not deployable on Deployz** | The application needs a capability Deployz doesn't provide, such as MongoDB or a GPU. | Change the application so it no longer needs it. See [What Deployz doesn't support](/prepare/not-supported). |
+
+The analysis can't predict every build problem, because it doesn't build your code. Until a release builds successfully, **Deployable with Deployz settings** shows "Not yet confirmed by a build." If release builds have failed and none has passed, the result changes to **Deployable after repository changes** with "The release build failed." Select **Review failure details**, and see [Fix a failed build](/releases/build-failures).
+
+### Required and recommended findings
+
+Each finding is either required or recommended:
+
+- **Required.** You must resolve it before you can run a test deployment or deploy to customers. On the **Overview**, the card shows a count such as **2 changes required before you can deploy**, with **Review required changes**.
+- **Recommended.** It doesn't block a deployment, but it can cause problems later. Examples are confirming which Dockerfile Deployz builds, giving Deployz a way to update your database, and confirming a background worker, queue, or scheduled job.
+
+When required changes are open, the **Overview** groups them by where you resolve them:
+
+| Group | Where you resolve it |
+| --- | --- |
+| **Set in Deployz** | A setting in the Deployz dashboard, such as the port, the health check path, or how database migrations run. A missing start command is also listed here, but you set it in your repository. See [Analysis troubleshooting](/troubleshooting/analysis#the-application-needs-input). |
+| **Change in your repository** | A change you push to GitHub, such as adding a Dockerfile or listening on all network interfaces. |
+| **Not supported** | A capability Deployz doesn't provide. A setting or a small change can't resolve it. |
+
+If the analysis can't tell whether your application really needs an unsupported capability, it lists the item under **Change in your repository** instead of **Not supported**. This happens with SQLite when your application also has a PostgreSQL or MySQL driver.
+
+When no required finding is open, the **Resources** tab on **Configuration** shows **No blocking issues** next to its heading.
+
+### Health check
+
+Deployz checks your application's health before it sends traffic to a new release. The analysis looks for a health route, such as `/health`, or a `HEALTHCHECK` in your Dockerfile.
+
+If your application has no health route, Deployz checks `/` instead. Any response from `200` to `399` counts as healthy, so a redirect to a login or setup page passes. For an application that checks the `Host` header, `400` also counts. You don't need to answer a question about it.
+
+The analysis asks you for the health check path only when it finds a health handler, such as a `HealthController`, but can't work out its route.
+
+## Review the resources
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+1. Open the application and select **Configuration**.
+2. Select **Resources**. The tab shows a count when items need your attention.
+
+The **Resources** table lists what Deployz will run for each deployment, in four groups: **Application & runtime**, **Data services**, **Networking & HTTPS**, and **External integrations**. Each row shows its configuration, an estimated monthly AWS cost, and whether it's **Kept after removal**. To see the AWS resources behind a row, expand **Planned AWS resources**.
+
+A row that needs you shows a label:
+
+| Label | Meaning |
+| --- | --- |
+| **Change required** | A required finding. Deployz can't deploy until you resolve it. |
+| **Recommended** | A recommended finding. It doesn't block a deployment. |
+| **Needs input** | A question about your application, such as which command starts a background worker. |
+| **Blocking** | A question that blocks a deployment until you resolve it. |
+| **Needs review** | Deployz couldn't determine this value. |
+
+To resolve a row, use its action. Settings open an editor, such as **Fix port**. Other findings open [fix instructions for your coding agent](/prepare/fix-findings) through **Get fix instructions**.
+
+External services your application calls directly, such as Stripe, appear under **External integrations**. Deployz doesn't create them, and their usage is billed separately by the provider.
+
+### See what was detected
+
+Below the table, expand **Technical details**:
+
+- **Detected components** lists each part of the application the analysis found. Each one is marked **Detected automatically**, or **Confirmed** when you set it yourself.
+- The evidence for each detected fact, such as the file and reason for the port.
+- **Checks completed** lists the checks your application passed.
+
+## Choose which data services to create
+
+The analysis decides whether your application needs a database, a cache, and file storage. If it got one wrong, change it.
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+<Warning>
+  This choice applies to new deployments only. Existing deployments keep the resources they were created with. To give an existing customer a database or cache they don't have, create a new deployment for them.
+</Warning>
+
+1. On **Configuration** › **Resources**, find the row in **Data services**: **Database**, **Cache / queue**, or **File storage**.
+2. Select the row's action, such as **Edit database**, **Add database**, or **Connect file storage**.
+3. Select or clear the checkbox: **Database required**, **Redis required**, or **File storage required**.
+4. Select **Save**.
+
+The row then shows **Set by you**, with what the analysis detected. To go back to the detected value, open the editor again and select **Reset to detected**.
+
+Every deployment gets an S3 bucket, whatever the **File storage** setting says. For what each data service includes, see [Databases, cache, and file storage](/prepare/data-services).
+
+## Re-analyze the application
+
+Re-analyze after you push a change to your repository, after you fix GitHub access, or when the application shows **Checks updated** with "Re-analyze to apply the latest checks."
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+1. Open the application.
+2. Open the **More actions** menu at the top of the page and select **Re-analyze application**.
+
+You can also start it from:
+
+- The **Checks updated** notice, with **Re-analyze**.
+- The [fix instructions dialog](/prepare/fix-findings), with **Re-analyze application**.
+- The **Overview** card, when an analysis failed, or when it's been running for more than 2 minutes.
+
+**Re-analyze application** in the **More actions** menu is unavailable while an analysis is running.
+
+Deployz analyzes the latest commit on the application's branch again. Settings you changed yourself, such as the port or the health check path, are kept. Settings you didn't change follow the new analysis.
+
+A new analysis doesn't change what your customers run. To deliver a code change, [create a release](/releases/create) after the analysis passes.
+
+## Next steps
+
+- [Fix analysis findings](/prepare/fix-findings)
+- [Configure environment variables](/prepare/environment-variables)
+- [Create a release](/releases/create)

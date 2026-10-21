@@ -3,6 +3,8 @@ title: "Database migrations"
 description: "How Deployz runs your database migrations, and how to keep them safe for rollback."
 ---
 
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
 If your application uses a database, Deployz can run your migration command on every deployment, so each customer's database matches the release it runs. This page explains how Deployz finds the command, how and when it runs, and how to write migrations that stay safe when you roll back.
 
 <Warning>
@@ -11,16 +13,24 @@ If your application uses a database, Deployz can run your migration command on e
 
 ## How Deployz finds your migration command
 
-The analysis looks for a script in your application's own package that applies pending migrations. It accepts only a command that's safe to run on every deploy. It rejects steps that create, generate, push, reset, roll back, or seed a database, and test or build steps.
+The analysis looks for a migration script in the `package.json` of the package your container image runs: the repository root, the Dockerfile's directory, or the container image's working directory. It accepts only a command that's safe to run on every deploy. It rejects:
+
+- Steps that create, generate, push, reset, roll back, or seed a database, and test or build steps.
+- Scripts that run through a workspace or monorepo runner, such as `pnpm --filter`, `yarn workspaces`, `turbo`, or `nx`, or that use a `../` path. These don't work from the container image's working directory.
+- Scripts whose migration tool isn't installed in the final container image. For example, a CLI such as `prisma` or `knex` in `devDependencies` is missing unless your Dockerfile keeps development dependencies.
+
+For other frameworks, such as Django, Rails, or Laravel, the analysis might not find a separate migration command. Enter it yourself, for example `python manage.py migrate`. See [Set or change the migration command](#set-or-change-the-migration-command).
 
 The analysis result is one of these:
 
 | What the analysis finds | What you see | What Deployz does |
 | --- | --- | --- |
 | A safe migration command | The command, on the **Database migrations** row | Runs it on every deployment |
-| Your image already runs migrations when it starts | **Database migrations run when the application starts** | Runs no separate step. Your application updates its own schema on startup. |
-| A migration script it can't confirm the image can run | **Choose how Deployz runs database migrations** (required) | Waits for you to enter a command or choose **No separate migration** |
+| Your container image already runs migrations when it starts | **Database migrations run when the application starts** | Runs no separate step. Your application updates its own schema on startup. |
+| A migration script it can't confirm the container image can run, or no clear way the application migrates | **Choose how Deployz runs database migrations** (required) | Waits for you to enter a command or choose **No separate migration** |
 | A database, but no migration command | **Give Deployz a way to update your database** (recommended) | Runs no migration step |
+
+**Choose how Deployz runs database migrations** is usually listed under **Set in Deployz**. When the AI part of the analysis couldn't tell how your application migrates its database, it's listed under **Change in your repository** instead, because you might need to check the repository before you choose.
 
 ## Set or change the migration command
 
@@ -31,46 +41,50 @@ The analysis result is one of these:
     Open your application, select **Configuration**, then **Resources**. On the **Database migrations** row, select **Edit database migrations**, or **Add database migrations** when no command is set. The **Migration command** dialog opens.
   </Step>
   <Step title="Choose how migrations run">
-    In **Use for deployment**, enter a command the built image can run, for example `npm run migrate`. If your application doesn't need a separate migration step, turn on **No separate migration** instead.
+    In **Use for deployment**, enter a command the container image can run, for example `npm run migrate`. The command must be installed in the final container image. If your application doesn't need a separate migration step, turn on **No separate migration** instead.
   </Step>
   <Step title="Save">
     Select **Save**.
   </Step>
 </Steps>
 
-New deployments use your choice. Each existing deployment uses it the next time you deploy a release to it, and keeps running as it is until then.
+New deployments use your choice. An existing deployment uses it on its next release deployment, and keeps running as it is until then. The dialog says this too.
 
-To undo your choice, open the setting again and select **Reset to detected**. New deployments then use the command the analysis found, and existing deployments go back to the command they were created with.
+### Reset to detected
 
-<Note>
-  You can't add a migration command to a deployment that was created without a separate migration step. Deploying to it fails with "This deployment was created without a separate migration step, so a migration command cannot be added to it." Choose **No separate migration** for the application, or create a new deployment for that customer.
-</Note>
+After you save your own choice, the dialog shows **Reset to detected**. Select it to undo your choice. New deployments then use the command the analysis found, and existing deployments go back to the command they were created with.
+
+### Deployments created without a migration step
+
+You can't add a migration command to a deployment that was created without a separate migration step. If you set a command for the application, Deployz refuses to deploy a release to that deployment, and no update starts. The message reads: "This deployment was created without a separate migration step, so a migration command cannot be added to it. Choose "No separate migration" for the application, or create a new deployment."
+
+To deploy to it, choose **No separate migration** for the application, or create a new deployment for that customer.
 
 ## How migrations run
 
 When you deploy a release, Deployz runs these steps in the customer's AWS account:
 
 1. Waits until the infrastructure and the database are ready.
-2. Runs the migration command once, as a one-shot task that uses the release image.
+2. Runs the migration command once, as a one-shot task that uses the release's container image.
 3. Updates the web service and workers to the new release, only after the migration succeeds.
 
-The migration succeeds only when the command exits with code `0`. Deployz runs the command through `sh -c`, so your image must include `sh`.
+The migration succeeds only when the command exits with code `0`. Deployz runs the command through `sh -c`, so your container image must include `sh`.
 
-If the migration fails, Deployz doesn't update any service. The previous release keeps serving customers, and the deployment shows **Migration failed**. Fix the migration in your repository and create a new release, or correct the migration command, then deploy again. See [Failure codes](/reference/failure-codes).
+If the migration fails, Deployz doesn't update any service. The previous release keeps serving customers, and the deployment shows **Migration failed**. Fix the migration in your repository and create a new release, or correct the migration command, then deploy again. See [`MIGRATION_FAILED`](/reference/failure-codes#migration_failed) and [The database migration failed](/troubleshooting/startup-and-health#the-database-migration-failed).
 
 ### When a migration runs again
 
-Deployz skips the migration only when an earlier update of the deployment finished successfully with the same command and release image. A changed command counts as a new migration, so it runs even for the same release.
+Deployz skips the migration only when an earlier update of the deployment finished successfully with the same command and release. A changed command counts as a new migration, so it runs even for the same release.
 
 **Retry update** starts a new update. If an earlier attempt ran the migration and then failed, for example during the rollout, the migration runs again. Write migrations that are safe to run more than once, for example by using a migration tool that records which migrations it has applied.
 
-### Rollback and restart don't run migrations
+### Rollback and restart skip migrations
 
 [Rolling back](/operate/rollback) and [restarting](/operate/restart) a deployment never run your migration command.
 
 ## Keep migrations safe for rollback
 
-A rollback restores the previous release's image only. It doesn't reverse database migrations. The rollback screen shows this warning: "Application rollback does not automatically reverse database migrations."
+A rollback restores the previous release only. It doesn't reverse database migrations. The rollback screen shows this warning: "Application rollback does not automatically reverse database migrations."
 
 After a rollback, the previous release runs against the newer schema. To keep that working, write backward-compatible migrations:
 
@@ -80,6 +94,4 @@ After a rollback, the previous release runs against the newer schema. To keep th
 
 ## Migrations and releases
 
-A release doesn't carry its own migration command. Each deployment keeps the migration command it was created with. Re-analyzing the application doesn't change the command for existing deployments.
-
-When you set a command or choose **No separate migration** on the **Database migrations** setting, every deployment uses your choice on its next release deployment. **Reset to detected** returns existing deployments to the command they were created with.
+A release doesn't carry its own migration command. Each deployment keeps the migration command it was created with, and re-analyzing the application doesn't change it. Only a choice you save on the **Database migrations** setting reaches existing deployments, on their next release deployment. **Reset to detected** returns them to the command they were created with.

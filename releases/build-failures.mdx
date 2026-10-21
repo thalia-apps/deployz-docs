@@ -3,6 +3,8 @@ title: "Fix a failed build"
 description: "Find out why a release build failed and how to fix it."
 ---
 
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
 **Symptom:** a release on the **Releases** tab shows **Build failed**.
 
 A failed build doesn't affect running deployments. Customers keep their current release, and new installs keep getting your newest **Ready** release. The failure details say so, for example "Customers still get v1.2.0."
@@ -22,10 +24,10 @@ The details panel shows:
 - **Failed while**: the build stage, such as **Building the image from your Dockerfile**.
 - **Earliest error found**: the first meaningful error in the build log.
 - **Next step**: what to do, and the evidence the advice is based on.
-- **Relevant log lines**: the part of the build log around the error. Select **View build logs** for the full log, or the last part of it for a long build.
+- **Relevant log lines**: a short part of the build log around the earliest errors, or its last lines when no error line is found. Select **View build logs** to see the log.
 - **Who acts**: Deployz's reading of where the cause lies.
 
-Build logs have secrets and Deployz infrastructure details removed. Build logs can expire. When no log is available, the stored failure reason is the only evidence.
+Deployz reads at most the last 3,000 lines of a build log, and shortens each line to 500 characters. For a long build, earlier lines aren't shown. Build logs have secrets and Deployz infrastructure details removed. Build logs can expire. When no log is available, **View build logs** is unavailable, and the stored failure reason is the only evidence.
 
 ## Read the summary
 
@@ -34,12 +36,12 @@ The release row shows a one-line summary under **Build failed**:
 | Summary | Likely cause | What to do |
 | --- | --- | --- |
 | The version could not be built from the repository. | A step in your Dockerfile or build failed. | Open the details and read the earliest error. Fix it in your repository. |
-| The image build failed. This message does not show the cause. | The build ended without an image. This final check isn't the cause. | Open the details and look for the earliest error in the log. |
-| The build could not fetch the repository. | Deployz couldn't download the commit from GitHub. | Check that the commit still exists on the application's branch and that the Deployz GitHub App can still read the repository. |
+| The image build failed. This message does not show the cause. | The build ended without a container image. This final check isn't the cause. | Open the details and look for the earliest error in the log. |
+| The build could not fetch the repository. | Deployz couldn't download the commit from GitHub. When GitHub reports that the commit doesn't exist, for example after a force-push or a deleted branch, the details panel shows **Likely a repository issue**. | Check that the commit still exists on the application's branch and that the Deployz GitHub App can still read the repository. Then create a new release from a commit that exists. |
 | The version build ran out of time. | A build step was slow or stuck. | Check the log for the last step that ran. |
-| The container registry temporarily limited image downloads. Start the build again in a few minutes. | A temporary rate limit on base image downloads. | Wait a few minutes, then create a new release from the same commit. |
-| The build could not start. | The build didn't start. | Create a new release. If it fails the same way, contact support. |
-| The version was built but could not be stored in the image registry. | The image was built but couldn't be saved. | Create a new release. If it fails the same way, contact support. |
+| The container registry temporarily limited image downloads. Start the build again in a few minutes. | A rate limit on base image downloads. Deployz already retried the build 3 times, waiting 1, 3, and 8 minutes between attempts. | Wait a few minutes, then create a new release from the same commit. |
+| The build could not start. | The build didn't start. | Create a new release. If it fails the same way, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). |
+| The version was built but could not be stored in the image registry. | The container image was built but couldn't be saved. | Create a new release. If it fails the same way, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). |
 | The version build failed. | No specific cause was found. | Open the details and check the build log. |
 
 ## Who acts
@@ -55,10 +57,10 @@ The details panel labels the likely owner of the problem:
 
 ## Investigate with a coding agent or AI
 
-Unless the failure is a Deployz build issue, the panel offers two optional tools:
+The panel offers two optional tools:
 
-- **Copy prompt for coding agent** copies an investigation prompt with the failure evidence. Paste it into your coding agent, such as one in your editor. The prompt asks the agent to find the cause before it changes code. Copying it gives no access to Deployz or AWS.
-- **Explain with AI** asks Deployz for an AI reading of the redacted log lines. The result shows a likely cause, a suggested next step, and what's uncertain. Verify it before you act. This option needs log lines to read.
+- **Copy prompt for coding agent** copies an investigation prompt with the failure evidence. Paste it into your coding agent, such as one in your editor. The prompt asks the agent to find the cause before it changes code. Copying it gives no access to Deployz or AWS. For a Deployz build issue, the panel shows **Copy report for Deployz support** instead.
+- **Explain with AI** asks Deployz for an AI reading of the redacted log lines. The result shows a likely cause, a suggested next step, and what's uncertain. Verify it before you act. This option is available for every failed build that has relevant log lines to read.
 
 Select **Copy technical details** to share the failure with a teammate or in a support request.
 
@@ -75,7 +77,7 @@ Select **Copy technical details** to share the failure with a teammate or in a s
 ## Related problems
 
 - **Missing build values.** If the **New release** form says "Set these build values before you build a release:", no build started. Enter the listed values, then create the release. See [Configure environment variables](/prepare/environment-variables).
-- **Unavailable release.** A release marked **Unavailable** built successfully, but its image no longer exists. Create a new release to deploy that code again.
+- **Unavailable release.** A release marked **Unavailable** built successfully, but its container image no longer exists. Create a new release to deploy that code again.
 - **Problems after the build.** If the release built but the deployment fails to start or stay healthy, see [Fix startup and health check failures](/troubleshooting/startup-and-health).
 
 If you can't find the cause, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur) and include the technical details.

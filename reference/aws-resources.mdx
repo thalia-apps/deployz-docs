@@ -3,36 +3,45 @@ title: "AWS resources Deployz creates"
 description: "The AWS resources in a customer's account, and which ones remain after removal."
 ---
 
-{/* Verified against packages/cdk/src/bootstrap/bootstrap-stack.ts, packages/infrastructure-compiler/src/compile.ts, packages/contracts/src/profile.ts, and packages/relay (destroy, purge). */}
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
 
 Each deployment creates two AWS CloudFormation stacks in the customer's AWS account, in the Region chosen for the deployment:
 
-- The **Deployz connector stack**, which your customer creates from the install link.
+- The **Deployz connector stack**, which the customer creates from the install link.
 - The **application stack**, which the connector creates and manages.
 
-All resources are tagged with `deployz:managed=true`, and with `deployz:installation` set to the deployment's installation ID. The connector's changes are limited to this deployment's resources: to resources with that installation tag, or, where AWS doesn't support tag conditions, to resources whose names start with the application stack name. A few actions can't be limited either way. For the permissions themselves and the exceptions, see [Security and AWS access](/customers/security). For what these resources cost, see [Sizes and AWS cost](/share/sizes-and-cost).
+Most resources carry the tag `deployz:managed=true` and the tag `deployz:installation` set to the deployment's installation ID. There are a few exceptions: IAM managed policies and EventBridge Scheduler schedules can't carry tags, and the connector stack's helper functions and their roles don't carry the installation tag.
+
+Most of the connector's changes are limited to this deployment's resources: to resources with the installation tag, or, where AWS doesn't support tag conditions, to resources whose names start with the application stack name. A few actions aren't limited this way. For the permissions themselves and the exceptions, see [Security and AWS access](/customers/security#exceptions-to-installation-scoping). For what these resources cost, see [Sizes and AWS cost](/share/sizes-and-cost).
 
 ## Deployz connector stack
 
-**Stack name:** `deployz-bootstrap-<application>-<id>`, where `<application>` is a short form of the application name and `<id>` is the first eight characters of the deployment ID. A retried attempt adds a suffix such as `-r2`.
+**Stack name:** `deployz-bootstrap-<application>-<id>`, where `<application>` is a short form of the application name and `<id>` is the first eight characters of the deployment ID. A retried attempt adds a suffix such as `-r1`.
 
 | Resource | AWS service | Purpose |
 | --- | --- | --- |
 | Connector function | AWS Lambda | Runs the connector. It connects out to Deployz, picks up work, and reports status. |
 | Schedule | Amazon EventBridge rule | Runs the connector function once a minute. |
-| Connector role | AWS IAM role | The permissions the connector function uses. A permissions boundary limits it. |
-| Permissions boundary and provisioner policy | AWS IAM managed policies | Define the most the connector can do. |
-| Application execution role | AWS IAM role | The role CloudFormation uses to create and change the application stack. Only CloudFormation in this account can use it. |
+| Schedule permission | AWS Lambda permission | Lets the EventBridge rule start the connector function. |
+| Connector role | AWS IAM role, with an inline policy | The permissions the connector function uses. A permissions boundary limits it. |
+| Permissions boundary and two provisioner policies | AWS IAM managed policies | Define the most the connector can do, and grant its permissions. |
+| Application execution role | AWS IAM role, with inline policies | The role CloudFormation uses to create and change the application stack. Only CloudFormation in this account can use it. |
 | Application role boundary | AWS IAM managed policy | The most any IAM role in the application stack can do. Every role the application stack creates must carry it. |
 | Connector credential | AWS Secrets Manager secret | Stores the credential the connector uses to identify itself to Deployz. |
-| Installation ID function | AWS Lambda | Generates the installation ID when the stack is created. |
-| Log groups | Amazon CloudWatch Logs | The connector's own logs. Entries are kept for one week. |
+| Installation ID functions | AWS Lambda, and a CloudFormation custom resource | Generate the installation ID when the stack is created. |
+| Log retention function | AWS Lambda | Sets one-week retention on the log groups of the connector and the other functions. |
+| Helper roles | AWS IAM roles | One for each helper function, with the AWS managed policy `AWSLambdaBasicExecutionRole` for writing logs. One can also start the installation ID function, and one can set log retention. |
 
-The stack's parameters are `ControlPlaneUrl`, `EnrollmentCode`, and `RelayCredential`. While it runs, the connector also stores its progress in AWS Systems Manager parameters under `/deployz/<installation-id>/`.
+The stack's parameters are `ControlPlaneUrl`, `EnrollmentCode`, and `RelayCredential`.
+
+Two kinds of resources are created outside the stack, so deleting the stack doesn't delete them:
+
+- **Log groups.** The CloudWatch Logs log groups of the connector and the helper functions are created when the stack is created. Entries are kept for one week.
+- **Progress records.** The connector stores its progress in AWS Systems Manager parameters under `/deployz/<installation ID>/`, and deletes each one when its command finishes.
 
 ## Application stack
 
-**Stack name:** `deployz-app-<id>`, where `<id>` is the first eight characters of the installation ID.
+**Stack name:** `deployz-app-<id>`, where `<id>` is the first eight characters of the installation ID. CloudFormation names the stack's unnamed resources after the stack, so their names start with `deployz-app-<id>-`. The connector's name-based permissions use this prefix.
 
 The application stack contains only what the application needs. For example, a deployment without a database has no database resources.
 
@@ -42,11 +51,11 @@ Every deployment gets its own network. Deployz doesn't use an existing VPC.
 
 | Resource | Details |
 | --- | --- |
-| VPC | Address range `10.0.0.0/16`. |
-| Subnets | Two public and two private subnets, across two Availability Zones. When the database needs more zones, Deployz adds database-only subnets with no internet route. |
+| VPC | Address range `10.0.0.0/16`, plus a secondary range, `10.1.0.0/20`, for database-only subnets. |
+| Subnets | Two public and two private subnets, across two Availability Zones. Database-only subnets with no internet route, in the Region's other Availability Zones, so the database can be placed in any of them. |
 | Internet gateway | One. |
 | NAT gateway and Elastic IP address | One NAT gateway in a public subnet, with one Elastic IP address. The application uses it for outbound internet access. |
-| Security groups | One for the load balancer, which accepts ports `80` and `443` from the internet. One for each service and scheduled job. One for the database, which accepts connections only from the application. One for the cache, which accepts connections from inside the VPC. |
+| Security groups | One for the load balancer, which accepts ports `80` and `443` from the internet. One for each service and each scheduled job (**Preview**). One for the database, which accepts connections only from the application. One for the cache, which accepts connections from inside the VPC. |
 
 ### Load balancer and HTTPS
 
@@ -54,8 +63,10 @@ Every deployment gets its own network. Deployz doesn't use an existing VPC.
 | --- | --- |
 | Application Load Balancer | Internet-facing, in the public subnets. Created when the application serves web traffic. |
 | Listeners | Port `80` at first. When HTTPS is set up, the connector adds a port `443` listener, and port `80` redirects to HTTPS. |
-| Certificates | AWS Certificate Manager certificates for the default address and any custom domain. The connector creates them outside the application stack. |
+| Certificates | AWS Certificate Manager certificates for the default address and any custom domain. |
 | Health alarm | A CloudWatch alarm on unhealthy targets. |
+
+The load balancer and its health alarm are created only when the application serves web traffic. The connector, not the application stack, creates the port `443` listener and the certificates.
 
 ### Application containers
 
@@ -64,12 +75,13 @@ Every deployment gets its own network. Deployz doesn't use an existing VPC.
 | ECS cluster | One Amazon ECS cluster. |
 | Services | One AWS Fargate service for the web application, and one for each background worker. They run in the private subnets with no public IP address. A failed rollout rolls back to the previous release. |
 | Migration task | A one-off Fargate task that runs the migration command before a new release starts. It isn't a service. |
-| Task size | CPU and memory come from the deployment's size. See the table below. |
+| Task size | CPU and memory come from the deployment's size. See the table below. Tasks run on the x86_64 architecture. |
 | Roles | An execution role shared by the tasks, and a role for each workload. |
-| Log groups | One Amazon CloudWatch Logs group for each service, worker, migration task, and scheduled job. Entries are kept for seven days. Deployz doesn't read these logs. |
+| Log groups | One Amazon CloudWatch Logs group for each service, worker, migration task, and scheduled job (**Preview**). Entries are kept for seven days. Deployz doesn't read these logs. |
+| Task-definition revisions | The connector registers new revisions of the application's task definitions when it applies configuration and updates. It removes old revisions after a successful update. |
 | Configuration secret | An AWS Secrets Manager secret for the application's configuration values. |
 
-The release image is stored by Deployz. The customer's account gets permission to download it when the release is deployed.
+Releases are stored as container images in a Deployz registry in Amazon ECR, in an AWS account that Deployz owns. When the application is installed, Deployz allows the customer's account to pull them.
 
 ### Database
 
@@ -98,14 +110,11 @@ Created for every deployment. One Amazon S3 bucket with:
 - Encryption at rest (SSE-S3) and versioning.
 - All public access blocked, and a policy that refuses requests without TLS.
 - Old versions of files deleted after 30 days.
+- Incomplete multipart uploads deleted after 7 days.
 
-### Queues and scheduled jobs (Preview)
+### Queues and scheduled jobs
 
-<Note>
-  Queues and scheduled jobs are a Preview feature.
-</Note>
-
-Created only when the application declares them.
+Queues and scheduled jobs (**Preview**) are created only when the application declares them.
 
 - **Queues:** standard Amazon SQS queues, encrypted, accepting TLS requests only.
 - **Scheduled jobs:** an Amazon EventBridge Scheduler schedule for each job, with its own role. Each run starts a Fargate task in the private subnets.
@@ -118,11 +127,11 @@ Created only when the application declares them.
 | Medium | 1 vCPU, 2 GiB | `db.t3.medium` | `cache.t4g.small` |
 | Large | 2 vCPU, 4 GiB | `db.t3.large` | `cache.t4g.medium` |
 
-Each service runs one container. All sizes use one NAT gateway and the same database storage. Some older Small deployments use a `db.t4g.micro` database with gp2 storage. You can't change a deployment's size after you create it. See [Sizes and AWS cost](/share/sizes-and-cost).
+Each service runs one copy of its task. When the application has a database, each task also runs a short-lived helper container from the public `amazonlinux` image. It downloads the Amazon RDS certificate bundle before the application container starts. If the download fails, the application starts without it. All sizes use one NAT gateway and the same database storage. Some older Small deployments use a `db.t4g.micro` database with gp2 storage. A deployment's size can't be changed after it's created. See [Sizes and AWS cost](/share/sizes-and-cost).
 
 ## What remains after removal
 
-When you remove a deployment, Deployz deletes the application stack but keeps the customer's data.
+When the vendor removes a deployment, Deployz deletes the application stack but keeps the customer's data.
 
 <Warning>
   Retained resources stay in the customer's AWS account and keep costing money until someone deletes them. Removing a deployment doesn't stop those charges.
@@ -130,12 +139,14 @@ When you remove a deployment, Deployz deletes the application stack but keeps th
 
 | Resource | After **Remove deployment** | After **Delete retained data** |
 | --- | --- | --- |
-| Containers, load balancer, cache, configuration secret, log groups | Deleted | Deleted |
-| Database | Kept | Deleted. No final snapshot is taken. |
+| Containers, load balancer, cache, configuration secret, log groups | Deleted | Deleted, if any remain |
+| Database | Kept, with its automated backups | Deleted, with its automated backups. No final snapshot is taken. |
 | Database password and connection URL secrets | Kept | Deleted, without a recovery period |
 | S3 bucket and its files | Kept | Emptied and deleted |
 | Database subnet group, and the subnets, security group, and VPC the database still uses | Kept | Deleted |
-| Certificates | Kept | Deleted |
+| Certificates and the port `443` listener | Deleted | Deleted, if any remain |
+| Task-definition revisions the connector registered | Kept | Deleted |
+| Service-linked roles that AWS created | Kept | Kept |
 | Deployz connector stack | Kept | Kept |
 
-Deployz can't delete the connector stack. After the retained data is deleted, the customer deletes the connector stack in AWS CloudFormation. See [Remove a deployment](/operate/remove) and [Remove the application from your AWS account](/customers/remove).
+Deployz can't delete the connector stack. After the retained data is deleted, the customer deletes the connector stack in AWS CloudFormation. Outside the customer's account, Deployz keeps its operational records for the deployment, such as IDs, states, and timestamps. See [Remove a deployment](/operate/remove) and [Remove the application from your AWS account](/customers/remove).

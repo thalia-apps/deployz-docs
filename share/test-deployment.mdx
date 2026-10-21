@@ -3,6 +3,8 @@ title: "Run a test deployment"
 description: "Install your application in your own AWS account with the same flow your customers use."
 ---
 
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
 A test deployment installs your application in an AWS account you control, through the same install page and AWS steps your customers go through. Run one before you share your application, so you find configuration and startup problems before a customer does.
 
 ## What a test deployment is
@@ -12,14 +14,14 @@ A test deployment installs your application in an AWS account you control, throu
 - **Yours to configure.** You choose the AWS Region and the size. Your customers choose these for their own deployments.
 - **The same flow your customers use.** The test deployment has its own install link, opens the same install page, and creates the same Deployz connector and resources in AWS.
 
-The application **Overview** offers **Create install link** only after a test deployment succeeds. A passing test is the signal that the application is ready to share.
+The application **Overview** offers **Create install link** only after a test deployment succeeds, or once the application has a customer deployment. A passing test is the signal that the application is ready to share.
 
 ## Before you start
 
 You need:
 
 - An application whose analysis has finished, with no required changes open on **Configuration**.
-- A release that built successfully. The test deployment installs your newest ready release. See [Create a release](/releases/create).
+- A built release. The test deployment installs your application's newest built release. If the application doesn't have one yet, you can start the first build from the **Create test deployment** page. See [Create the test deployment](#create-the-test-deployment).
 - An AWS account where you can create a CloudFormation stack with IAM resources. The requirements are the same as for a customer. See [Before you install](/customers/before-you-install).
 
 ## Create the test deployment
@@ -35,22 +37,32 @@ You need:
     In **Applications**, open your application. When it's ready, the **Overview** shows **Ready for a test deployment**.
   </Step>
   <Step title="Start the test deployment">
-    Select **Start test deployment**. The **Create test deployment** page opens.
+    Select **Start test deployment**. The **Create test deployment** page opens with your application selected.
   </Step>
   <Step title="Choose a customer record">
-    In **Customer**, select an existing customer, or keep **Create new customer** and enter a name and email. You can use your own details.
+    In **Customer**, select an existing customer, or keep **Create new customer** and enter a name and email. You can use your own details. A new customer record appears in **Customers**, like any other customer.
   </Step>
   <Step title="Choose the Region and size">
-    Select the **AWS region** to install into, then the **Size**. The size list starts at your application's minimum size. See [AWS Regions](/share/regions) and [Sizes and AWS cost](/share/sizes-and-cost).
+    Select the **AWS region** to install into, then the **Size**. The **AWS region** list shows only the Regions available for installs, and the **Size** list starts at your application's minimum size. See [AWS Regions](/share/regions) and [Sizes and AWS cost](/share/sizes-and-cost).
+  </Step>
+  <Step title="Check the deployment checks and the release">
+    Deployz runs its deployment checks as soon as the application is selected, and shows the result on the page. It also shows which release the test deployment installs.
+
+    - If a check shows **Fix before deploying**, fix the issue, then return to this page.
+    - If the application has no built release, select **Build release from commit**, followed by the short commit SHA. Deployz builds the first release from the commit it analyzed, and the page follows the build. To build a different commit, select **Go to Releases** instead. See [Create a release](/releases/create).
   </Step>
   <Step title="Create it">
-    Select **Run free test deployment**. Deployz runs its deployment checks first and shows any problem it finds.
+    Select **Run free test deployment**. The button stays unavailable until the checks pass and a release is built. The text next to it says what it's waiting for.
   </Step>
 </Steps>
 
-When it succeeds, **Deployment created** shows the test deployment's install link. If your application needs values that your customers normally enter, select **Set up configuration** to enter them for this deployment.
+If the application already has a test deployment, Deployz shows "This application already has a test deployment." Select **View the existing test deployment** to open it.
 
-The test deployment's install link is valid for 30 days after you create the test deployment. The deployment's **Install link** card shows the expiry date. If the link expires before your AWS account connects, select **Issue new install link** on the deployment to make it valid for 30 more days. See [Reconnect or update the Deployz connector](/operate/connector#you-issue-a-new-install-link).
+When the test deployment is created, **Deployment created** shows its install link. If your application needs values that your customers normally enter, select **Set up configuration** to enter them for this deployment.
+
+You don't need to copy the link now. After you leave this page, the link stays on the test deployment's page, in the **Install link** card. Open it from **Deployments**.
+
+The install link is valid for 30 days after you create the test deployment. The **Install link** card shows the expiry date. If the link expires before your AWS account connects, select **Issue new install link** on the deployment to make it valid for 30 more days. See [Reconnect or update the Deployz connector](/operate/connector#you-issue-a-new-install-link).
 
 ## Install it in your AWS account
 
@@ -66,6 +78,15 @@ These are the same steps your customers follow. [Install the application](/custo
 ## After the test
 
 - **If it succeeds,** the application **Overview** shows **Ready to share**. Share it with an [install link](/share/install-links) or an [invitation](/share/invitations).
-- **If it fails,** the **Overview** shows **Test failed**. Select **Review failure** to open the deployment and its recovery steps. See [Find your problem](/troubleshooting/overview).
+- **If it fails,** the **Overview** shows the **Test failed** badge, with **Test deployment failed**, or **The test deployment is disconnected** if Deployz lost the connection to it. Select **Review failure** to open the deployment and its recovery steps. See [Find your problem](/troubleshooting/overview).
 
 The test deployment keeps running, and keeps using AWS resources, until you remove it. See [Remove a deployment](/operate/remove).
+
+### Removing a passed test before you have customers
+
+Removing the test deployment changes what the **Overview** offers, until you have at least one customer deployment:
+
+- If you haven't created an install link yet, **Create install link** is no longer available. The **Overview** returns to **Ready for a test deployment**, and you need another successful test before you can create the link.
+- An install link you already created keeps working. The **Overview** shows it with a warning that the link is live, and you can disable it there.
+
+Once a customer deployment exists, removing the test deployment doesn't affect your install link.

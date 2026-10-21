@@ -1,8 +1,10 @@
 ---
 title: "Fix analysis problems"
 sidebarTitle: "Analysis"
-description: "Resolve failed analyses, open questions, required changes, and capabilities Deployz does not support."
+description: "Resolve failed analyses, open questions, required changes, and capabilities Deployz doesn't support."
 ---
+
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
 
 When you add an application, Deployz analyzes its repository to work out how to build, start, and host it. This page covers what to do when the analysis fails, asks you a question, or finds something you need to change. All of it happens in the Deployz dashboard, before any customer is involved.
 
@@ -29,35 +31,32 @@ Large repositories don't cause a failure. Deployz reads a limited set of files a
 
 **Symptom:** The application shows **Analyzing** with the message "Taking longer than usual. Wait, or restart the analysis." An analysis usually takes about a minute. The message appears after about two minutes.
 
-**Fix:** Wait a little longer. If nothing changes, select **Re-analyze application** to start again.
+**Fix:** Wait a little longer. If nothing changes, select **Re-analyze application** on the **Overview** card to start again. The card offers it once the message appears. The **Re-analyze application** item in **More actions** stays unavailable while an analysis is running.
 
 **Who acts:** you.
 
-## Read the analysis result
+## The result changes after a release build
 
-When the analysis finishes, the **Overview** shows one of three results. The most serious required item decides which one.
+**Symptom:** The **Overview** shows **Deployable with Deployz settings** with "Not yet confirmed by a build." Or the result changed to **Deployable after repository changes** with "The release build failed."
 
-| Result | What it means | Where to look |
-| --- | --- | --- |
-| **Deployable with Deployz settings** | Anything left to do is a setting in Deployz. | [The application needs input](#the-application-needs-input) |
-| **Deployable after repository changes** | You need to change your repository before Deployz can deploy the application. | [A finding needs a change you can make](#a-finding-needs-a-change-you-can-make) |
-| **Not deployable on Deployz** | The application needs a capability Deployz doesn't provide. | [The application needs an unsupported capability](#the-application-needs-an-unsupported-capability) |
+**Cause:** The analysis reads your repository without building it, so it can't predict every build failure. If release builds failed and none has passed, the result changes to **Deployable after repository changes**.
 
-The analysis reads your repository without building it, so it can't predict every build failure. Until a release build passes, **Deployable with Deployz settings** shows "Not yet confirmed by a build." If release builds failed and none has passed, the result changes to **Deployable after repository changes** with "The release build failed." Select **Review failure details**, and see [Fix a failed build](/releases/build-failures).
+**Who:** you (the vendor), in the Deployz dashboard.
+
+**Fix:** Select **Review failure details**, and see [Fix a failed build](/releases/build-failures). For what each analysis result means, see [Read the analysis result](/prepare/analysis#read-the-analysis-result).
 
 ## The application needs input
 
 **Symptom:** The application shows **Needs input**. The **Overview** shows either a count of changes required before you can deploy, or **Configuration needs review**, with **Review required changes**.
 
-**Cause:** Deployz found something it can't decide for you. The **Overview** groups the required changes by where you resolve them:
+**Cause:** Deployz found something it can't decide for you. The **Overview** groups the required changes into **Set in Deployz**, **Change in your repository**, and **Not supported**. For what each group means, see [Required and recommended findings](/prepare/analysis#required-and-recommended-findings).
 
-- **Set in Deployz:** a setting you enter in the Deployz dashboard, such as the port, the start command, the health check path, or how database migrations run.
-- **Change in your repository:** a change you push to GitHub. See [A finding needs a change you can make](#a-finding-needs-a-change-you-can-make).
-- **Not supported:** a capability Deployz doesn't provide. See [The application needs an unsupported capability](#the-application-needs-an-unsupported-capability).
+- For items under **Set in Deployz** or **Change in your repository**, see [A finding needs a change you can make](#a-finding-needs-a-change-you-can-make). A missing start command is listed under **Set in Deployz**, but the dashboard has no start command field.
+- For items under **Not supported**, see [The application needs an unsupported capability](#the-application-needs-an-unsupported-capability).
 
 Two other kinds of input can also be open:
 
-- **Questions about your application.** For example, which command runs a background worker. These rows are marked **Needs input** on the **Configuration** screen.
+- **Questions about your application.** For example, which command runs a background worker. These rows are marked **Needs input** or **Blocking** on the **Configuration** screen.
 - **Environment variable decisions.** A variable shows **Needs a decision** when nobody has said who provides it, or **Needs a value** when you provide it but haven't entered a value. See [Configure environment variables](/prepare/environment-variables).
 
 **Fix:**
@@ -91,14 +90,14 @@ You resolve these in Deployz:
 | Finding | How you fix it |
 | --- | --- |
 | Set the port your app listens on | Enter the port on the **Configuration** screen. |
-| Add a start command to the Dockerfile | Add a `CMD` or `ENTRYPOINT` to the Dockerfile, or set the start command in Deployz. |
-| Add a health check route | Set the health check path. If the application has no route that returns HTTP `200`, add one first. |
+| Add a health check route | Set the health check path on the **Configuration** screen. If the application has no route that returns HTTP `200`, add one first. |
 | Choose how database migrations run | Choose a migration option on the **Configuration** screen. See [Database migrations](/prepare/migrations). |
 
 You resolve these in your repository:
 
 | Finding | How you fix it |
 | --- | --- |
+| Add a start command to the Dockerfile | Add a `CMD` or `ENTRYPOINT` instruction to the Dockerfile, or a `start` script to `package.json`, then re-analyze. The dashboard has no field for the start command, even though the **Overview** lists this finding under **Set in Deployz** and its suggested fix mentions the application details. |
 | Add container build instructions (Dockerfile), or Has no Dockerfile that builds the app | Add a production Dockerfile that builds and starts the application from source. |
 | Stop copying .git into the container build | Remove the copy or read of `.git` from the Dockerfile. Deployz builds from a source archive that has no `.git` directory. |
 | Listen on all network interfaces, not only localhost | Change the application to listen on `0.0.0.0`. |
@@ -108,14 +107,16 @@ You resolve these in your repository:
 
 When the analysis can't tell whether the application really needs an unsupported capability, for example SQLite next to a PostgreSQL driver, it lists the item under **Change in your repository**. Its fix instructions ask you or your coding agent to check first, before you change anything.
 
-Recommended findings don't block a deployment, but they can cause problems later. Examples are confirming which Dockerfile Deployz builds, adding a way to update the database, and confirming background workers, queues, or scheduled jobs. Queues and scheduled jobs are a **Preview** feature.
+Recommended findings don't block a deployment. For examples, see [Required and recommended findings](/prepare/analysis#required-and-recommended-findings).
+
+One recommended finding is **Background job runner**. It appears when the application seems to run background jobs, but no command starts a separate job runner. If the web process already runs the jobs, you don't need to change anything. Otherwise, declare the job runner with its own start command in your repository, for example a `worker` line in a `Procfile`, then re-analyze.
 
 **Fix:**
 
 **Who:** you (the vendor), in the Deployz dashboard and in your repository.
 
 1. On the **Configuration** screen, find the finding.
-2. If the fix is a setting, such as the port, start command, health check path, or migration choice, edit it and save. You don't need to re-analyze.
+2. If the fix is a setting, such as the port, health check path, or migration choice, edit it and save. You don't need to re-analyze.
 3. If the fix is a repository change, select **Get fix instructions**. The **Fix deployment issues with your coding agent** dialog gives instructions you can copy into a coding agent or follow yourself.
 4. Push the change to GitHub, then select **Re-analyze application**.
 
@@ -131,13 +132,10 @@ Recommended findings don't block a deployment, but they can cause problems later
 
 ## Re-analyze the application
 
-Re-analyze after you push a change, after you fix GitHub access, or when Deployz shows **Checks updated** with the message "Re-analyze to apply the latest checks."
+**Symptom:** You pushed a change or fixed GitHub access, but the result hasn't changed. Or the application shows **Checks updated** with "Re-analyze to apply the latest checks."
 
-**Who:** you (the vendor), in the Deployz dashboard.
+**Cause:** Deployz analyzes the repository only when you add the application or start a new analysis. A push doesn't start one.
 
-1. Open the application.
-2. Open **More actions** and select **Re-analyze application**. If the **Checks updated** notice is showing, you can select **Re-analyze** there instead.
+**Fix:** Re-analyze the application. For where to start it and what a new analysis keeps, see [Re-analyze the application](/prepare/analysis#re-analyze-the-application).
 
-Deployz reads the latest commit on the application's branch. Values you entered yourself, such as a port or a health check path, are kept. **Re-analyze application** isn't available while an analysis is running.
-
-To get a code change to your customers, create a new release after the analysis passes. See [Create a release](/releases/create).
+**Who acts:** you (the vendor), in the Deployz dashboard.

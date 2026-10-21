@@ -3,42 +3,42 @@ title: "Key concepts"
 description: "Applications, releases, deployments, customers, and the other building blocks of Deployz."
 ---
 
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
 Deployz organizes your work around a few objects. Knowing which object owns what tells you where to find a setting or an action in the dashboard.
 
 ## Which object owns what
 
 | Object | Owns | Doesn't own |
 | --- | --- | --- |
-| Application | Analysis, configuration, releases, and the install link | Operations on a deployment |
-| Customer | Contact details, invitations, and links to that customer's deployments | Operations on a deployment, the install link |
-| Deployment | Status, every day-to-day action, its own configuration, failures and recovery, and its infrastructure details | The application's default settings |
+| Application | Analysis, configuration defaults, releases, and the install link | Operations on a deployment |
+| Customer | Contact details, invitations, links to that customer's deployments, and that customer's configuration overrides for each application | Operations on a deployment, the install link |
+| Deployment | Status, every day-to-day action, failures and recovery, and its infrastructure details | The application's defaults, the customer's overrides |
 
 In practice:
 
 - To change how the application is analyzed, configured, or built, open the application.
-- To deploy an update, roll back, restart, change one customer's settings, or remove a deployment, open the deployment.
+- To deploy an update, roll back, restart, change one customer's values, or remove a deployment, open the deployment.
 
 ## Application
 
 An application is one GitHub repository connected to Deployz. Each repository can be added once per organization. The application's page has three tabs:
 
 - **Overview:** the application's status and its one next action.
-- **Configuration:** the detected services, size presets, environment variables, and settings.
 - **Releases:** the versions Deployz has built.
+- **Configuration:** the detected services, size presets, environment variables, and settings, on the **Resources**, **Size presets**, **Variables**, and **Settings** tabs. **Remove application** is on **Settings**.
 
 Changes on **Configuration** reach deployments at different times:
 
 - **Runtime environment variables** reach running deployments within minutes.
 - **Build environment variables** apply to releases built after the change.
-- **The migration command** applies to new deployments, and to an existing deployment on its next release deployment. See [Database migrations](/prepare/migrations).
+- **The migration command** applies to new deployments. An existing deployment keeps the command it was created with until you save a command in Deployz. Its next release deployment then uses the saved command. See [Database migrations](/prepare/migrations).
 - **Size presets** apply only to new install links and new deployments.
 - **The container port, the health check path, and services** (database, cache, and file storage) apply only to new deployments.
 
-Existing deployments keep the size, values, and resources they were created with.
+Existing deployments keep the size and resources they were created with.
 
-To change one customer's values, see [Change a customer's configuration](/operate/configuration).
-
-Deployz analyzes the repository when you add the application, and again when you select **Re-analyze application**. Analysis decides whether the application fits the supported architecture. See [Application requirements](/prepare/requirements).
+Deployz analyzes the repository when you add the application, and again when you select **Re-analyze application** in the **More actions** menu (the three-dot button) in the application's header. Analysis decides whether the application fits the supported architecture. See [Application requirements](/prepare/requirements).
 
 ## Release
 
@@ -46,9 +46,13 @@ A release is a fixed version of your application, built from one commit. You giv
 
 Creating a release doesn't update any deployment. You choose when each deployment moves to a new release. See [Create a release](/releases/create) and [Deploy an update](/operate/deploy-update).
 
+A release can later show **Unavailable** when its build is no longer available. To deploy that version again, create a new release from the same commit.
+
 ## Deployment
 
-A deployment is one application running in one AWS account, in one AWS Region. "Install" is the word for a deployment's first setup in that account. Each deployment has its own status, address, configuration, and history.
+A deployment is one application running in one AWS account, in one AWS Region. A test deployment is a deployment too. "Install" is the word for a deployment's first setup in that account. Each deployment has its own status, address, and history.
+
+A deployment runs with your application's configuration defaults plus the customer's overrides. Overrides are stored per customer and application, so they apply to all of that customer's deployments of the application. See [Change a customer's configuration](/operate/configuration).
 
 You choose a deployment's Region and size before it's installed. You can't change either one afterward. See [Deployment status and health](/operate/deployment-status) for what each status means.
 
@@ -58,7 +62,8 @@ A test deployment is a deployment of your application in your own AWS account. I
 
 - It's free. Deployz doesn't bill test deployments, but AWS bills your account for the resources it uses.
 - Each application can have one test deployment at a time.
-- The install link for customers becomes available after a test deployment succeeds.
+- **Create install link** appears on the application's **Overview** after a test deployment succeeds. If you remove that test deployment before any customer deployment exists, **Create install link** goes away until a new test deployment succeeds. An install link you already created stays live.
+- Invitations don't need a test deployment. You can invite a customer once the application has a built release.
 
 See [Run a test deployment](/share/test-deployment).
 
@@ -70,30 +75,24 @@ Your organization's name is shown to customers as the publisher on the install p
 
 ## Install link
 
-An install link is a reusable link for one application. You share the same link with any number of customers. When a customer opens it, they choose an AWS Region and a size, enter any settings you've asked them to provide, and confirm. Each confirmation creates a new customer record and a new deployment.
+An install link is a reusable link for one application. You share the same link with any number of customers. When a customer opens it, they choose an AWS Region and a size, enter any settings you've asked them to provide, enter their name and email, and confirm. Each confirmation creates a new customer record and a new deployment.
 
-Each application has one live install link at a time. See [Share an install link](/share/install-links).
+Each application has one live install link at a time. You can disable it and enable it again, regenerate it, or revoke it. See [Share an install link](/share/install-links).
 
 ## Invitation
 
 An invitation is a link for one specific customer. You create it from the dashboard and can recommend a Region and size, but the customer makes the final choice. An invitation creates one deployment when the customer confirms it, and can't be used again after that.
 
-The invitation link includes a one-time token that Deployz shows only once, when you create it. See [Invite a specific customer](/share/invitations).
+An invitation expires 30 days after you create it. While it's active, you can revoke it from the customer's page. The invitation link includes a one-time token that Deployz shows only once, when you create it. See [Invite a specific customer](/share/invitations).
 
 ## Deployz connector
 
-The Deployz connector is a small AWS Lambda function that runs in the customer's AWS account. The customer creates it with one CloudFormation Quick Create stack during the install. The connector checks in with Deployz every minute, connects outbound only, and carries out every change to the deployment in that account.
-
-While the connector is offline, Deployz can't make changes in the customer's account. See [How Deployz works](/how-it-works) and [Reconnect or update the Deployz connector](/operate/connector).
+The Deployz connector is a small AWS Lambda function in the customer's AWS account. It carries out every change to the deployment there, and it connects outbound only. See [The Deployz connector](/how-it-works#the-deployz-connector) and [Reconnect or update the Deployz connector](/operate/connector).
 
 ## Organization and roles
 
-An organization is your company's space in Deployz. It holds your applications, customers, deployments, and billing. When you sign up, Deployz creates an organization for you and makes you its owner. Members of an organization have one of three roles:
+An organization is your company's space in Deployz. It holds your applications, customers, deployments, and billing. When you sign up, Deployz creates an organization for you and makes you its owner. You can belong to more than one organization and switch between them in the dashboard.
 
-| Role | What the role can do |
-| --- | --- |
-| Owner | Everything an admin can do, plus delete the organization and transfer ownership to another member. Each organization has one owner. |
-| Admin | Everything a member can do, plus rename the organization, invite people, change members' roles, and remove members. |
-| Member | Work with applications, releases, customers, and deployments. |
+Each member has one role: owner, admin, or member. Roles control only who manages the team and the organization. Every member can work with applications, deployments, and billing.
 
-You manage members under **Team** in the dashboard.
+You manage members under **Team** in the dashboard. For details, see [Roles](/account/organization-and-team#roles).

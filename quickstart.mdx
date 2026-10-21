@@ -3,13 +3,15 @@ title: "Quickstart"
 description: "Go from a GitHub repository to a working test deployment in your own AWS account."
 ---
 
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
 This guide takes you from a GitHub repository to your application running in your own AWS account, at a permanent HTTPS address. Along the way you add the application, let Deployz analyze it, build a release, and run a test deployment. Everything in this guide is part of the free evaluation.
 
 ## Before you begin
 
 You need:
 
-- **A GitHub repository** with a Dockerfile that builds a production image of your web application. Check [Application requirements](/prepare/requirements) first, so you know your application fits.
+- **A GitHub repository** with a Dockerfile that builds a production container image of your web application. Check [Application requirements](/prepare/requirements) first, so you know your application fits.
 - **An AWS account you control,** where you can create a CloudFormation stack that creates IAM resources. The checks are the same as for a customer. See [Before you install](/customers/before-you-install).
 
 <Note>
@@ -22,7 +24,7 @@ You need:
 
 <Steps>
   <Step title="Sign up">
-    Go to [app.deployz.dev/sign-up](https://app.deployz.dev/sign-up). Enter your **Name**, **Email**, and a **Password** of at least 8 characters, then select **Create account**.
+    Go to [app.deployz.dev/sign-up](https://app.deployz.dev/sign-up). Enter your **Name**, **Email**, and a **Password** of at least 8 characters. Selecting **Create account** accepts the Deployz Terms of Service and Privacy Policy, which are linked below the button. Select **Create account**.
 
     Deployz creates an organization for you, named after the part of your email address before the `@`, and makes you its owner. Customers see the organization name as the publisher on the install page. To change it, open **Settings**, edit **Organization name**, and select **Update Organization**.
   </Step>
@@ -40,7 +42,7 @@ You need:
     | Status | What it means | What to do |
     | --- | --- | --- |
     | **Ready to test** | The application fits and has everything it needs. | Continue to the next step. |
-    | **Needs input** | Deployz needs a change or a decision before you can deploy. | Select **Review required changes**. |
+    | **Needs input** | Deployz needs a change, a decision, or a value before you can deploy. | Select **Review required changes**. |
     | **Analysis failed** | Deployz couldn't read or analyze the repository. | Read the reason on the **Overview**, then select **Re-analyze application**. |
 
     The **Overview** also shows whether the application can be deployed: **Deployable with Deployz settings**, **Deployable after repository changes**, or **Not deployable on Deployz**. Required changes are grouped under **Set in Deployz**, **Change in your repository**, and **Not supported**. Until a release build passes, **Deployable with Deployz settings** shows "Not yet confirmed by a build."
@@ -61,6 +63,8 @@ You need:
     Open the **Releases** tab and select **Create release**. In **New release**, check the suggested **Version** and choose a **Commit** from your branch. Select **Create release**.
 
     The release shows **Building**, then **Ready** when the build succeeds. If it shows **Build failed**, see [Fix a failed build](/releases/build-failures). Creating a release doesn't update any deployment. For details, see [Create a release](/releases/create).
+
+    You can also skip this step. If the application has no release yet, the **Create test deployment** page offers **Build release from commit `<commit>`**, which builds the first release from the commit the analysis read.
   </Step>
 </Steps>
 
@@ -75,18 +79,37 @@ You need:
 <Steps>
   <Step title="Start the test deployment">
     On the application's **Overview**, select **Start test deployment**. The **Create test deployment** page opens.
+
+    If the **Overview** shows **Building a release** instead, wait for the build to finish. If it shows **No release to test**, the last build failed or no release can be deployed. Select **Review failed build** or **View releases**, and create a release that builds.
   </Step>
   <Step title="Fill in the details">
-    - **Customer:** keep **Create new customer** and enter a name and email. You can use your own details.
+    - **Customer:** keep **Create new customer**, then enter a **Customer name** and **Customer email**. **Company (optional)** can stay empty. You can use your own details.
+    - **Application:** the application to deploy.
     - **AWS region:** the Region to install into. See [AWS Regions](/share/regions).
-    - **Size:** the size of the deployment. See [Sizes and AWS cost](/share/sizes-and-cost).
+    - **Size:** the size of the deployment. Only sizes at or above the application's minimum size are offered. See [Sizes and AWS cost](/share/sizes-and-cost).
 
-    Deployz runs its deployment checks and confirms which release it will install.
+    Deployz runs its deployment checks and shows which release it will install, for example **Release `v1.0.0` is ready**.
+  </Step>
+  <Step title="Build the first release if needed">
+    If the application has no built release, the page says so and offers **Build release from commit `<commit>`**. Select it. The page shows **Building release `<version>`…** and checks the build every 10 seconds. **Run free test deployment** becomes available when the build completes.
   </Step>
   <Step title="Create the test deployment">
     Select **Run free test deployment**. **Deployment created** shows the test deployment's install link.
   </Step>
 </Steps>
+
+### If a deployment check blocks the test deployment
+
+When a deployment check fails, the page lists the check with what it found, and **Run free test deployment** stays unavailable with **Fix the issues above to continue**.
+
+For example, the **Required customer variables** check can show **Missing:** followed by variable names. These are required variables set to **Set by customer**. A test deployment for a new customer has no customer values yet, so these variables have no value.
+
+To continue, open **Configuration** › **Variables** and change each listed variable in one of these ways:
+
+- Set it to **Set by vendor** and enter a value.
+- Set it to **Optional / not needed**, if your application can start without it.
+
+Both changes apply to every customer of this application, not only to your test. If customers should enter their own value, change the variable back to **Set by customer** before you share an install link. See [Configure environment variables](/prepare/environment-variables).
 
 ## Install it in your AWS account
 
@@ -103,7 +126,7 @@ You need:
     Sign in to the AWS account you want to use, if you aren't already, and check that the account and Region are correct. Then create the stack. It sets up the Deployz connector in your account. [Install the application](/customers/install) describes this step in detail.
   </Step>
   <Step title="Follow the progress">
-    Return to the install page. It shows each step as Deployz connects to your account, creates the infrastructure, starts the application, checks its health, and sets up HTTPS. The application's **Overview** in the dashboard shows **Testing** while this runs.
+    Return to the install page. It shows each step as Deployz connects to your account, creates the network and any database, cache, and file storage, runs migrations if your application has a migration command, starts the application, checks its health, and sets up HTTPS. The application's **Overview** in the dashboard shows **Testing** from the moment you create the test deployment until it finishes.
 
     If a step fails, the page explains what happened. See [Fix install failures](/troubleshooting/install).
   </Step>
@@ -116,8 +139,13 @@ In the dashboard, the application's **Overview** now shows **Ready to share**.
 
 The test deployment keeps running, and AWS keeps billing your account, until you remove it. See [Remove a deployment](/operate/remove).
 
+<Warning>
+  Create the install link before you remove the test deployment. If you remove a passed test deployment before any customer deployment exists, **Create install link** goes away until a new test deployment succeeds. An install link you already created stays live.
+</Warning>
+
 ## Next step
 
-Your application is ready for customers. Create an install link and send it to your first customer. See [Share an install link](/share/install-links).
+Your application is ready for customers.
 
-Your customer can confirm the install only while your organization has an active subscription. Start one before you send the link. See [Pricing and billing](/account/billing).
+1. Start a subscription. Your customer can confirm an install only while your organization has an active subscription. See [Pricing and billing](/account/billing).
+2. Create an install link and send it to your first customer. See [Share an install link](/share/install-links).
