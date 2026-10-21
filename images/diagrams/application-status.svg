@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="392" viewBox="0 0 720 392" role="img" aria-labelledby="title desc">
+  <title id="title">Application statuses from analysis to live</title>
+  <desc id="desc">Application statuses on the Overview, in order. Analyzing: the analysis takes about a minute. Ready to test: create a release, then start a test deployment. Testing: install it in your AWS account. Ready to share: create an install link or invite a customer. Live: a customer deployment is running. Analysis can end in Needs input (review the required changes) or Analysis failed (fix the cause, then re-analyze). A test can end in Test failed (review the failure).</desc>
+
+  <!--
+    Deployz docs illustration. Style: deployz-website DESIGN.md section 7 (scene system).
+    Tokens: foreground #111111, muted #52525B, subtle #71717A, border #E4E4E7,
+    border-strong #D4D4D8, surface #FAFAFA, brand #2563EB, brand-subtle #EFF6FF,
+    brand-border #BFDBFE, success #15803D, warning #A16207, error #B91C1C.
+    Edit text in place; each part is a named <g>. 
+  -->
+
+  <defs>
+    <style>
+      text { font-family: Inter, "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; fill: #111111; }
+      .title { font-size: 13px; font-weight: 600; }
+      .heading { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+      .body { font-size: 13px; fill: #111111; }
+      .label { font-size: 12px; font-weight: 600; fill: #52525B; }
+      .note { font-size: 12px; fill: #52525B; }
+      .badge { font-size: 12px; font-weight: 500; }
+      .num { font-size: 12px; font-weight: 600; fill: #FFFFFF; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; fill: #71717A; }
+      .mono-dark { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; fill: #111111; }
+      .mono-brand { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; fill: #1D4ED8; }
+      .boundary { fill: none; stroke: #A1A1AA; stroke-width: 1; stroke-dasharray: 5 4; }
+      .tag { fill: #FFFFFF; stroke: #E4E4E7; }
+      .band { fill: #FAFAFA; stroke: #E4E4E7; }
+      .tile { fill: #FFFFFF; stroke: #E4E4E7; }
+      .tile-optional { fill: #FFFFFF; stroke: #A1A1AA; stroke-dasharray: 4 3; }
+      .icon-tile { fill: #FAFAFA; stroke: #E4E4E7; }
+      .icon { fill: none; stroke: #52525B; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+      .track { fill: none; stroke: #A1A1AA; stroke-width: 1.5; }
+      .track-dashed { fill: none; stroke: #A1A1AA; stroke-width: 1.5; stroke-dasharray: 4 4; }
+      .beam { fill: none; stroke: #2563EB; stroke-width: 1.5; }
+      .port { fill: #FFFFFF; stroke: #A1A1AA; stroke-width: 1.5; }
+      .port-brand { fill: #FFFFFF; stroke: #2563EB; stroke-width: 1.5; }
+    </style>
+
+    <!-- Stage: dot grid that fades to the edges, one faint cobalt light -->
+    <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
+      <circle cx="9" cy="9" r="1" fill="#D4D4D8" />
+    </pattern>
+    <radialGradient id="fade" cx="50%" cy="50%" r="60%">
+      <stop offset="40%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#000000" />
+    </radialGradient>
+    <mask id="fade-mask">
+      <rect width="720" height="392" fill="url(#fade)" />
+    </mask>
+    <radialGradient id="light" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#2563EB" stop-opacity="0.10" />
+      <stop offset="100%" stop-color="#2563EB" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Card depth -->
+    <filter id="shadow" x="-10%" y="-20%" width="120%" height="160%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#111111" flood-opacity="0.04" />
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#111111" flood-opacity="0.06" />
+    </filter>
+    <filter id="shadow-brand" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#111111" flood-opacity="0.04" />
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#2563EB" flood-opacity="0.14" />
+    </filter>
+
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M1 1L9 5L1 9" fill="none" stroke="#A1A1AA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    </marker>
+    <marker id="arrow-brand" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M1 1L9 5L1 9" fill="none" stroke="#2563EB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    </marker>
+
+
+
+    <!-- Icons: Lucide (ISC license), 24 x 24 -->
+
+  </defs>
+  <g id="stage">
+    <rect x="0.5" y="0.5" width="719" height="391" rx="16" fill="#FFFFFF" stroke="#E4E4E7" />
+    <rect x="1" y="1" width="718" height="390" rx="16" fill="url(#dots)" mask="url(#fade-mask)" opacity="0.7" />
+    <ellipse cx="360.0" cy="120" rx="300" ry="110" fill="url(#light)" />
+  </g>
+  <g id="status-analyzing">
+    <rect class="tile" x="20" y="28" width="124" height="148" rx="12" filter="url(#shadow)" />
+    <text class="label" x="34" y="55">Analysis</text>
+    <rect x="34" y="65" width="81.08" height="22" rx="11" style="fill:#EFF6FF;stroke:#BFDBFE" />
+    <circle cx="45" cy="76" r="3.5" fill="#2563EB" />
+    <text class="badge" x="54" y="80.5" style="fill:#1D4ED8">Analyzing</text>
+    <text class="note" x="34" y="103">Takes about a</text>
+    <text class="note" x="34" y="119">minute.</text>
+  </g>
+  <g id="status-ready-to-test">
+    <rect class="tile" x="159" y="28" width="124" height="148" rx="12" filter="url(#shadow)" />
+    <text class="label" x="173" y="55">Configure</text>
+    <rect x="173" y="65" width="105.56" height="22" rx="11" style="fill:#EFF6FF;stroke:#BFDBFE" />
+    <circle cx="184" cy="76" r="3.5" fill="#2563EB" />
+    <text class="badge" x="193" y="80.5" style="fill:#1D4ED8">Ready to test</text>
+    <text class="note" x="173" y="103">Create a</text>
+    <text class="note" x="173" y="119">release, then</text>
+    <text class="note" x="173" y="135">start a test</text>
+    <text class="note" x="173" y="151">deployment.</text>
+  </g>
+    <line class="track" x1="144" y1="58" x2="157" y2="58" marker-end="url(#arrow)" />
+  <g id="status-testing">
+    <rect class="tile" x="298" y="28" width="124" height="148" rx="12" filter="url(#shadow)" />
+    <text class="label" x="312" y="55">Test deployment</text>
+    <rect x="312" y="65" width="68.84" height="22" rx="11" style="fill:#EFF6FF;stroke:#BFDBFE" />
+    <circle cx="323" cy="76" r="3.5" fill="#2563EB" />
+    <text class="badge" x="332" y="80.5" style="fill:#1D4ED8">Testing</text>
+    <text class="note" x="312" y="103">Install it in</text>
+    <text class="note" x="312" y="119">your AWS</text>
+    <text class="note" x="312" y="135">account.</text>
+  </g>
+    <line class="track" x1="283" y1="58" x2="296" y2="58" marker-end="url(#arrow)" />
+  <g id="status-ready-to-share">
+    <rect class="tile" x="437" y="28" width="124" height="148" rx="12" filter="url(#shadow)" />
+    <text class="label" x="451" y="55">Share</text>
+    <rect x="451" y="65" width="111.68" height="22" rx="11" style="fill:#F0FDF4;stroke:#BBF7D0" />
+    <circle cx="462" cy="76" r="3.5" fill="#15803D" />
+    <text class="badge" x="471" y="80.5" style="fill:#15803D">Ready to share</text>
+    <text class="note" x="451" y="103">Create an</text>
+    <text class="note" x="451" y="119">install link or</text>
+    <text class="note" x="451" y="135">invite a</text>
+    <text class="note" x="451" y="151">customer.</text>
+  </g>
+    <line class="track" x1="422" y1="58" x2="435" y2="58" marker-end="url(#arrow)" />
+  <g id="status-live">
+    <rect class="tile" x="576" y="28" width="124" height="148" rx="12" filter="url(#shadow)" />
+    <text class="label" x="590" y="55">Customers</text>
+    <rect x="590" y="65" width="50.48" height="22" rx="11" style="fill:#F0FDF4;stroke:#BBF7D0" />
+    <circle cx="601" cy="76" r="3.5" fill="#15803D" />
+    <text class="badge" x="610" y="80.5" style="fill:#15803D">Live</text>
+    <text class="note" x="590" y="103">A customer</text>
+    <text class="note" x="590" y="119">deployment is</text>
+    <text class="note" x="590" y="135">running.</text>
+  </g>
+    <line class="track" x1="561" y1="58" x2="574" y2="58" marker-end="url(#arrow)" />
+  <g id="other-outcomes">
+    <line class="track-dashed" x1="50" y1="176" x2="50" y2="218" marker-end="url(#arrow)" />
+    <rect x="20" y="220" width="248" height="69" rx="12" style="fill:#FEFCE8;stroke:#FDE68A" />
+    <text class="title" x="34" y="247">Needs input</text>
+    <text class="note" x="34" y="266">Review the required changes.</text>
+    <rect x="20" y="299" width="248" height="69" rx="12" style="fill:#FEF2F2;stroke:#FECACA" />
+    <text class="title" x="34" y="326">Analysis failed</text>
+    <text class="note" x="34" y="345">Fix the cause, then re-analyze.</text>
+    <line class="track-dashed" x1="328" y1="176" x2="328" y2="218" marker-end="url(#arrow)" />
+    <rect x="298" y="220" width="248" height="85" rx="12" style="fill:#FEF2F2;stroke:#FECACA" />
+    <text class="title" x="312" y="247">Test failed</text>
+    <text class="note" x="312" y="266">Review the failure, fix it, and</text>
+    <text class="note" x="312" y="282">test again.</text>
+  </g>
+</svg>

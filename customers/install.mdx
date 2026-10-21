@@ -52,6 +52,11 @@ If the page shows an **Invitation expires** date, connect your AWS account befor
 
 If **Connect AWS account** is unavailable and the page says your software provider hasn't published a setup template yet, contact them for a working link.
 
+<Frame caption="A simplified view of the Quick create stack page in the AWS console.">
+  <img className="dz-diagram-wide" src="/images/diagrams/install-quick-create.svg" alt="A simplified view of the AWS CloudFormation Quick create stack page. 1: check the AWS account and Region at the top of the console. 2: leave the stack name, which starts with deployz-bootstrap-, and the parameters ControlPlaneUrl, EnrollmentCode, and RelayCredential as they are. 3: select the check box that acknowledges that AWS CloudFormation might create IAM resources. 4: select Create stack, which creates the Deployz connector." />
+  <img className="dz-diagram-narrow" src="/images/diagrams/install-quick-create-mobile.svg" alt="A simplified view of the AWS CloudFormation Quick create stack page. 1: check the AWS account and Region at the top of the console. 2: leave the stack name, which starts with deployz-bootstrap-, and the parameters ControlPlaneUrl, EnrollmentCode, and RelayCredential as they are. 3: select the check box that acknowledges that AWS CloudFormation might create IAM resources. 4: select Create stack, which creates the Deployz connector." />
+</Frame>
+
 <Steps>
   <Step title="Sign in to the right AWS account">
     In the same browser, sign in to the AWS account you chose, with an identity that can create CloudFormation stacks and IAM roles.
@@ -88,6 +93,11 @@ If the connector hasn't connected after about 15 minutes, the page shows **Still
 **Who:** Deployz does the work. You can watch on the install page.
 
 Once the connector connects, the page shows a step list. Only the steps that apply to this application appear. The page updates on its own, so you don't need to reload it.
+
+<Frame caption="A simplified view of the install page while the infrastructure is being created.">
+  <img className="dz-diagram-wide" src="/images/diagrams/install-progress.svg" alt="A simplified install page during setup, headed Creating application infrastructure. Steps: Connect your AWS account (done), Create infrastructure (in progress), then Start application, Check application, Set up HTTPS, and Ready. Only the steps that apply to the application appear." />
+  <img className="dz-diagram-narrow" src="/images/diagrams/install-progress-mobile.svg" alt="A simplified install page during setup, headed Creating application infrastructure. Steps: Connect your AWS account (done), Create infrastructure (in progress), then Start application, Check application, Set up HTTPS, and Ready. Only the steps that apply to the application appear." />
+</Frame>
 
 | Step | What happens |
 | --- | --- |

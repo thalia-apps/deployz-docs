@@ -1,0 +1,192 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="1073" viewBox="0 0 720 1073" role="img" aria-labelledby="title desc">
+  <title id="title">Deployment states and badges</title>
+  <desc id="desc">Deployment lifecycle. Not installed (badge Waiting for customer) moves to Waiting for AWS (Setting up) when the customer starts the install, to Installing (Setting up) when the connector connects, and to Healthy (Live) when the connector verifies health. A failed install goes to Failed (Install failed), and Retry deployment returns it to Installing. A healthy deployment shows Update available when a newer release is ready. Deploying an update, rolling back, restarting, or changing configuration shows Updating, then returns to Healthy; if it fails, the badge shows Update failed and the previous release keeps running. Removing the deployment goes to Deleting (Removing), then Deleted (Removed). While installed, a lost connector or failing health checks replace the badge with a Needs attention badge.</desc>
+
+  <!--
+    Deployz docs illustration. Style: deployz-website DESIGN.md section 7 (scene system).
+    Tokens: foreground #111111, muted #52525B, subtle #71717A, border #E4E4E7,
+    border-strong #D4D4D8, surface #FAFAFA, brand #2563EB, brand-subtle #EFF6FF,
+    brand-border #BFDBFE, success #15803D, warning #A16207, error #B91C1C.
+    Edit text in place; each part is a named <g>. 
+  -->
+
+  <defs>
+    <style>
+      text { font-family: Inter, "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; fill: #111111; }
+      .title { font-size: 13px; font-weight: 600; }
+      .heading { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+      .body { font-size: 13px; fill: #111111; }
+      .label { font-size: 12px; font-weight: 600; fill: #52525B; }
+      .note { font-size: 12px; fill: #52525B; }
+      .badge { font-size: 12px; font-weight: 500; }
+      .num { font-size: 12px; font-weight: 600; fill: #FFFFFF; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; fill: #71717A; }
+      .mono-dark { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; fill: #111111; }
+      .mono-brand { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; fill: #1D4ED8; }
+      .boundary { fill: none; stroke: #A1A1AA; stroke-width: 1; stroke-dasharray: 5 4; }
+      .tag { fill: #FFFFFF; stroke: #E4E4E7; }
+      .band { fill: #FAFAFA; stroke: #E4E4E7; }
+      .tile { fill: #FFFFFF; stroke: #E4E4E7; }
+      .tile-optional { fill: #FFFFFF; stroke: #A1A1AA; stroke-dasharray: 4 3; }
+      .icon-tile { fill: #FAFAFA; stroke: #E4E4E7; }
+      .icon { fill: none; stroke: #52525B; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+      .track { fill: none; stroke: #A1A1AA; stroke-width: 1.5; }
+      .track-dashed { fill: none; stroke: #A1A1AA; stroke-width: 1.5; stroke-dasharray: 4 4; }
+      .beam { fill: none; stroke: #2563EB; stroke-width: 1.5; }
+      .port { fill: #FFFFFF; stroke: #A1A1AA; stroke-width: 1.5; }
+      .port-brand { fill: #FFFFFF; stroke: #2563EB; stroke-width: 1.5; }
+    </style>
+
+    <!-- Stage: dot grid that fades to the edges, one faint cobalt light -->
+    <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
+      <circle cx="9" cy="9" r="1" fill="#D4D4D8" />
+    </pattern>
+    <radialGradient id="fade" cx="50%" cy="50%" r="60%">
+      <stop offset="40%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#000000" />
+    </radialGradient>
+    <mask id="fade-mask">
+      <rect width="720" height="1073" fill="url(#fade)" />
+    </mask>
+    <radialGradient id="light" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#2563EB" stop-opacity="0.10" />
+      <stop offset="100%" stop-color="#2563EB" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Card depth -->
+    <filter id="shadow" x="-10%" y="-20%" width="120%" height="160%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#111111" flood-opacity="0.04" />
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#111111" flood-opacity="0.06" />
+    </filter>
+    <filter id="shadow-brand" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#111111" flood-opacity="0.04" />
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#2563EB" flood-opacity="0.14" />
+    </filter>
+
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M1 1L9 5L1 9" fill="none" stroke="#A1A1AA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    </marker>
+    <marker id="arrow-brand" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M1 1L9 5L1 9" fill="none" stroke="#2563EB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    </marker>
+
+
+
+    <!-- Icons: Lucide (ISC license), 24 x 24 -->
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /><path d="M12 9v4" /><path d="M12 17h.01" /></symbol>
+  </defs>
+  <g id="stage">
+    <rect x="0.5" y="0.5" width="719" height="1072" rx="16" fill="#FFFFFF" stroke="#E4E4E7" />
+    <rect x="1" y="1" width="718" height="1071" rx="16" fill="url(#dots)" mask="url(#fade-mask)" opacity="0.7" />
+    <ellipse cx="160" cy="360" rx="220" ry="260" fill="url(#light)" />
+  </g>
+  <g id="not-installed">
+    <rect class="tile" x="40" y="32" width="230" height="77" rx="12" filter="url(#shadow)" />
+    <text class="title" x="54" y="59">Not installed</text>
+    <rect x="54" y="71" width="148.4" height="22" rx="11" style="fill:#FAFAFA;stroke:#E4E4E7" />
+    <circle cx="65" cy="82" r="3.5" fill="#A1A1AA" />
+    <text class="badge" x="74" y="86.5" style="fill:#52525B">Waiting for customer</text>
+  </g>
+  <g id="waiting-for-aws">
+    <rect class="tile" x="40" y="153" width="230" height="115" rx="12" filter="url(#shadow)" />
+    <text class="title" x="54" y="180">Waiting for AWS</text>
+    <rect x="54" y="192" width="87.2" height="22" rx="11" style="fill:#EFF6FF;stroke:#BFDBFE" />
+    <circle cx="65" cy="203" r="3.5" fill="#2563EB" />
+    <text class="badge" x="74" y="207.5" style="fill:#1D4ED8">Setting up</text>
+    <text class="note" x="54" y="229">After 15 minutes: Setting up ·</text>
+    <text class="note" x="54" y="245">Slow to connect</text>
+  </g>
+  <g id="installing">
+    <rect class="tile" x="40" y="312" width="230" height="77" rx="12" filter="url(#shadow)" />
+    <text class="title" x="54" y="339">Installing</text>
+    <rect x="54" y="351" width="87.2" height="22" rx="11" style="fill:#EFF6FF;stroke:#BFDBFE" />
+    <circle cx="65" cy="362" r="3.5" fill="#2563EB" />
+    <text class="badge" x="74" y="366.5" style="fill:#1D4ED8">Setting up</text>
+    <rect class="tile" x="440" y="312" width="250" height="99" rx="12" filter="url(#shadow)" />
+    <text class="title" x="454" y="339">Failed</text>
+    <rect x="454" y="351" width="111.68" height="22" rx="11" style="fill:#FEF2F2;stroke:#FECACA" />
+    <circle cx="465" cy="362" r="3.5" fill="#B91C1C" />
+    <text class="badge" x="474" y="366.5" style="fill:#B91C1C">Install failed</text>
+    <text class="note" x="454" y="388">Removal failed also uses this state</text>
+  </g>
+  <g id="healthy">
+    <rect x="36" y="451" width="238" height="123" rx="15" style="fill:none;stroke:#2563EB;stroke-opacity:0.07;stroke-width:4" />
+    <rect x="40" y="455" width="230" height="115" rx="12" style="fill:#FFFFFF;stroke:#BFDBFE" filter="url(#shadow-brand)" />
+    <text class="title" x="54" y="482">Healthy</text>
+    <rect x="54" y="494" width="50.48" height="22" rx="11" style="fill:#F0FDF4;stroke:#BBF7D0" />
+    <circle cx="65" cy="505" r="3.5" fill="#15803D" />
+    <text class="badge" x="74" y="509.5" style="fill:#15803D">Live</text>
+    <text class="note" x="54" y="531">Shows Not started before the</text>
+    <text class="note" x="54" y="547">first start</text>
+    <rect class="tile" x="440" y="455" width="250" height="77" rx="12" filter="url(#shadow)" />
+    <text class="title" x="454" y="482">Update available</text>
+    <rect x="454" y="494" width="50.48" height="22" rx="11" style="fill:#F0FDF4;stroke:#BBF7D0" />
+    <circle cx="465" cy="505" r="3.5" fill="#15803D" />
+    <text class="badge" x="474" y="509.5" style="fill:#15803D">Live</text>
+    <rect x="510.48" y="494" width="123.92" height="22" rx="11" style="fill:#EFF6FF;stroke:#BFDBFE" />
+    <circle cx="521.48" cy="505" r="3.5" fill="#2563EB" />
+    <text class="badge" x="530.48" y="509.5" style="fill:#1D4ED8">Update available</text>
+  </g>
+  <g id="updating-row">
+    <rect class="tile" x="440" y="614" width="250" height="147" rx="12" filter="url(#shadow)" />
+    <text class="title" x="454" y="641">Updating</text>
+    <rect x="454" y="653" width="74.96" height="22" rx="11" style="fill:#EFF6FF;stroke:#BFDBFE" />
+    <circle cx="465" cy="664" r="3.5" fill="#2563EB" />
+    <text class="badge" x="474" y="668.5" style="fill:#1D4ED8">Updating</text>
+    <text class="note" x="454" y="690">Deploy, roll back, restart, or</text>
+    <text class="note" x="454" y="706">change configuration. If it fails,</text>
+    <text class="note" x="454" y="722">the badge shows Update failed and</text>
+    <text class="note" x="454" y="738">the previous release keeps running.</text>
+  </g>
+  <g id="deleting">
+    <rect class="tile" x="40" y="805" width="230" height="77" rx="12" filter="url(#shadow)" />
+    <text class="title" x="54" y="832">Deleting</text>
+    <rect x="54" y="844" width="74.96" height="22" rx="11" style="fill:#EFF6FF;stroke:#BFDBFE" />
+    <circle cx="65" cy="855" r="3.5" fill="#2563EB" />
+    <text class="badge" x="74" y="859.5" style="fill:#1D4ED8">Removing</text>
+    <rect class="tile" x="440" y="805" width="250" height="172" rx="12" filter="url(#shadow)" />
+    <rect x="454" y="817" width="28" height="28" rx="7" class="icon-tile" />
+    <use href="#i-alert" class="icon" x="461" y="824" width="14" height="14" />
+    <text class="title" x="492" y="828">Needs attention</text>
+    <text class="note" x="492" y="844">Replaces the badge while installed</text>
+    <line x1="440" y1="857" x2="690" y2="857" stroke="#E4E4E7" />
+    <rect x="459" y="879" width="6" height="6" rx="3" style="fill:#A1A1AA" />
+    <text class="body" x="478" y="886">Lost contact: connector offline</text>
+    <rect x="459" y="905" width="6" height="6" rx="3" style="fill:#A1A1AA" />
+    <text class="body" x="478" y="912">Not responding: health checks fail</text>
+    <rect x="459" y="931" width="6" height="6" rx="3" style="fill:#A1A1AA" />
+    <text class="body" x="478" y="938">Degraded: some health checks fail</text>
+    <rect x="459" y="957" width="6" height="6" rx="3" style="fill:#A1A1AA" />
+    <text class="body" x="478" y="964">Disconnected</text>
+  </g>
+  <g id="deleted">
+    <rect class="tile" x="40" y="926" width="230" height="99" rx="12" filter="url(#shadow)" />
+    <text class="title" x="54" y="953">Deleted</text>
+    <rect x="54" y="965" width="68.84" height="22" rx="11" style="fill:#FAFAFA;stroke:#E4E4E7" />
+    <circle cx="65" cy="976" r="3.5" fill="#A1A1AA" />
+    <text class="badge" x="74" y="980.5" style="fill:#52525B">Removed</text>
+    <text class="note" x="54" y="1002">Retained data may still exist</text>
+  </g>
+  <g id="transitions">
+    <line class="track" x1="76" y1="109" x2="76" y2="151" marker-end="url(#arrow)" />
+    <text class="note" x="88" y="135">Customer starts the install</text>
+    <line class="track" x1="76" y1="268" x2="76" y2="310" marker-end="url(#arrow)" />
+    <text class="note" x="88" y="294">Connector connects</text>
+    <line class="track" x1="76" y1="389" x2="76" y2="453" marker-end="url(#arrow)" />
+    <text class="note" x="88" y="437">Connector verifies health</text>
+    <line class="track" x1="76" y1="570" x2="76" y2="803" marker-end="url(#arrow)" />
+    <text class="note" x="88" y="787">Remove deployment</text>
+    <line class="track" x1="76" y1="882" x2="76" y2="924" marker-end="url(#arrow)" />
+    <text class="note" x="88" y="908">Removal finishes</text>
+    <line class="track" x1="270" y1="342.5" x2="438" y2="342.5" marker-end="url(#arrow)" />
+    <text class="note" x="355" y="334.5" text-anchor="middle">Install fails</text>
+    <line class="track" x1="440" y1="358.5" x2="272" y2="358.5" marker-end="url(#arrow)" />
+    <text class="note" x="355" y="374.5" text-anchor="middle">Retry deployment</text>
+    <line class="track" x1="270" y1="481" x2="438" y2="481" marker-end="url(#arrow)" />
+    <text class="note" x="355" y="473" text-anchor="middle">Newer release ready</text>
+    <line class="track" x1="476" y1="532" x2="476" y2="612" marker-end="url(#arrow)" />
+    <text class="note" x="488" y="596">Deploy update</text>
+    <path class="track" d="M440 654 H234 V572" marker-end="url(#arrow)" />
+    <text class="note" x="357" y="646" text-anchor="middle">Finishes</text>
+  </g>
+</svg>

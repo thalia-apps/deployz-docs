@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="524" viewBox="0 0 360 524" role="img" aria-labelledby="title desc">
+  <title id="title">Install progress on the install page</title>
+  <desc id="desc">A simplified install page during setup, headed Creating application infrastructure. Steps: Connect your AWS account (done), Create infrastructure (in progress), then Start application, Check application, Set up HTTPS, and Ready. Only the steps that apply to the application appear.</desc>
+
+  <!--
+    Deployz docs illustration. Style: deployz-website DESIGN.md section 7 (scene system).
+    Tokens: foreground #111111, muted #52525B, subtle #71717A, border #E4E4E7,
+    border-strong #D4D4D8, surface #FAFAFA, brand #2563EB, brand-subtle #EFF6FF,
+    brand-border #BFDBFE, success #15803D, warning #A16207, error #B91C1C.
+    Edit text in place; each part is a named <g>. Mobile variant of install-progress.svg.
+  -->
+
+  <defs>
+    <style>
+      text { font-family: Inter, "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; fill: #111111; }
+      .title { font-size: 13px; font-weight: 600; }
+      .heading { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+      .body { font-size: 13px; fill: #111111; }
+      .label { font-size: 12px; font-weight: 600; fill: #52525B; }
+      .note { font-size: 12px; fill: #52525B; }
+      .badge { font-size: 12px; font-weight: 500; }
+      .num { font-size: 12px; font-weight: 600; fill: #FFFFFF; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; fill: #71717A; }
+      .mono-dark { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; fill: #111111; }
+      .mono-brand { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; fill: #1D4ED8; }
+      .boundary { fill: none; stroke: #A1A1AA; stroke-width: 1; stroke-dasharray: 5 4; }
+      .tag { fill: #FFFFFF; stroke: #E4E4E7; }
+      .band { fill: #FAFAFA; stroke: #E4E4E7; }
+      .tile { fill: #FFFFFF; stroke: #E4E4E7; }
+      .tile-optional { fill: #FFFFFF; stroke: #A1A1AA; stroke-dasharray: 4 3; }
+      .icon-tile { fill: #FAFAFA; stroke: #E4E4E7; }
+      .icon { fill: none; stroke: #52525B; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+      .track { fill: none; stroke: #A1A1AA; stroke-width: 1.5; }
+      .track-dashed { fill: none; stroke: #A1A1AA; stroke-width: 1.5; stroke-dasharray: 4 4; }
+      .beam { fill: none; stroke: #2563EB; stroke-width: 1.5; }
+      .port { fill: #FFFFFF; stroke: #A1A1AA; stroke-width: 1.5; }
+      .port-brand { fill: #FFFFFF; stroke: #2563EB; stroke-width: 1.5; }
+    </style>
+
+    <!-- Stage: dot grid that fades to the edges, one faint cobalt light -->
+    <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
+      <circle cx="9" cy="9" r="1" fill="#D4D4D8" />
+    </pattern>
+    <radialGradient id="fade" cx="50%" cy="50%" r="60%">
+      <stop offset="40%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#000000" />
+    </radialGradient>
+    <mask id="fade-mask">
+      <rect width="360" height="524" fill="url(#fade)" />
+    </mask>
+    <radialGradient id="light" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#2563EB" stop-opacity="0.10" />
+      <stop offset="100%" stop-color="#2563EB" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Card depth -->
+    <filter id="shadow" x="-10%" y="-20%" width="120%" height="160%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#111111" flood-opacity="0.04" />
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#111111" flood-opacity="0.06" />
+    </filter>
+    <filter id="shadow-brand" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#111111" flood-opacity="0.04" />
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#2563EB" flood-opacity="0.14" />
+    </filter>
+
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M1 1L9 5L1 9" fill="none" stroke="#A1A1AA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    </marker>
+    <marker id="arrow-brand" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M1 1L9 5L1 9" fill="none" stroke="#2563EB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    </marker>
+
+
+
+    <!-- Icons: Lucide (ISC license), 24 x 24 -->
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol>
+  </defs>
+  <g id="stage">
+    <rect x="0.5" y="0.5" width="359" height="523" rx="16" fill="#FFFFFF" stroke="#E4E4E7" />
+    <rect x="1" y="1" width="358" height="522" rx="16" fill="url(#dots)" mask="url(#fade-mask)" opacity="0.7" />
+    <ellipse cx="180.0" cy="200" rx="260" ry="160" fill="url(#light)" />
+  </g>
+  <g id="install-page">
+    <rect class="tile" x="16" y="24" width="328" height="476" rx="12" filter="url(#shadow)" />
+    <path d="M16 36 a12 12 0 0 1 12 -12 H332 a12 12 0 0 1 12 12 V58 H16 Z" fill="#FAFAFA" />
+    <line x1="16" y1="58" x2="344" y2="58" stroke="#E4E4E7" />
+    <circle cx="34" cy="41" r="4" fill="#E4E4E7" />
+    <circle cx="48" cy="41" r="4" fill="#E4E4E7" />
+    <circle cx="62" cy="41" r="4" fill="#E4E4E7" />
+    <text class="note" x="86" y="45.5">Install page (simplified)</text>
+    <text class="heading" x="40" y="92">Creating application infrastructure</text>
+    <text class="mono" x="40" y="112">Release v1.3.0 · eu-west-1</text>
+  </g>
+  <g id="steps">
+    <line x1="50" y1="144" x2="50" y2="444" stroke="#E4E4E7" stroke-width="2" />
+    <line x1="50" y1="144" x2="50" y2="204" stroke="#15803D" stroke-width="2" />
+    <circle cx="50" cy="144" r="10" fill="#15803D" />
+    <use href="#i-check" class="icon" x="44" y="138" width="12" height="12" style="stroke:#FFFFFF;stroke-width:3" />
+    <text class="title" x="72" y="148.5">Connect your AWS account</text>
+    <text class="note" x="72" y="166">The connector stack is created and the</text>
+    <text class="note" x="72" y="182">connector connects to Deployz.</text>
+    <circle cx="50" cy="204" r="10" fill="#FFFFFF" stroke="#2563EB" stroke-width="2" />
+    <circle cx="50" cy="204" r="4" fill="#2563EB" />
+    <text class="title" x="72" y="208.5">Create infrastructure</text>
+    <rect x="231.42" y="193" width="93.32" height="22" rx="11" style="fill:#EFF6FF;stroke:#BFDBFE" />
+    <circle cx="242.42" cy="204" r="3.5" fill="#2563EB" />
+    <text class="badge" x="251.42" y="208.5" style="fill:#1D4ED8">In progress</text>
+    <text class="note" x="72" y="226">The network, and the database, storage,</text>
+    <text class="note" x="72" y="242">or cache if the application uses them.</text>
+    <circle cx="50" cy="264" r="10" fill="#FFFFFF" stroke="#D4D4D8" stroke-width="2" />
+    <text class="title" x="72" y="268.5" style="fill:#52525B">Start application</text>
+    <text class="note" x="72" y="286">Database migrations run here if the</text>
+    <text class="note" x="72" y="302">application has them.</text>
+    <circle cx="50" cy="324" r="10" fill="#FFFFFF" stroke="#D4D4D8" stroke-width="2" />
+    <text class="title" x="72" y="328.5" style="fill:#52525B">Check application</text>
+    <text class="note" x="72" y="346">Deployz checks that the application is</text>
+    <text class="note" x="72" y="362">reachable and healthy.</text>
+    <circle cx="50" cy="384" r="10" fill="#FFFFFF" stroke="#D4D4D8" stroke-width="2" />
+    <text class="title" x="72" y="388.5" style="fill:#52525B">Set up HTTPS</text>
+    <text class="note" x="72" y="406">Deployz sets up the application&#x27;s secure</text>
+    <text class="note" x="72" y="422">address.</text>
+    <circle cx="50" cy="444" r="10" fill="#FFFFFF" stroke="#D4D4D8" stroke-width="2" />
+    <text class="title" x="72" y="448.5" style="fill:#52525B">Ready</text>
+    <text class="note" x="72" y="466">Everything is set up and the application</text>
+    <text class="note" x="72" y="482">passed its health checks.</text>
+  </g>
+</svg>

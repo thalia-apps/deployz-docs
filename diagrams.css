@@ -1,0 +1,21 @@
+/*
+ * Responsive diagrams (images/diagrams/*.svg).
+ * Each diagram has a wide file and a narrow "-mobile" file. Pages include both:
+ *   <img className="dz-diagram-wide" ... />  and  <img className="dz-diagram-narrow" ... />
+ * The narrow file shows wherever the content column is too narrow for the wide one
+ * to stay readable: small screens, and 1280-1365px, where the table of contents
+ * appears beside the content.
+ */
+.dz-diagram-narrow {
+  display: none;
+}
+
+@media (max-width: 699px), (min-width: 1280px) and (max-width: 1365px) {
+  .dz-diagram-wide {
+    display: none;
+  }
+
+  .dz-diagram-narrow {
+    display: block;
+  }
+}

@@ -68,6 +68,11 @@ On a wide screen, select the info button next to a badge to see the current step
 
 Underneath the badges, every deployment has one lifecycle state. Use this table to match the state to what the **Deployments** list shows.
 
+<Frame caption="Each lifecycle state and the badge it shows on the Deployments list.">
+  <img className="dz-diagram-wide" src="/images/diagrams/deployment-states.svg" alt="Deployment lifecycle. Not installed (badge Waiting for customer) moves to Waiting for AWS (Setting up) when the customer starts the install, to Installing (Setting up) when the connector connects, and to Healthy (Live) when the connector verifies health. A failed install goes to Failed (Install failed), and Retry deployment returns it to Installing. A healthy deployment shows Update available when a newer release is ready. Deploying an update, rolling back, restarting, or changing configuration shows Updating, then returns to Healthy; if it fails, the badge shows Update failed and the previous release keeps running. Removing the deployment goes to Deleting (Removing), then Deleted (Removed). While installed, a lost connector or failing health checks replace the badge with a Needs attention badge." />
+  <img className="dz-diagram-narrow" src="/images/diagrams/deployment-states-mobile.svg" alt="Deployment lifecycle. Not installed (badge Waiting for customer) moves to Waiting for AWS (Setting up) when the customer starts the install, to Installing (Setting up) when the connector connects, and to Healthy (Live) when the connector verifies health. A failed install goes to Failed (Install failed), and Retry deployment returns it to Installing. A healthy deployment shows Update available when a newer release is ready. Deploying an update, rolling back, restarting, or changing configuration shows Updating, then returns to Healthy; if it fails, the badge shows Update failed and the previous release keeps running. Removing the deployment goes to Deleting (Removing), then Deleted (Removed). While installed, a lost connector or failing health checks replace the badge with a Needs attention badge." />
+</Frame>
+
 | Deployment state | Deployments list badge |
 | --- | --- |
 | Not installed | **Waiting for customer** |

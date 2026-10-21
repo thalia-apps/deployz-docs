@@ -13,7 +13,9 @@ In short: Deployz reads your GitHub repository, analyzes it, and builds releases
 
 ```mermaid
 flowchart LR
-  repo["Your GitHub repository"]
+  subgraph vendor["You (the vendor)"]
+    repo["GitHub repository"]
+  end
   subgraph deployz["Deployz"]
     analysis["Analysis"]
     release["Release"]
@@ -66,6 +68,11 @@ The Deployz connector is a small AWS Lambda function that the customer's Quick C
 - **It's limited to one deployment.** Each change these roles can make is limited to this deployment's resources, by tag or by name. Read-only actions and a few other actions can't be limited this way. [Security and AWS access](/customers/security#iam-roles-and-permissions) lists exactly what each role can do.
 
 To reconnect or update a connector, see [Reconnect or update the Deployz connector](/operate/connector).
+
+<Frame caption="How a change you start in the dashboard reaches the customer's AWS account.">
+  <img className="dz-diagram-wide" src="/images/diagrams/connector-check-in.svg" alt="How a change reaches the customer's account. 1: you select Deploy update in the dashboard, and Deployz records the request. 2: the connector in the customer's AWS account checks in with Deployz every minute. 3: Deployz returns the pending request. 4: the connector applies the change with AWS services such as CloudFormation and Amazon ECS. 5: the connector reports status and health to Deployz. 6: the dashboard shows the new status. Every connection between Deployz and the account starts from the connector." />
+  <img className="dz-diagram-narrow" src="/images/diagrams/connector-check-in-mobile.svg" alt="How a change reaches the customer's account. 1: you select Deploy update in the dashboard, and Deployz records the request. 2: the connector in the customer's AWS account checks in with Deployz every minute. 3: Deployz returns the pending request. 4: the connector applies the change with AWS services such as CloudFormation and Amazon ECS. 5: the connector reports status and health to Deployz. 6: the dashboard shows the new status. Every connection between Deployz and the account starts from the connector." />
+</Frame>
 
 ## Deployz never holds customer AWS credentials
 

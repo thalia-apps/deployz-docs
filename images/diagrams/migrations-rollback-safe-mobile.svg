@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="689" viewBox="0 0 360 689" role="img" aria-labelledby="title desc">
+  <title id="title">Keep migrations safe for rollback</title>
+  <desc id="desc">Changing a column across three releases so that a rollback always works. Release v1.4.0 adds the new column, nullable or with a default; the old code ignores it. Release v1.5.0 switches reads and writes to the new column. Release v1.6.0 drops the old column, which no release you might roll back to uses. Rolling back from any of them is safe. Avoid renaming or dropping a column in the same release that stops using it: after a rollback, the previous release runs against a schema it can&#x27;t use.</desc>
+
+  <!--
+    Deployz docs illustration. Style: deployz-website DESIGN.md section 7 (scene system).
+    Tokens: foreground #111111, muted #52525B, subtle #71717A, border #E4E4E7,
+    border-strong #D4D4D8, surface #FAFAFA, brand #2563EB, brand-subtle #EFF6FF,
+    brand-border #BFDBFE, success #15803D, warning #A16207, error #B91C1C.
+    Edit text in place; each part is a named <g>. Mobile variant of migrations-rollback-safe.svg.
+  -->
+
+  <defs>
+    <style>
+      text { font-family: Inter, "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; fill: #111111; }
+      .title { font-size: 13px; font-weight: 600; }
+      .heading { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+      .body { font-size: 13px; fill: #111111; }
+      .label { font-size: 12px; font-weight: 600; fill: #52525B; }
+      .note { font-size: 12px; fill: #52525B; }
+      .badge { font-size: 12px; font-weight: 500; }
+      .num { font-size: 12px; font-weight: 600; fill: #FFFFFF; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; fill: #71717A; }
+      .mono-dark { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; fill: #111111; }
+      .mono-brand { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; fill: #1D4ED8; }
+      .boundary { fill: none; stroke: #A1A1AA; stroke-width: 1; stroke-dasharray: 5 4; }
+      .tag { fill: #FFFFFF; stroke: #E4E4E7; }
+      .band { fill: #FAFAFA; stroke: #E4E4E7; }
+      .tile { fill: #FFFFFF; stroke: #E4E4E7; }
+      .tile-optional { fill: #FFFFFF; stroke: #A1A1AA; stroke-dasharray: 4 3; }
+      .icon-tile { fill: #FAFAFA; stroke: #E4E4E7; }
+      .icon { fill: none; stroke: #52525B; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+      .track { fill: none; stroke: #A1A1AA; stroke-width: 1.5; }
+      .track-dashed { fill: none; stroke: #A1A1AA; stroke-width: 1.5; stroke-dasharray: 4 4; }
+      .beam { fill: none; stroke: #2563EB; stroke-width: 1.5; }
+      .port { fill: #FFFFFF; stroke: #A1A1AA; stroke-width: 1.5; }
+      .port-brand { fill: #FFFFFF; stroke: #2563EB; stroke-width: 1.5; }
+    </style>
+
+    <!-- Stage: dot grid that fades to the edges, one faint cobalt light -->
+    <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
+      <circle cx="9" cy="9" r="1" fill="#D4D4D8" />
+    </pattern>
+    <radialGradient id="fade" cx="50%" cy="50%" r="60%">
+      <stop offset="40%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#000000" />
+    </radialGradient>
+    <mask id="fade-mask">
+      <rect width="360" height="689" fill="url(#fade)" />
+    </mask>
+    <radialGradient id="light" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#2563EB" stop-opacity="0.10" />
+      <stop offset="100%" stop-color="#2563EB" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Card depth -->
+    <filter id="shadow" x="-10%" y="-20%" width="120%" height="160%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#111111" flood-opacity="0.04" />
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#111111" flood-opacity="0.06" />
+    </filter>
+    <filter id="shadow-brand" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#111111" flood-opacity="0.04" />
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#2563EB" flood-opacity="0.14" />
+    </filter>
+
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M1 1L9 5L1 9" fill="none" stroke="#A1A1AA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    </marker>
+    <marker id="arrow-brand" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M1 1L9 5L1 9" fill="none" stroke="#2563EB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    </marker>
+
+
+
+    <!-- Icons: Lucide (ISC license), 24 x 24 -->
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" /><circle cx="7.5" cy="7.5" r=".5" /></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></symbol>
+  </defs>
+  <g id="stage">
+    <rect x="0.5" y="0.5" width="359" height="688" rx="16" fill="#FFFFFF" stroke="#E4E4E7" />
+    <rect x="1" y="1" width="358" height="687" rx="16" fill="url(#dots)" mask="url(#fade-mask)" opacity="0.7" />
+    <ellipse cx="180.0" cy="140" rx="280" ry="120" fill="url(#light)" />
+  </g>
+  <g id="release-v1-4-0">
+    <rect class="tile" x="16" y="24" width="328" height="151" rx="12" filter="url(#shadow)" />
+    <rect x="30" y="38" width="77.2" height="22" rx="6" style="fill:#FAFAFA;stroke:#E4E4E7" />
+    <use href="#i-tag" class="icon" x="36" y="42" width="14" height="14" />
+    <text class="mono-dark" x="54" y="53.5">v1.4.0</text>
+    <text class="title" x="30" y="83">Add the new column</text>
+    <text class="note" x="30" y="105">Nullable, or with a default. The old code ignores</text>
+    <text class="note" x="30" y="121">it.</text>
+    <line x1="16" y1="133" x2="344" y2="133" stroke="#E4E4E7" />
+    <use href="#i-check" class="icon" x="30" y="144" width="14" height="14" style="stroke:#15803D" />
+    <text class="body" x="52" y="155">Rolling back is safe</text>
+  </g>
+  <g id="release-v1-5-0">
+    <rect class="tile" x="16" y="199" width="328" height="151" rx="12" filter="url(#shadow)" />
+    <rect x="30" y="213" width="77.2" height="22" rx="6" style="fill:#FAFAFA;stroke:#E4E4E7" />
+    <use href="#i-tag" class="icon" x="36" y="217" width="14" height="14" />
+    <text class="mono-dark" x="54" y="228.5">v1.5.0</text>
+    <text class="title" x="30" y="258">Switch to the new column</text>
+    <text class="note" x="30" y="280">Read and write the new column. Stop using the old</text>
+    <text class="note" x="30" y="296">one.</text>
+    <line x1="16" y1="308" x2="344" y2="308" stroke="#E4E4E7" />
+    <use href="#i-check" class="icon" x="30" y="319" width="14" height="14" style="stroke:#15803D" />
+    <text class="body" x="52" y="330">Rolling back is safe</text>
+  </g>
+    <line class="track" x1="180" y1="175" x2="180" y2="197" marker-end="url(#arrow)" />
+  <g id="release-v1-6-0">
+    <rect class="tile" x="16" y="374" width="328" height="135" rx="12" filter="url(#shadow)" />
+    <rect x="30" y="388" width="77.2" height="22" rx="6" style="fill:#FAFAFA;stroke:#E4E4E7" />
+    <use href="#i-tag" class="icon" x="36" y="392" width="14" height="14" />
+    <text class="mono-dark" x="54" y="403.5">v1.6.0</text>
+    <text class="title" x="30" y="433">Drop the old column</text>
+    <text class="note" x="30" y="455">No release you might roll back to uses it.</text>
+    <line x1="16" y1="467" x2="344" y2="467" stroke="#E4E4E7" />
+    <use href="#i-check" class="icon" x="30" y="478" width="14" height="14" style="stroke:#15803D" />
+    <text class="body" x="52" y="489">Rolling back is safe</text>
+  </g>
+    <line class="track" x1="180" y1="350" x2="180" y2="372" marker-end="url(#arrow)" />
+  <g id="avoid">
+    <rect x="16" y="549" width="328" height="116" rx="12" style="fill:#FEF2F2;stroke:#FECACA" />
+    <use href="#i-x" class="icon" x="30" y="564" width="16" height="16" style="stroke:#B91C1C" />
+    <text class="title" x="54" y="577">Avoid: rename or drop a column in the</text>
+    <text class="title" x="54" y="594">release that stops using it</text>
+    <text class="note" x="54" y="615">Rolling back never reverses a migration, so</text>
+    <text class="note" x="54" y="631">the previous release runs against a schema it</text>
+    <text class="note" x="54" y="647">can&#x27;t use.</text>
+  </g>
+</svg>
