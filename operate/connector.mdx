@@ -36,12 +36,14 @@ After 15 minutes, the install page shows **Still connecting** and a **Retry conn
 **Who:** you (the vendor), in the Deployz dashboard.
 
 <Warning>
-A new install link replaces the old one. The old link stops working, so send your customer the new one.
+A new install link keeps the same address, but Deployz replaces the connection code (**EnrollmentCode**) and the connector credential (**RelayCredential**) behind it. A connector stack or Quick Create link that your customer started with the old values stops working. Ask your customer to reopen the link and use the new values.
 </Warning>
 
 1. In **Deployments**, open the customer's deployment.
 2. In the **Install link** card, select **Issue new install link**.
 3. Select **Copy install link**, and send the link to your customer.
+
+A deployment's install link is valid for 30 days after the deployment is created. Issuing a new install link makes it valid for 30 more days from that time. The **Install link** card shows the date, for example **This link expires on `<date>`**. After that date, the link can't start an install, and the card says the link expired. Issue a new install link to make it work again. Once the connector has connected, the link keeps working so your customer can follow the install progress.
 
 Deployz also offers **Issue new install link** in the **Retry deployment** dialog when a failed first install can't be retried because the connector is disconnected.
 
@@ -94,4 +96,4 @@ When an update exists, the deployment detail page shows **Connector update avail
 
 A connector update keeps the existing credential. It isn't a reconnect, so your customer doesn't need new values.
 
-A current connector also requires a permissions boundary on every IAM role in the application stack. See [Security and AWS access](/customers/security). After your customer updates, existing deployments keep their roles and keep working. A deployment that was prepared before the boundary but not yet installed can't install with the updated connector. Create a new deployment for that customer instead. See [Fix install failures](/troubleshooting/install).
+A current connector also requires a permissions boundary on every IAM role in the application stack, and limits its permissions to this deployment's resources. A connector stack created earlier keeps its earlier, wider permissions until your customer updates it. See [Security and AWS access](/customers/security). After your customer updates, existing deployments keep their roles and keep working. A deployment that was prepared before the boundary but not yet installed can't install with the updated connector. Create a new deployment for that customer instead. See [Fix install failures](/troubleshooting/install).

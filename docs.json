@@ -120,25 +120,11 @@
           "changelog"
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Dashboard",
-          "href": "https://app.deployz.dev",
-          "icon": "gauge"
-        },
-        {
-          "anchor": "Support",
-          "href": "https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur",
-          "icon": "life-ring"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
-    "light": "/images/android-chrome-192x192.png",
-    "dark": "/images/app-icon-dark-180x180.png",
+    "light": "/images/ChatGPTImageOct21,2026,04_29_27PM-3.png",
+    "dark": "/images/ChatGPTImageOct21,2026,04_29_26PM-2.png",
     "href": "https://deployz.dev"
   },
   "navbar": {
@@ -168,6 +154,10 @@
   },
   "description": "Run your web application in your customers' own AWS accounts. Guides for software vendors and their customers.",
   "appearance": {
-    "strict": true
+    "strict": true,
+    "default": "light"
+  },
+  "background": {
+    "decoration": "gradient"
   }
 }

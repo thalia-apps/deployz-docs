@@ -121,7 +121,12 @@ See [Sizes and AWS cost](/share/sizes-and-cost).
 
 A deployment keeps the parts it was created with. If your application later needs a database or cache the deployment doesn't have, a different database engine, or a different set of workers, queues, or scheduled jobs, Deployz refuses to deploy the new release to that deployment. To deliver it, create a new deployment for that customer, or change the application's requirements back.
 
-These changes don't need a new deployment: dropping a database or cache the application no longer uses, and changes to the runtime, port, health check path, environment variable values, or migration command.
+These changes don't need a new deployment: dropping a database or cache the application no longer uses, changes to the runtime, and environment variable values.
+
+Some settings apply only to new deployments:
+
+- **Port and health check path.** An existing deployment keeps the values it was created with. To use new values for a customer, create a new deployment for them.
+- **Migration command.** You can change the command an existing deployment runs, or choose **No separate migration**. You can't add a command to a deployment that was created without a separate migration step. See [Database migrations](/prepare/migrations).
 
 ### Builds
 

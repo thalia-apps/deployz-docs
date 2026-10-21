@@ -10,7 +10,7 @@ Each deployment creates two AWS CloudFormation stacks in the customer's AWS acco
 - The **Deployz connector stack**, which your customer creates from the install link.
 - The **application stack**, which the connector creates and manages.
 
-All resources are tagged with `deployz:managed=true`, and with `deployz:installation` set to the deployment's installation ID. The connector's permissions are limited to resources with that installation tag. For the permissions themselves, see [Security and AWS access](/customers/security). For what these resources cost, see [Sizes and AWS cost](/share/sizes-and-cost).
+All resources are tagged with `deployz:managed=true`, and with `deployz:installation` set to the deployment's installation ID. The connector's changes are limited to this deployment's resources: to resources with that installation tag, or, where AWS doesn't support tag conditions, to resources whose names start with the application stack name. A few actions can't be limited either way. For the permissions themselves and the exceptions, see [Security and AWS access](/customers/security). For what these resources cost, see [Sizes and AWS cost](/share/sizes-and-cost).
 
 ## Deployz connector stack
 

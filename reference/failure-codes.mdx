@@ -3,9 +3,9 @@ title: "Failure codes"
 description: "Every Deployz failure code, what it means, and who needs to act."
 ---
 
-{/* Verified against packages/copy-map/src/index.ts (FAILURE_CODES, FAILURE_RECOVERABILITY, FAILURE_CODE_COPY, FAILURE_REMEDIATION) and apps/api/src/retry-eligibility.ts. 25 codes. */}
+{/* Verified against packages/copy-map/src/index.ts (FAILURE_CODES, FAILURE_RECOVERABILITY, FAILURE_CODE_COPY, FAILURE_REMEDIATION) and apps/api/src/retry-eligibility.ts. 24 codes. */}
 
-When a deployment fails, Deployz assigns it one failure code. The code tells you what went wrong and who needs to act. Deployz has 25 codes.
+When a deployment fails, Deployz assigns it one failure code. The code tells you what went wrong and who needs to act. Deployz has 24 codes.
 
 To find the code for a failure, open the deployment in the dashboard and expand **Technical details** in the recovery panel. The code is listed under **Failure code**. For how to read the rest of the panel, see [Troubleshooting](/troubleshooting/overview).
 
@@ -19,10 +19,19 @@ Each entry gives:
 
 | Recoverability | What it means | What you do |
 | --- | --- | --- |
-| Can recover on its own | The condition may clear without anyone acting. Deployz keeps checking. | Wait. Retry only if the failure persists. |
+| Can be temporary | The condition may clear when its cause clears, for example when the connector reconnects. | Retry when the cause clears. If it continues, contact support. |
 | Needs a change | You or your customer must change something before a retry can succeed. | Make the change, then retry. |
 | Needs Deployz | The fault is on the Deployz side. | Contact support instead of retrying. |
 | Can't be retried as is | Retrying can't succeed until the requirement changes. | Change the requirement, for example the Region or the application. |
+
+### How to retry
+
+What "retry" means depends on whether the deployment has been installed:
+
+- **A failed first install:** select **Retry deployment** on the deployment. Deployz offers it for every code except the **Needs Deployz** codes, where the dashboard shows **Contact Deployz support** instead. If the Deployz connector is disconnected, the **Retry deployment** dialog asks you to issue a new install link first. Your customer can't retry a failed install from the install page. See [Retry a failed install](/troubleshooting/install#retry-a-failed-install).
+- **After a successful install:** deploy again with **Retry update** or **Deploy update**. See [Deploy an update](/operate/deploy-update).
+
+While a release is still running, a failure that can be temporary shows no retry button. Deployz keeps checking, and the deployment recovers when the cause clears.
 
 In the recovery panel, "you" means the vendor. Your customer sees a simpler version on their install page, without the code.
 
@@ -124,25 +133,15 @@ These failures come from the policies, permissions, or limits of your customer's
 
 **What to do:** Ask your customer whether their account limits databases in this Region, for example with a policy or a quota. After they resolve it, retry.
 
-### `RDS_UNAVAILABLE`
-
-**Meaning:** The database wasn't reachable during the deployment.
-
-**Recoverability:** Can recover on its own.
-
-**Why it happens:** The database was still starting, or it's unavailable in your customer's account.
-
-**What to do:** Wait for the database to finish starting, then deploy again. If it keeps failing, ask your customer to check the database in their AWS account.
-
 ### `DATABASE_CONNECTION_FAILED`
 
 **Meaning:** The application started but couldn't reach its database.
 
-**Recoverability:** Can recover on its own. If it persists, you change the application.
+**Recoverability:** Can be temporary. If it persists, you change the application.
 
 **Why it happens:** The connection was refused or timed out. The most common cause is an application that doesn't read its database settings from the environment variables Deployz provides, or that doesn't accept an encrypted (TLS) database connection.
 
-**What to do:** Confirm the application reads its database settings from the environment, then deploy again. See [Fix startup and health check failures](/troubleshooting/startup-and-health).
+**What to do:** Confirm the application reads its database settings from the environment, then [retry](#how-to-retry). See [Fix startup and health check failures](/troubleshooting/startup-and-health).
 
 ### `REDIS_PROVISIONING_FAILED`
 
@@ -158,11 +157,11 @@ These failures come from the policies, permissions, or limits of your customer's
 
 **Meaning:** The application started but couldn't reach its cache.
 
-**Recoverability:** Can recover on its own.
+**Recoverability:** Can be temporary.
 
 **Why it happens:** The connection was refused or timed out.
 
-**What to do:** Deploy the application again. If it keeps failing, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur).
+**What to do:** [Retry](#how-to-retry). If it keeps failing, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur).
 
 ## Application startup and health
 
@@ -248,11 +247,11 @@ See [Fix connector problems](/troubleshooting/connector).
 
 **Meaning:** The Deployz connector in your customer's AWS account stopped checking in.
 
-**Recoverability:** Can recover on its own.
+**Recoverability:** Can be temporary.
 
 **Why it happens:** The connector was removed, it lost its credential, or the account can no longer reach Deployz.
 
-**What to do:** Wait a few minutes in case the connection returns. If it doesn't, ask your customer to update the existing connector stack in their AWS account. If they can't, [contact Deployz support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). See [Reconnect or update the Deployz connector](/operate/connector).
+**What to do:** Wait a few minutes in case the connection returns. If it doesn't, ask your customer to update the existing connector stack in their AWS account. After a failed first install, the **Retry deployment** dialog asks you to issue a new install link first. If your customer can't reconnect the connector, [contact Deployz support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). See [Reconnect or update the Deployz connector](/operate/connector).
 
 ### `RELAY_STATE_WRITE_FAILED`
 
@@ -270,7 +269,7 @@ See [Fix connector problems](/troubleshooting/connector).
 
 **Meaning:** A custom domain change didn't finish in time.
 
-**Recoverability:** Can recover on its own.
+**Recoverability:** Can be temporary.
 
 **Why it happens:** The Deployz connector didn't finish the domain update within the allowed time.
 
@@ -292,11 +291,11 @@ See [Fix connector problems](/troubleshooting/connector).
 
 **Meaning:** Something failed, and Deployz couldn't identify the cause.
 
-**Recoverability:** Can recover on its own.
+**Recoverability:** Can be temporary.
 
 **Why it happens:** The Deployz connector reported a failure without a cause Deployz recognizes, or an operation stopped responding and was retried several times without success.
 
-**What to do:** Open **Technical details** for the reported error, then deploy again. If it keeps failing, remove the deployment and create it again, or [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur).
+**What to do:** Open **Technical details** for the reported error, then [retry](#how-to-retry). If it keeps failing, remove the deployment and create it again, or [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur).
 
 ## Failures without a code
 
