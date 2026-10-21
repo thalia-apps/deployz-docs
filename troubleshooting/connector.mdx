@@ -61,11 +61,11 @@ Deployz marks the connector offline after about 15 minutes without a check-in. T
 **Fix:**
 
 - If your customer finds and fixes a temporary cause, wait a few minutes. The connector reconnects on its own, and Deployz picks up any waiting operations. No action is needed in Deployz.
-- If the connector stack was deleted or its credential was lost, issue a new install link. Your customer then updates the existing connector stack with the new values, or creates it again if it's gone. See [Reconnect or update the Deployz connector](/operate/connector).
+- Otherwise, ask your customer to update the existing connector stack in their AWS account. If they can't, for example because the stack was deleted, [contact Deployz support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur).
 
 Operations you started before the connector went offline wait for it. If it doesn't return, they eventually fail with `RELAY_DISCONNECTED`. See [Failure codes](/reference/failure-codes).
 
-**Who acts:** your customer checks their account. You issue a new install link if one is needed.
+**Who acts:** your customer checks and updates their connector stack. You contact Deployz support if they can't.
 
 ## Retry deployment says the connector is disconnected
 

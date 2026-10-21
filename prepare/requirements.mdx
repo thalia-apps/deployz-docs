@@ -5,7 +5,15 @@ description: "The application architecture Deployz supports: one container image
 
 Deployz supports one application architecture and runs it the same way in every customer's AWS account. Check your application against this page before you add it. If something you rely on isn't listed here, read [What Deployz doesn't support](/prepare/not-supported).
 
-When you add an application, Deployz analyzes the repository and reports anything that doesn't fit. You don't need to declare most of the items below by hand.
+When you add an application, Deployz analyzes the repository and reports anything that doesn't fit. You don't need to declare most of the items below by hand. The analysis gives one of three results on the application's **Overview**:
+
+| Result | What it means |
+| --- | --- |
+| **Deployable with Deployz settings** | The application fits. Anything left to do is a setting in Deployz, such as the port or the health check path. |
+| **Deployable after repository changes** | The application fits after you change your repository, for example to store files in S3 instead of on the local disk. |
+| **Not deployable on Deployz** | The application needs a capability Deployz doesn't provide, such as MongoDB or a GPU. |
+
+For what each result asks you to do, see [Fix analysis problems](/troubleshooting/analysis).
 
 ## What each deployment contains
 
@@ -30,7 +38,7 @@ Deployz adds the optional parts only when the analysis finds that your applicati
 
 ## Container image
 
-- **A Dockerfile in the repository.** Deployz builds your application from a Dockerfile that produces a production image. A Dockerfile that's only for development, is a template, or copies files the repository doesn't contain doesn't count.
+- **A Dockerfile in the repository.** Deployz builds your application from a Dockerfile that produces a production image. A Dockerfile that's only for development, is a template, copies files the repository doesn't contain, or copies nothing from the repository doesn't count. The build can't use the `.git` directory, because Deployz builds from a source archive that doesn't include it.
 - **One image per deployment.** The web service, every worker, the migration task, and scheduled jobs all run the same image with different commands. A worker that needs its own Dockerfile isn't supported.
 - **A start command.** The Dockerfile needs a `CMD` or `ENTRYPOINT`, or the repository needs a `start` script in `package.json`.
 - **Linux on x86_64.** Deployz runs containers on Linux with the x86_64 CPU architecture (AWS Fargate).

@@ -73,7 +73,7 @@ A connector that was online can go offline because:
 
 Ask your customer to check that the connector stack still exists in their AWS account and that the account can still reach Deployz. When the connector checks in again, Deployz marks it **Online** without any action from you.
 
-If the connector doesn't come back, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). For more checks, see [Fix connector problems](/troubleshooting/connector).
+If it doesn't come back, ask your customer to update the existing connector stack in their AWS account. If they can't, for example because the stack was deleted, [contact Deployz support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). For more checks, see [Fix connector problems](/troubleshooting/connector).
 
 <Note>
 If a removal is waiting on an offline connector, see [Remove a deployment](/operate/remove).
@@ -93,3 +93,5 @@ When an update exists, the deployment detail page shows **Connector update avail
 4. Your customer keeps all existing parameter values (**Use existing value**), especially **RelayCredential**, and submits the update.
 
 A connector update keeps the existing credential. It isn't a reconnect, so your customer doesn't need new values.
+
+A current connector also requires a permissions boundary on every IAM role in the application stack. See [Security and AWS access](/customers/security). After your customer updates, existing deployments keep their roles and keep working. A deployment that was prepared before the boundary but not yet installed can't install with the updated connector. Create a new deployment for that customer instead. See [Fix install failures](/troubleshooting/install).

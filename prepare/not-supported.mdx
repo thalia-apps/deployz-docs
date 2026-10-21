@@ -1,20 +1,23 @@
 ---
 title: "What Deployz doesn't support"
-description: "Application patterns and platform features Deployz rejects or doesn't provide, and what to do instead."
+description: "What Deployz doesn't provide, what needs a change in your repository before Deployz can deploy it, and what to do instead."
 ---
 
 Deployz supports one architecture, described in [Application requirements](/prepare/requirements). This page lists what falls outside it, so you can decide early whether Deployz fits your application.
 
-There are two kinds of limits:
+There are three kinds of limits:
 
-- **Blocking analysis findings.** The analysis found something in your repository that Deployz can't run. Deployz won't deploy the application until you change the repository.
+- **Capabilities Deployz doesn't provide.** Your application needs something Deployz can't run, such as MongoDB or a GPU. The **Overview** shows **Not deployable on Deployz**, and the item is listed under **Not supported**.
+- **Patterns that need a repository change.** Deployz can't run the repository as it is, but a known change fixes it, such as removing a `.git` copy from the Dockerfile or moving files from the local disk to S3. The **Overview** shows **Deployable after repository changes**, and the item is listed under **Change in your repository**.
 - **Platform limits.** Things Deployz doesn't provide for any application, whatever your repository contains.
 
-## Blocking analysis findings
+Deployz won't deploy the application until you resolve every required item, including repository changes. Each item shows the file or dependency it found as evidence. Files in documentation, example, and test folders don't count as evidence.
 
-When the analysis finds one of these, the application needs changes before Deployz can deploy it. Each finding shows the file or dependency it found as evidence.
+To resolve an item in your repository, change the repository, push the change to the application's branch, then open the **More actions** menu at the top of the application and select **Re-analyze application**. For help with a specific item, see [Fix analysis problems](/troubleshooting/analysis).
 
-To resolve a blocking finding, change the repository, push the change to the application's branch, then open the **More actions** menu at the top of the application and select **Re-analyze application**. Files in documentation, example, and test folders don't count as evidence. For help with a specific finding, see [Fix analysis problems](/troubleshooting/analysis).
+## Capabilities Deployz doesn't provide
+
+The analysis lists one of these under **Not supported** only when your application clearly needs it. When that isn't clear, it lists the item under **Change in your repository** instead, and the fix instructions ask you or your coding agent to check whether the application really uses it.
 
 ### Databases and search engines
 
@@ -22,18 +25,17 @@ Deployz hosts PostgreSQL 16 and MySQL 8.0 only.
 
 | Detected | What to do instead |
 | --- | --- |
-| MariaDB driver or configuration | Move to MySQL or PostgreSQL, or remove the dependency if it isn't used. |
 | MongoDB | Move the data layer to PostgreSQL or MySQL, or remove the dependency if it isn't used. |
-| SQLite, as the production database | Move to PostgreSQL or MySQL. If your application supports several engines, configure it to use one of those. |
+| SQLite, as the only database driver | Move to PostgreSQL or MySQL. |
 | Elasticsearch or OpenSearch | Use PostgreSQL full-text search, or remove the dependency if it isn't used. |
 | Other databases, such as Cassandra, Neo4j, ClickHouse, or an embedded JVM database like H2 | Move to PostgreSQL or MySQL. |
 | A PostgreSQL image that provides an extension Amazon RDS doesn't offer | Remove the dependency on that extension. |
 
-If your application includes a driver for an unsupported engine and also a PostgreSQL driver, the analysis treats the engine as a configuration choice and doesn't block it.
+SQLite isn't a capability gap when your application also has a PostgreSQL or MySQL driver. Configure the application to use that engine instead. MariaDB is a repository change, not a capability gap. See [Databases](#databases).
 
 ### Redis features
 
-Deployz provides a standard, single-node Valkey cache that's compatible with Redis clients. It blocks applications that require:
+Deployz provides a standard, single-node Valkey cache that's compatible with Redis clients. It can't run applications that require:
 
 - Redis Stack modules, such as RedisJSON or RediSearch
 - Redis Cluster mode
@@ -55,16 +57,24 @@ Deployz creates and owns the infrastructure for every deployment, so it can't ru
 - Your own Terraform, Pulumi, or CloudFormation templates
 - Azure or Google Cloud deployment files
 
-Keep these files if self-hosters use them. Deployz ignores them when they're in a deployment or sample folder, such as `deploy/`, `helm/`, `k8s/`, or `infra/`, and shows a warning instead of blocking.
+Keep these files if self-hosters use them. Deployz ignores them when they're in a deployment or sample folder, such as `deploy/`, `helm/`, `k8s/`, or `infra/`, and shows a warning instead.
+
+### GPUs
+
+Deployz runs containers on standard processors only. If your application requires a GPU, use a CPU-only configuration, or move the GPU work to a service that provides it.
+
+## Patterns that need a repository change
+
+Deployz can deploy these applications after you change the repository. Select **Get fix instructions** on the item to get instructions you can follow yourself or give to a coding agent.
 
 ### Container setup
 
 | Detected | What to do instead |
 | --- | --- |
-| No Dockerfile that builds a production image | Add a production Dockerfile that builds and starts the application from source. |
+| No Dockerfile that builds a production image, for example one that's only for development, is a template, or copies nothing from the repository | Add a production Dockerfile that builds and starts the application from source. |
+| A Dockerfile that copies or reads the `.git` directory | Remove the copy or read of `.git` from the Dockerfile. Deployz builds from a source archive that has no `.git` directory. |
 | A production Compose file with more than one application service | Run the application as one web service. Declare other long-running processes as workers. |
 | An image that runs several processes under a supervisor, such as s6-overlay or supervisord | Build an image that runs only the web process, and declare each other process as a worker. |
-| A GPU requirement | Use a CPU-only configuration, or move the GPU work to a service that provides it. |
 
 ### Local storage
 
@@ -73,9 +83,15 @@ The container's disk is wiped on every deploy and restart.
 | Detected | What to do instead |
 | --- | --- |
 | A persistent volume: a Kubernetes volume claim, a Terraform-managed volume, or named volumes in a production Compose file | Store persistent data in the S3 bucket or the database. |
-| A durable data directory with no `VOLUME` or Compose mount | Store the data in the S3 bucket or the database. |
+| A durable data or configuration directory, such as a `*_CONFIG_DIR` setting, with no `VOLUME` or Compose mount | Store the data in the S3 bucket or the database. |
 | A configuration file the image expects to be mounted, which no Dockerfile instruction creates | Create the file in the Dockerfile, or read the settings from environment variables. |
 | Files written to the local disk | Store files in object storage. Deployz provides an S3 bucket for every deployment. |
+
+### Databases
+
+| Detected | What to do instead |
+| --- | --- |
+| MariaDB driver or configuration | Move to MySQL or PostgreSQL, or remove the dependency if it isn't used. |
 
 ## Platform limits
 

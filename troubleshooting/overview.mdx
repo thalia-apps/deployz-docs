@@ -12,8 +12,10 @@ Start here when something goes wrong. Find your symptom in the table, or open th
 | --- | --- |
 | The application shows **Analysis failed** | [Analysis failed](/troubleshooting/analysis#analysis-failed) |
 | The application shows **Needs input** | [The application needs input](/troubleshooting/analysis#the-application-needs-input) |
-| A finding is marked **Blocking** | [A finding blocks the application](/troubleshooting/analysis#a-finding-blocks-the-application) |
-| The **Overview** shows changes required before you can deploy | [A finding needs a change you can make](/troubleshooting/analysis#a-finding-needs-a-change-you-can-make) |
+| The **Overview** shows **Not deployable on Deployz** | [The application needs an unsupported capability](/troubleshooting/analysis#the-application-needs-an-unsupported-capability) |
+| The **Overview** shows **Deployable after repository changes**, or changes required before you can deploy | [A finding needs a change you can make](/troubleshooting/analysis#a-finding-needs-a-change-you-can-make) |
+| The **Overview** shows "Not yet confirmed by a build" | [Read the analysis result](/troubleshooting/analysis#read-the-analysis-result) |
+| A deployment is blocked with "A migration command is set, but no database is required" | [A migration command is set but no database is required](/troubleshooting/analysis#a-migration-command-is-set-but-no-database-is-required) |
 | A release build failed | [Fix a failed build](/releases/build-failures) |
 | You can't create a customer deployment because of your subscription | [Pricing and billing](/account/billing) |
 | The install page shows **Still connecting** | [The install page shows Still connecting](/troubleshooting/connector#the-install-page-shows-still-connecting) |
@@ -43,7 +45,7 @@ Start here when something goes wrong. Find your symptom in the table, or open th
 
 <CardGroup cols={2}>
   <Card title="Analysis" icon="magnifying-glass" href="/troubleshooting/analysis">
-    Failed analyses, open questions, and findings that block your application.
+    Failed analyses, open questions, required changes, and unsupported capabilities.
   </Card>
   <Card title="Install" icon="cloud-arrow-up" href="/troubleshooting/install">
     Failures in your customer's AWS account, and how to retry an install.

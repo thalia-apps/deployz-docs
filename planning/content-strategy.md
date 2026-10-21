@@ -176,6 +176,8 @@ These came up while reading the code. **Decided: follow the code in every case.*
 7. **Support destination.** **Contact Deployz support** has no URL in the app. Decided: the HubSpot form is the support channel everywhere (section 11).
 8. **Pricing wording.** `mvp-scope.md` says the $49/month fee starts with the first *production* deployment. `paddle-billing.md` says it starts with the first *customer* deployment. The billing page says what starts billing. Use that wording.
 
+**Update 2026-10-21.** `deployz` #574 removed the release migration command field, changed the billing wording to "The platform fee starts when you subscribe", and aligned failure fix text and refusal messages with the UI (item 8 is resolved). #575 added a required permissions boundary on application IAM roles, and the customer security pages were rechecked against commit `0b77379c`. #573 changed analysis to one deployability outcome per repository.
+
 ## 11. Decisions on the open questions
 
 All answered on 2026-10-20.

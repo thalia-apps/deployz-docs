@@ -74,6 +74,6 @@ After a rollback, the previous release runs against the newer schema. To keep th
 - Don't rename or drop a column in the same release that stops using it. Stop using it in one release, then remove it in a later one.
 - Avoid changing a column's type in place. Add a new column, copy the data, and switch reads over in a later release.
 
-## Migration commands on a release
+## Migrations and releases
 
-The **New release** form has an optional **Migration command** field. Deployments run the command from the application's **Database migrations** setting, described above. To change what runs, change that setting. See [Create a release](/releases/create).
+A release doesn't carry its own migration command. Every deployment runs the command from the application's **Database migrations** setting, described above. To change what runs, change that setting.

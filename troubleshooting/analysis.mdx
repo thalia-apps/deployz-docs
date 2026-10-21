@@ -1,7 +1,7 @@
 ---
 title: "Fix analysis problems"
 sidebarTitle: "Analysis"
-description: "Resolve failed analyses, open questions, and findings that block your application."
+description: "Resolve failed analyses, open questions, required changes, and capabilities Deployz does not support."
 ---
 
 When you add an application, Deployz analyzes its repository to work out how to build, start, and host it. This page covers what to do when the analysis fails, asks you a question, or finds something you need to change. All of it happens in the Deployz dashboard, before any customer is involved.
@@ -33,51 +33,80 @@ Large repositories don't cause a failure. Deployz reads a limited set of files a
 
 **Who acts:** you.
 
+## Read the analysis result
+
+When the analysis finishes, the **Overview** shows one of three results. The most serious required item decides which one.
+
+| Result | What it means | Where to look |
+| --- | --- | --- |
+| **Deployable with Deployz settings** | Anything left to do is a setting in Deployz. | [The application needs input](#the-application-needs-input) |
+| **Deployable after repository changes** | You need to change your repository before Deployz can deploy the application. | [A finding needs a change you can make](#a-finding-needs-a-change-you-can-make) |
+| **Not deployable on Deployz** | The application needs a capability Deployz doesn't provide. | [The application needs an unsupported capability](#the-application-needs-an-unsupported-capability) |
+
+The analysis reads your repository without building it, so it can't predict every build failure. Until a release build passes, **Deployable with Deployz settings** shows "Not yet confirmed by a build." If release builds failed and none has passed, the result changes to **Deployable after repository changes** with "The release build failed." Select **Review failure details**, and see [Fix a failed build](/releases/build-failures).
+
 ## The application needs input
 
 **Symptom:** The application shows **Needs input**. The **Overview** shows either a count of changes required before you can deploy, or **Configuration needs review**, with **Review required changes**.
 
-**Cause:** Deployz found something it can't decide for you. There are two kinds of input:
+**Cause:** Deployz found something it can't decide for you. The **Overview** groups the required changes by where you resolve them:
 
-- **Questions about your application.** For example, how database migrations should run when the application uses a database but has no migration command, or which command runs a background worker. These rows are marked **Needs input** on the **Configuration** screen.
+- **Set in Deployz:** a setting you enter in the Deployz dashboard, such as the port, the start command, the health check path, or how database migrations run.
+- **Change in your repository:** a change you push to GitHub. See [A finding needs a change you can make](#a-finding-needs-a-change-you-can-make).
+- **Not supported:** a capability Deployz doesn't provide. See [The application needs an unsupported capability](#the-application-needs-an-unsupported-capability).
+
+Two other kinds of input can also be open:
+
+- **Questions about your application.** For example, which command runs a background worker. These rows are marked **Needs input** on the **Configuration** screen.
 - **Environment variable decisions.** A variable shows **Needs a decision** when nobody has said who provides it, or **Needs a value** when you provide it but haven't entered a value. See [Configure environment variables](/prepare/environment-variables).
 
 **Fix:**
 
 **Who:** you (the vendor), in the Deployz dashboard.
 
-1. On the **Overview**, select **Review required changes**. The **Configuration** screen opens at the rows that need attention.
+1. On the **Overview**, select **Review required changes**. The **Configuration** screen opens at the rows that need attention. Required items are marked **Change required**.
 2. For each marked row, answer the question, edit the value, or select **Get fix instructions**.
 3. Save your changes.
 
 Open environment variable decisions block a test deployment and customer deployments. Missing build values also block release builds.
 
-## A finding blocks the application
+## The application needs an unsupported capability
 
-**Symptom:** A finding on the **Configuration** screen is marked **Blocking**, and the application can't be deployed.
+**Symptom:** The **Overview** shows **Not deployable on Deployz** and lists one or more items under **Not supported**.
 
-**Cause:** The application depends on something Deployz doesn't support. Examples are a database engine other than PostgreSQL or MySQL, Redis features beyond a standard single-node cache, its own message broker, several services that must run together, a persistent disk volume, a GPU, or its own infrastructure code.
+**Cause:** The application clearly needs something Deployz doesn't provide. Examples are MongoDB, SQLite as the only database, Elasticsearch, Redis features beyond a standard single-node cache, its own message broker, a GPU, or its own infrastructure code.
 
-**Fix:** You can't answer a blocking finding with a setting. Change the application so it no longer needs the unsupported part, push the change, and re-analyze. For the full list and the alternatives, see [What Deployz doesn't support](/prepare/not-supported).
+**Fix:** A setting can't resolve this. Change the application so it no longer needs the unsupported part, push the change, and re-analyze. For the full list and the alternatives, see [What Deployz doesn't support](/prepare/not-supported).
 
 **Who acts:** you.
 
 ## A finding needs a change you can make
 
-**Symptom:** The **Overview** shows a count of changes required before you can deploy, but no finding is blocking. Or a finding is marked as recommended.
+**Symptom:** The **Overview** shows a count of changes required before you can deploy, with items under **Set in Deployz** or **Change in your repository**. Or a finding on the **Configuration** screen is marked **Recommended**.
 
-**Cause:** Deployz found something it can host, but it needs more information or a small change first.
+**Cause:** Deployz can host the application, but it needs a setting or a repository change first. Deployz doesn't deploy the application until you resolve every required item, including repository changes.
 
-These findings must be fixed before you deploy:
+You resolve these in Deployz:
 
 | Finding | How you fix it |
 | --- | --- |
-| Deployz doesn't know how to start your app | Add a Dockerfile that builds the application. |
-| Tell Deployz which port your app listens on | Enter the port on the **Configuration** screen. |
-| Tell Deployz how to start your app | Set the start command on the **Configuration** screen. |
-| Give Deployz a way to check your app | Add a health check route, then set the health check path. |
-| Your app only listens on localhost | Change the application to listen on `0.0.0.0`. |
-| Choose how Deployz runs database migrations | Choose a migration option on the **Configuration** screen. See [Database migrations](/prepare/migrations). |
+| Set the port your app listens on | Enter the port on the **Configuration** screen. |
+| Add a start command to the Dockerfile | Add a `CMD` or `ENTRYPOINT` to the Dockerfile, or set the start command in Deployz. |
+| Add a health check route | Set the health check path. If the application has no route that returns HTTP `200`, add one first. |
+| Choose how database migrations run | Choose a migration option on the **Configuration** screen. See [Database migrations](/prepare/migrations). |
+
+You resolve these in your repository:
+
+| Finding | How you fix it |
+| --- | --- |
+| Add container build instructions (Dockerfile), or Has no Dockerfile that builds the app | Add a production Dockerfile that builds and starts the application from source. |
+| Stop copying .git into the container build | Remove the copy or read of `.git` from the Dockerfile. Deployz builds from a source archive that has no `.git` directory. |
+| Listen on all network interfaces, not only localhost | Change the application to listen on `0.0.0.0`. |
+| Store files in object storage, not on the local disk, or Needs a persistent disk volume | Store files and persistent data in the S3 bucket or the database. |
+| Runs as several services | Run the application as one web service, and declare other processes as workers. |
+| Your database needs a supported engine (MariaDB) | Move to MySQL or PostgreSQL, or remove the dependency if it isn't used. |
+
+When the analysis can't tell whether the application really needs an unsupported capability, for example SQLite next to a PostgreSQL driver, it lists the item under **Change in your repository**. Its fix instructions ask you or your coding agent to check first, before you change anything.
 
 Recommended findings don't block a deployment, but they can cause problems later. Examples are confirming which Dockerfile Deployz builds, adding a way to update the database, and confirming background workers, queues, or scheduled jobs. Queues and scheduled jobs are a **Preview** feature.
 
@@ -87,8 +116,18 @@ Recommended findings don't block a deployment, but they can cause problems later
 
 1. On the **Configuration** screen, find the finding.
 2. If the fix is a setting, such as the port, start command, health check path, or migration choice, edit it and save. You don't need to re-analyze.
-3. If the fix is a code change, select **Get fix instructions**. The **Fix deployment issues with your coding agent** dialog gives instructions you can copy into a coding agent or follow yourself.
-4. Push the code change to GitHub, then select **Re-analyze application**.
+3. If the fix is a repository change, select **Get fix instructions**. The **Fix deployment issues with your coding agent** dialog gives instructions you can copy into a coding agent or follow yourself.
+4. Push the change to GitHub, then select **Re-analyze application**.
+
+## A migration command is set but no database is required
+
+**Symptom:** When you start a deployment, the **Database** check is blocked with "A migration command is set, but no database is required."
+
+**Cause:** The application has a migration command, but the analysis found no database for it to run against. Deployz doesn't add a database to resolve the mismatch.
+
+**Fix:** If the application doesn't use a database, open the **Configuration** screen, edit the migration command, and choose **No separate migration**. If it does use one, make sure the repository includes its PostgreSQL or MySQL driver, push the change, and re-analyze. See [Database migrations](/prepare/migrations).
+
+**Who acts:** you.
 
 ## Re-analyze the application
 

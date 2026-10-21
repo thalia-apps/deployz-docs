@@ -8,7 +8,7 @@ Deploy an update to move a customer's deployment to a different release of your 
 ## Before you start
 
 - The release you want to deploy must have built successfully. See [Create a release](/releases/create).
-- The deployment must be installed, its Deployz connector must be **Online**, and no other operation can be running on it. See [When you can't deploy an update](#when-you-cant-deploy-an-update).
+- The deployment must be installed, its Deployz connector must be **Online**, and no other operation can be running on it. See [When an update is unavailable](#when-an-update-is-unavailable).
 - If the release adds infrastructure, such as a database, a cache, or a new worker, it can't go to an existing deployment. See [Changes that need a new deployment](#changes-that-need-a-new-deployment).
 
 ## Deploy the update
@@ -47,7 +47,7 @@ The recovery panel on the detail page explains what failed and what to do next. 
 A migration that succeeded stays applied, even if the rest of the update fails. Rolling back to an earlier release doesn't reverse it. Write migrations that the previous release can still run against. See [Roll back a deployment](/operate/rollback).
 </Warning>
 
-## When you can't deploy an update
+## When an update is unavailable
 
 When **Deploy update** isn't available, the detail page shows the reason under the action buttons. The same rules apply to **Rollback**, **Restart**, and **Configuration**.
 

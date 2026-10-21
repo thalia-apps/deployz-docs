@@ -29,9 +29,6 @@ Creating a release doesn't update any customer. Running deployments keep their c
   <Step title="Choose the commit">
     In **Commit**, select a commit from the list. The list shows commits from your application's branch. To use another commit, select **Enter commit SHA manually** and paste its SHA, from 7 to 40 characters. Deployz checks a short SHA with GitHub. If GitHub is unavailable, enter the full 40-character SHA.
   </Step>
-  <Step title="Leave the migration command empty">
-    **Migration command (optional)** is recorded with the release. Deployments run the command from the application's migration setting, so you can leave this field empty. See [Database migrations](/prepare/migrations).
-  </Step>
   <Step title="Create it">
     Select **Create release**. Deployz starts building the image. A build usually takes a few minutes, and the page updates when it finishes.
   </Step>
@@ -61,7 +58,7 @@ To see a release's full commit SHA and creation time, select the arrow next to i
 When your application has at least one deployment, the **Releases** tab compares what your application needs now with what that deployment was created with:
 
 - **No infrastructure changes** means you can deploy new releases to existing deployments.
-- **Infrastructure requirements changed** means the application now needs something, such as a database, cache, worker, queue, or scheduled job, that existing deployments don't have. The notice says the release requires infrastructure changes, which Deployz doesn't apply to existing deployments.
+- **Infrastructure requirements changed** means the application now needs something, such as a database, cache, worker, queue, or scheduled job, that existing deployments don't have. The notice reads: "This release needs infrastructure changes. Deployz cannot apply them to an existing deployment. Create a new deployment for each customer that needs this release."
 
 Deployz doesn't change what an existing deployment contains. To give a customer the new requirements, create a new deployment for them. See [What Deployz doesn't support](/prepare/not-supported).
 

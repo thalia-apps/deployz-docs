@@ -43,6 +43,8 @@ You need:
     | **Needs input** | Deployz needs a change or a decision before you can deploy. | Select **Review required changes**. |
     | **Analysis failed** | Deployz couldn't read or analyze the repository. | Read the reason on the **Overview**, then select **Re-analyze application**. |
 
+    The **Overview** also shows whether the application can be deployed: **Deployable with Deployz settings**, **Deployable after repository changes**, or **Not deployable on Deployz**. Required changes are grouped under **Set in Deployz**, **Change in your repository**, and **Not supported**. Until a release build passes, **Deployable with Deployz settings** shows "Not yet confirmed by a build."
+
     For help with a result, see [Fix analysis problems](/troubleshooting/analysis).
   </Step>
   <Step title="Review the configuration">
@@ -56,7 +58,7 @@ You need:
     Resolve every required change. When the **Overview** status shows **Ready to test**, continue. See [Configure environment variables](/prepare/environment-variables).
   </Step>
   <Step title="Create a release">
-    Open the **Releases** tab and select **Create release**. In **New release**, check the suggested **Version**, choose a **Commit** from your branch, and leave **Migration command (optional)** empty to use the detected command. Select **Create release**.
+    Open the **Releases** tab and select **Create release**. In **New release**, check the suggested **Version** and choose a **Commit** from your branch. Select **Create release**.
 
     The release shows **Building**, then **Ready** when the build succeeds. If it shows **Build failed**, see [Fix a failed build](/releases/build-failures). Creating a release doesn't update any deployment. For details, see [Create a release](/releases/create).
   </Step>
