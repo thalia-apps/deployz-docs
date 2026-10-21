@@ -3,6 +3,8 @@ title: "What is Deployz"
 description: "Run your web application in each customer's own AWS account and operate every deployment from one dashboard."
 ---
 
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
 Deployz lets a B2B software vendor run its web application inside each customer's own AWS account. You connect a GitHub repository once. Deployz checks whether the application fits, builds releases, and gives you a link to send to each customer. The customer approves one setup step in their AWS account, and from then on you operate every customer deployment from the Deployz dashboard.
 
 ## Who Deployz is for
@@ -17,21 +19,21 @@ Deployz serves two groups, and only one of them has a Deployz account.
 - **Checks fit.** Deployz analyzes your repository and tells you, with evidence, whether it matches the supported architecture and what to change if it doesn't.
 - **Builds releases.** Each release is a fixed version of your application, built from a commit.
 - **Gives you install links.** You share an install link or send a customer an invitation. The customer sees what will be created and the estimated monthly AWS cost before they approve anything.
-- **Installs in the customer's account.** The customer runs one AWS CloudFormation Quick Create stack, which sets up the Deployz connector. Deployz then creates the infrastructure, starts your application, and gives it a permanent HTTPS address.
+- **Installs in the customer's account.** The customer runs one AWS CloudFormation Quick Create stack, which sets up the [Deployz connector](/how-it-works#the-deployz-connector). Through the connector, Deployz creates the infrastructure, starts your application, and gives it a permanent HTTPS address.
 - **Runs day-to-day operations.** From the dashboard you deploy updates, roll back, restart, change configuration, add custom domains, and remove deployments.
 
-Deployz supports one architecture: a web service built from a Dockerfile, with optional background workers, a PostgreSQL or MySQL database, a Redis-compatible cache, and file storage. SQS queues and scheduled jobs are in Preview. See [Application requirements](/prepare/requirements) for the full list.
+Deployz supports one architecture: a web service built from a Dockerfile, with optional background workers, a PostgreSQL or MySQL database, a Redis-compatible cache, and file storage. SQS queues (**Preview**) and scheduled jobs (**Preview**) are also available. See [Application requirements](/prepare/requirements) for the full list.
 
 ## What Deployz is not
 
-- **Not a general AWS deployment tool.** Deployz doesn't generate Terraform, run Kubernetes, or act as a cloud console. It supports one architecture well and says plainly when an application doesn't fit. See [What Deployz doesn't support](/prepare/not-supported).
+- **Not a general AWS deployment tool.** Deployz doesn't generate Terraform, run Kubernetes, or act as a cloud console. It supports one architecture and tells you when an application doesn't fit it. See [What Deployz doesn't support](/prepare/not-supported).
 - **Not a consulting service.** If an application needs custom infrastructure work, Deployz treats it as unsupported instead of working around it.
 - **Not a reseller of AWS.** Your customer pays AWS directly for the resources in their account.
 - **Not a holder of AWS credentials.** Deployz never asks for your customer's AWS access keys. The connector runs inside the customer's account and connects out to Deployz. See [How Deployz works](/how-it-works).
 
 ## How pricing starts
 
-Evaluating Deployz is free, with no card and no time limit. The free evaluation covers connecting applications, analysis, configuration, building releases, adding customers, and one test deployment of each application in your own AWS account. Billing starts when you subscribe, before your first customer installs. See [Pricing and billing](/account/billing) for prices and what each charge covers.
+Evaluating Deployz is free, with no card and no time limit. The free evaluation covers connecting applications, analysis, configuration, building releases, adding customers, and a test deployment in your own AWS account. Each application can have one test deployment at a time. Billing starts when you subscribe, before your first customer installs. See [Pricing and billing](/account/billing) for prices and what each charge covers.
 
 AWS bills the account a deployment runs in, including the AWS account you use for a test deployment. See [Sizes and AWS cost](/share/sizes-and-cost).
 

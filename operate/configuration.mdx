@@ -1,18 +1,20 @@
 ---
 title: "Change a customer's configuration"
-description: "Set or change the environment variable values that one customer's deployment uses."
+description: "Set or change the environment variable values that one customer's deployments use."
 ---
 
-Each deployment runs with your application's default values plus any **customer overrides** you set for that customer. An override replaces your default for that one customer only. Use overrides for a value that differs per customer, such as a license key or a customer-specific URL, or to correct a value your customer entered during install.
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
+Each deployment runs with your application's default values plus any **customer overrides** you set for that customer. An override replaces your default for that customer only. It applies to every deployment of this application for that customer, including a test deployment you created for that customer. Use overrides for a value that differs per customer, such as a license key or a customer-specific URL, or to correct a value your customer entered during install.
 
 To change the defaults for every customer, or to decide who provides each variable, see [Configure environment variables](/prepare/environment-variables).
 
 ## Before you start
 
-- The deployment must have completed its install, and its Deployz connector must be **Online**. Deployz refuses to save overrides while a running deployment for this customer has an offline connector. See [Reconnect or update the Deployz connector](/operate/connector).
+- The deployment must have completed its install, and its Deployz connector must be **Online**. Deployz refuses to save overrides while any installed deployment of this application for this customer has an offline connector. See [Reconnect or update the Deployz connector](/operate/connector).
 - After a failed operation, **Configuration** appears on the deployment only when the failure is one that a configuration change can fix.
 
-## Change the customer's values
+## Change the customer overrides
 
 **Who:** you (the vendor), in the Deployz dashboard.
 
@@ -32,19 +34,26 @@ Removing a secret override also deletes it from the secret store in your custome
 
 ## What happens after you save
 
-The new values reach this customer's running deployment within minutes. Deployz starts a configuration update, and the application restarts with the new configuration. The release doesn't change.
+Deployz starts a configuration update on every installed deployment of this application for this customer. The new values reach each running deployment within minutes, and the application restarts with the new configuration. The release doesn't change.
 
-When the update finishes, **Recent activity** on the deployment shows **Configuration updated**, or **Configuration update failed** if the restarted application didn't become healthy. If the update fails, the deployment keeps running with its previous configuration. Correct the value and save again.
+While the configuration update runs, the deployment keeps its **Live** badge and headline. **Deploy update**, **Configuration**, and the **More actions** items are unavailable until it finishes. When it finishes, **Recent activity** on the deployment shows **Configuration updated**, or **Configuration update failed** if the restarted application didn't become healthy.
 
 Deploying an update, rolling back, or restarting never changes or resets a deployment's configuration.
 
-## What you can't change
+### If the configuration update fails
+
+The deployment shows **Update failed**, and the detail page shows **Configuration update failed** with what went wrong. Deployz keeps the values you saved. New secret values are already stored in the secret store in your customer's AWS account, and the application reads them whenever it starts a new task, for example after a restart.
+
+To fix it, correct the value on the configuration page and select **Save overrides** again. That starts a new configuration update.
+
+## Settings that need a new deployment
 
 Configuration covers environment variable values only. You can't change these on an existing deployment:
 
 - **Region.** It's fixed when the deployment is created. See [AWS Regions](/share/regions).
 - **Size.** It's fixed when the deployment is created. Changes on **Size presets** apply only to new install links and new deployments. See [Sizes and AWS cost](/share/sizes-and-cost).
-- **Infrastructure.** Adding a database, a cache, workers, queues (**Preview**), or scheduled jobs (**Preview**) needs a new deployment. See [Changes that need a new deployment](/operate/deploy-update).
+- **Container port and health check path.** Changes to these application settings apply only to new deployments. An existing deployment keeps the values it was created with.
+- **Infrastructure.** Adding a database, a cache, workers, queues (**Preview**), or scheduled jobs (**Preview**) needs a new deployment. See [Changes that need a new deployment](/operate/deploy-update#changes-that-need-a-new-deployment).
 
 To change any of these, create a new deployment for the customer. The new deployment has its own infrastructure, including its own database, so Deployz doesn't copy data from the old one. Plan how to move any data your customer needs. When the new deployment is in use, [remove the old one](/operate/remove).
 

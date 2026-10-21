@@ -4,6 +4,8 @@ sidebarTitle: "HTTPS and domains"
 description: "Resolve problems with the default HTTPS address or a custom domain."
 ---
 
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
 Each deployment gets a default HTTPS address on `deployz.dev`. You can also add a custom domain on your customer's own hostname. This page covers problems with either one. For how custom domains work, see [Add a custom domain](/operate/custom-domains).
 
 Problems on this page don't stop the application. While the secure address is being set up, the application is still reachable over its temporary address.
@@ -36,6 +38,29 @@ The retry starts the setup again and keeps the existing certificate. **Retry HTT
 
 If the retry fails again, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur) with the deployment ID.
 
+## Read the custom domain card
+
+The custom domain card shows the domain's status and, when something is wrong, a message with a title and a short explanation. You and your customer see the same card. Only you can remove or add a domain.
+
+| Status | What it means |
+| --- | --- |
+| **Setting up** | Deployz is requesting the certificate for the domain. The card says "Requesting a certificate for this domain…" |
+| **Waiting for DNS** | The card lists the two DNS records your customer needs to create. See [A custom domain is waiting for DNS](#a-custom-domain-is-waiting-for-dns). |
+| **Connecting** | The records are in place. The card says "Domain verified. Deployz is configuring HTTPS." |
+| **Active** | The domain serves the application over HTTPS. |
+| **Needs attention** | The setup stopped. Deployz doesn't retry it. See [A custom domain needs attention](#a-custom-domain-needs-attention). |
+| **Removing** | The domain is being removed. It stops routing once removal finishes. |
+
+While the domain is **Waiting for DNS** or **Connecting**, the card can also show the result of the latest check. These messages describe progress, not a failure:
+
+| Message | What to do |
+| --- | --- |
+| **Verification record not found** | Your customer checks that the **Verify ownership** record exists and matches the card exactly. |
+| **Domain isn't pointing to this deployment** | Your customer updates the **Route traffic** record to the value on the card. |
+| **HTTPS isn't reachable yet** | Wait. The load balancer may still be setting up, or the deployment may not be running. |
+| **This deployment isn't running** | Domain setup continues once the deployment is running again. Fix the deployment first. |
+| **We couldn't connect this domain** | Check the DNS records, then select **Check now**. This message also appears after a domain change timed out. See [A custom domain update timed out](#a-custom-domain-update-timed-out). |
+
 ## A custom domain is waiting for DNS
 
 **Symptom:** The custom domain card shows **Waiting for DNS** and lists two DNS records.
@@ -49,37 +74,41 @@ If the retry fails again, [contact support](https://share.hsforms.com/1dOsn_DJtR
 
 New DNS records can take some time to become visible.
 
-**Fix:** Your customer creates or corrects the records. Deployz checks again automatically every few minutes. To check right away, select **Check now** on the custom domain card. **Check now** can run once every 30 seconds. See [Create custom domain DNS records](/customers/custom-domain-dns) for the customer's steps.
+**Who:** your customer, in their DNS provider. You or your customer can select **Check now**.
 
-**Who acts:** your customer, in their DNS provider. You or your customer can select **Check now**.
+**Fix:** Your customer creates or corrects the records. Deployz checks again automatically every few minutes. To check right away, select **Check now** on the custom domain card. **Check now** can run once every 30 seconds. See [Create custom domain DNS records](/customers/custom-domain-dns) for the customer's steps.
 
 ## A custom domain needs attention
 
-**Symptom:** The custom domain card shows **Needs attention**. One cause is that the certificate couldn't be issued: the card says "The HTTPS certificate couldn't be issued".
+**Symptom:** The custom domain card shows **Needs attention** with one of these messages:
 
-**Cause:** The certificate authority didn't accept the domain, or the setup couldn't complete. Deployz doesn't retry a failed custom domain on its own.
+| Message | Likely cause |
+| --- | --- |
+| **The HTTPS certificate couldn't be issued** | The certificate authority didn't accept the domain. Check the domain name for typos. |
+| **Deployz couldn't configure HTTPS** | Your customer's AWS account doesn't currently allow Deployz to complete the domain setup. Ask your customer whether a policy in their account blocks it. See [The connector lacks permission](/troubleshooting/install#the-connector-lacks-permission). |
+| **This deployment isn't running** | The deployment isn't running. Fix the deployment first. |
+| **We couldn't connect this domain** | The setup didn't complete. Check the DNS records with your customer. |
 
-**Checks:** Check the domain name for typos, and check the DNS records with your customer.
-
-**Fix:**
+Deployz doesn't retry a domain in this state. Your card says "Remove this domain, then add it again to start over." Your customer's card says "Ask the application owner to remove this domain and add it again."
 
 **Who:** you (the vendor), signed in to Deployz, on the deployment's install page.
 
-1. Open the custom domain. In the dashboard, select **Manage custom domain** on the deployment.
-2. Select **Remove domain**, then confirm. Your customer's DNS records aren't deleted automatically.
-3. Add the domain again, with the corrected name if needed. Your customer then creates the new records the card shows.
+**Fix:**
 
-Your customer can't remove or add a domain. Their card asks them to contact you.
+1. Fix the cause the message points to.
+2. Open the custom domain. In the dashboard, select **Manage custom domain** on the deployment.
+3. Select **Remove domain**, then confirm. Your customer's DNS records aren't deleted automatically.
+4. Add the domain again, with the corrected name if needed. Your customer then creates the new records the card shows.
 
 ## A custom domain update timed out
 
-**Symptom:** The deployment shows the failure code `DOMAIN_OPERATION_TIMEOUT`, labeled "Custom domain update timed out".
+**Symptom:** A custom domain stays in **Setting up**, **Waiting for DNS**, or **Connecting** longer than expected. In **Waiting for DNS** or **Connecting**, the card can show **We couldn't connect this domain**.
 
-**Cause:** The Deployz connector didn't finish the domain change within the allowed time. The deployment itself isn't affected.
+**Cause:** The Deployz connector didn't finish a domain change within the allowed time. Deployz records this as `DOMAIN_OPERATION_TIMEOUT`. It doesn't fail the deployment, and the deployment's recovery panel doesn't show it. The domain keeps its status, and the deployment itself isn't affected.
 
-**Fix:** Wait for the next automatic check, or select **Check now** on the custom domain card. If the domain then shows **Needs attention**, follow the steps in the previous section. If the timeout keeps happening, check the connector. See [Fix connector problems](/troubleshooting/connector).
+**Who:** you or your customer.
 
-**Who acts:** you or your customer.
+**Fix:** Wait for the next automatic check, or select **Check now** on the custom domain card. If the domain then shows **Needs attention**, follow [A custom domain needs attention](#a-custom-domain-needs-attention). If the timeout keeps happening, check the connector. See [Fix connector problems](/troubleshooting/connector).
 
 ## Change a custom domain
 

@@ -3,6 +3,11 @@ title: "Costs in your AWS account"
 description: "What you pay AWS for, and what keeps costing money after removal."
 ---
 
+import BaselineCosts from "/snippets/baseline-costs.mdx";
+import RegionCostFactors from "/snippets/region-cost-factors.mdx";
+
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
 The application runs in your AWS account, so AWS bills you directly for the resources it uses. Deployz doesn't bill you. Any fees for the application itself are between you and your software provider.
 
 ## What runs in your account
@@ -12,12 +17,12 @@ Each deployment creates its own set of resources. The install page lists the one
 | Resource | When it's created |
 | --- | --- |
 | Application containers (Amazon ECS on AWS Fargate) | Always, one or more services |
-| Application Load Balancer | Always |
+| Application Load Balancer | When the application serves web traffic |
 | NAT gateway, with an Elastic IP address | Always, as part of the application's own network |
 | S3 bucket for stored files | Always |
 | Database (Amazon RDS for PostgreSQL or MySQL) | When the application needs one |
 | Cache (Amazon ElastiCache for Valkey) | When the application needs one |
-| Deployz connector (AWS Lambda, run every minute) | Always |
+| Deployz connector (AWS Lambda, run every minute by an Amazon EventBridge rule) | Always |
 
 The size you choose sets the capacity of the containers, the database, and the cache. You can't change the size after you continue to setup.
 
@@ -29,32 +34,19 @@ The install page shows an **Estimated AWS cost** per month for the Region and si
 - Prices come from a US East (N. Virginia) baseline, adjusted by a factor for your Region.
 - The total is rounded to steps of $5.
 - It doesn't include usage-based charges, such as outbound internet data transfer, data transfer between Availability Zones, load balancer capacity, data processed by the NAT gateway, files stored in S3, and database storage growth and backups.
+- It doesn't price smaller charges either: Secrets Manager secrets, CloudWatch Logs, CloudWatch alarms, the NAT gateway's Elastic IP address, and the Deployz connector's Lambda, EventBridge, and Systems Manager usage.
 
 If some resources can't be priced, the page says the estimate is incomplete. Your actual charges depend on usage.
 
 ### Baseline ranges
 
-These are the monthly ranges the estimate starts from, in US dollars, before the Region factor:
+<BaselineCosts />
 
-| Resource | Small | Medium | Large |
-| --- | --- | --- | --- |
-| Application, per service | $8–11 | $33–40 | $68–80 |
-| Database | $14–19 | $50–60 | $100–115 |
-| Cache | $12–15 | $18–24 | $36–45 |
-| Application Load Balancer | $15–25 | $15–25 | $15–25 |
-| NAT gateway | $30–40 | $30–40 | $30–40 |
-
-For example, a Small deployment with one service and a database, in US East (N. Virginia), comes to an estimated $65–95 per month before usage-based charges. The NAT gateway and the load balancer are a large part of the cost at every size.
+For example, a Small deployment with one service and a database, in US East (N. Virginia), comes to an estimated $65–$95 per month before usage-based charges. The NAT gateway and the load balancer are a large part of the cost at every size.
 
 ### Region factor
 
-| Factor | Regions |
-| --- | --- |
-| 1.0 | US East (N. Virginia), US East (Ohio), US West (Oregon) |
-| 1.1 | US West (N. California), Canada (Central), Europe (Ireland), Europe (Frankfurt), Europe (Stockholm), Asia Pacific (Mumbai), Asia Pacific (Singapore) |
-| 1.2 | Europe (London), Europe (Paris), Asia Pacific (Tokyo), Asia Pacific (Seoul), Asia Pacific (Osaka) |
-| 1.3 | Asia Pacific (Sydney) |
-| 1.5 | South America (São Paulo) |
+<RegionCostFactors />
 
 ## Costs after removal
 
@@ -64,6 +56,6 @@ When your software provider removes the deployment, some resources stay in your 
   Retained resources keep costing money in your AWS account until they're deleted.
 </Warning>
 
-To stop these charges, ask your software provider to delete the retained data, or delete the resources yourself in the AWS console. See [Remove the application](/customers/remove).
+To stop these charges, ask your software provider to delete the retained data, or delete the resources yourself in the AWS console. See [Remove the application](/customers/remove). For the full list of what remains, see [AWS resources Deployz creates](/reference/aws-resources#what-remains-after-removal).
 
 To track what the application costs, you can filter AWS Cost Explorer by the `deployz:installation` tag after you activate it as a cost allocation tag in the AWS Billing console.

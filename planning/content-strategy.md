@@ -10,7 +10,7 @@ This plan covers what the public Deployz documentation site (this Mintlify repos
 
 **The product is well documented internally, but not for users.** The app repository has about 8,400 lines of internal docs under `deployz/docs/`. They describe the product as built, were checked against the code on 2026-09-24, and say where the code falls short. They are written for engineers and operators, though. They use internal vocabulary (relay, purge, compiler-v2, `NOT_INSTALLED`) that the UI deliberately hides. These internal docs are the main source material. Treat them as raw input, not as copy to reuse.
 
-**The app has no links to documentation.** `apps/web` links to no docs or help pages, and the deployment page has a **Contact Deployz support** action with no support URL behind it. Nothing in the product sends users to the docs yet. That's an opportunity (see section 8).
+**The app has no links to documentation.** `apps/web` links to no docs or help pages, and the deployment page has a **Contact Deployz support** action with no support URL behind it. Nothing in the product sends users to the docs yet. That's an opportunity: failure-code anchors and page URLs are ready for the app to link to.
 
 **There is no public API.** Sign-in uses session cookies only. There are no API keys, no personal access tokens and no OpenAPI spec. The only bearer-token routes belong to the connector. **Don't add an API reference section.** Routes such as `PATCH /api/applications/:id` and bulk deploy exist, but the dashboard uses them internally. Documenting them would create an unsupported public contract.
 
@@ -68,7 +68,7 @@ Use two Mintlify **tabs**. Vendors and customers have different jobs, and the cu
 
 | Page | Purpose |
 | --- | --- |
-| `customers/index` Install an application with Deployz | What's happening, who the vendor is, and what to expect. Sets a neutral tone, since the reader didn't choose Deployz. |
+| `customers/overview` Install an application with Deployz | What's happening, who the vendor is, and what to expect. Sets a neutral tone, since the reader didn't choose Deployz. |
 | `customers/before-you-install` | AWS account checks: who can run Quick Create, SCPs, Elastic IP/NAT quotas, Region choice |
 | `customers/install` | The steps on the install page and in the AWS console, with progress steps as they're named in the UI |
 | `customers/security` | **Security & AWS access**: the connector, IAM scope and permissions boundary, outbound-only design, the data Deployz receives and never receives, secrets handling, how to revoke access. This is the page a security reviewer reads. |
@@ -125,7 +125,7 @@ Take terms from the product's UX guidelines (`deployz/docs/product/ux-guidelines
 | test deployment | test install |
 | install link | deploy link, installation link |
 | invitation, invite a customer | create installation |
-| Deployz connector | relay, bootstrap stack (except in the customer guide's AWS-level detail, where you name the stack once) |
+| Deployz connector | relay, bootstrap stack (name the CloudFormation stack only where the reader works in the AWS console) |
 | remove a deployment | disconnect, uninstall |
 | delete retained data | purge |
 | Needs input · Needs attention · Failed | issue, problem, error (as a status) |
@@ -171,7 +171,7 @@ These came up while reading the code. **Decided: follow the code in every case.*
 2. **Sign-up methods.** `user-flows.md` says email and password "or GitHub OAuth". The sign-up page offers email and password only.
 3. **"Copy prompt for coding agent".** `user-flows.md` places it on analysis readiness. In the code it appears on release build failures, and the related dialog elsewhere is titled "Fix deployment issues with your coding agent". The docs document it on failed builds, as the code has it. `prepare/fix-findings` covers the "Fix deployment issues with your coding agent" dialog only after its trigger has been checked in the code.
 4. **"Create installation" on customer detail.** It doesn't exist. The page has **Invite customer** only.
-5. **Release infrastructure line.** The text "No infrastructure changes" quoted in `user-flows.md` isn't in the code.
+5. **Release infrastructure line.** Resolved: the text "No infrastructure changes" is now in `packages/copy-map`.
 6. **Home vs Overview.** The sidebar says **Home** and the page heading says **Overview**. Pick one name for the docs, preferably the sidebar label for navigation steps.
 7. **Support destination.** **Contact Deployz support** has no URL in the app. Decided: the HubSpot form is the support channel everywhere (section 11).
 8. **Pricing wording.** `mvp-scope.md` says the $49/month fee starts with the first *production* deployment. `paddle-billing.md` says it starts with the first *customer* deployment. The billing page says what starts billing. Use that wording.
@@ -190,7 +190,7 @@ All answered on 2026-10-20.
 | Support channel | The HubSpot form: `https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur` | Every "contact support" link in the docs points here. Ask the product team to use it for **Contact Deployz support** in the app. |
 | Will the app link to the docs? | Yes. The docs home is `https://deployz.dev/docs`. | The slugs in section 5 are frozen. Changing one needs a redirect in `docs.json`. The `/docs` subpath is set up in the Mintlify dashboard and on the host serving `deployz.dev` (reverse proxy), not in this repository. |
 | Legacy deploy link | Leave it out | Not documented anywhere |
-| Customer guide branding | Neutral for now; vendor branding comes later | Write the customer guide vendor-neutral, and say "the vendor" or "the software provider" |
+| Customer guide branding | Neutral for now; vendor branding comes later | Write the customer guide vendor-neutral, and say "your software provider" (see `AGENTS.md`) |
 
 ## 12. Next steps
 

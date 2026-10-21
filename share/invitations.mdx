@@ -3,20 +3,25 @@ title: "Invite a specific customer"
 description: "Send one customer a private invitation to install your application."
 ---
 
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
 An invitation is a private install link for one customer and one application. Use it when you know who will install, and you want the deployment tied to that customer's record in Deployz. To share one link with many customers, use an [install link](/share/install-links) instead.
 
 ## How invitations work
 
 - **Bound to one customer.** The invitation names the customer, and its deployment appears under that customer.
 - **Used once.** An invitation creates exactly one deployment. After the customer confirms, it can't be used again.
-- **Secured by a one-time token.** The invitation link includes a secret token. Deployz shows it once, when you create the invitation, and can't show it again.
+- **Secured by a one-time token.** The invitation link includes a secret token as its last part, after the `#`. Deployz shows the token once, when you create the invitation, and can't show it again.
 - **Expires after 30 days.** An unused invitation stops working 30 days after you create it. To give the customer more time, create a new invitation.
 - **Nothing is created until the customer confirms.** Creating an invitation doesn't deploy anything.
-- **The customer makes the final choices.** You can recommend a Region and a size. The customer sees your recommendations preselected and chooses the final Region and size.
+- **The customer makes the final choices.** You can recommend a Region and a size. The customer sees your recommendations preselected and chooses the final Region and size. If the Region you recommended is no longer available for installs when the customer opens the link, the install page shows no Region recommendation.
 
-<Note>
-  A customer can confirm an invitation only while your organization has an active subscription. If you don't have one, the **Invite customer** page shows **Start your subscription**. See [Pricing and billing](/account/billing).
-</Note>
+## Before you start
+
+- **A built release.** The customer installs your application's newest built release. Until the application has one, the install page tells the customer that the application has no published release yet. The **Invite customer** page checks this and waits for a release. If there isn't one, it offers **Build release from commit**, which builds the first release from the commit Deployz analyzed. The **Invite customer** dialog on a customer's page doesn't check, so make sure a release is built before you use it. See [Create a release](/releases/create).
+- **An active subscription before the customer confirms.** You can create invitations without a subscription, but a customer can confirm only while your organization has an active subscription. If you don't have one, the **Invite customer** page shows **Start your subscription**. See [Pricing and billing](/account/billing).
+
+You don't need a test deployment to send an invitation. Running one first is still the best way to find problems before your customer does. See [Run a test deployment](/share/test-deployment).
 
 ## Create an invitation
 
@@ -27,11 +32,11 @@ You can create an invitation from the **Invite customer** page or from a custome
     **Who:** you (the vendor), in the Deployz dashboard.
 
     1. In **Customers**, select **Invite customer**. You can also select **Create deployment** on **Home** or **Deployments**. Both open the **Invite customer** page.
-    2. In **Customer**, select an existing customer, or keep **Create new customer** and enter the customer's name, email, and, optionally, company.
+    2. In **Customer**, select an existing customer, or keep **Create new customer** and enter the customer's name, email, and, optionally, company. If the email belongs to an existing customer, select **Use existing customer** to avoid a duplicate record.
     3. Select the **Application**.
     4. Optional: in **Recommended AWS region**, select a Region to recommend. Keep **No recommendation** to let the customer choose freely.
     5. In **Recommended size**, choose the size to preselect. The list starts at your application's minimum size.
-    6. Select **Invite customer**.
+    6. Select **Invite customer**. The button is unavailable until the application has a built release.
   </Tab>
   <Tab title="Customer page">
     **Who:** you (the vendor), in the Deployz dashboard.
@@ -47,9 +52,11 @@ You can create an invitation from the **Invite customer** page or from a custome
 
 ## Send the invitation
 
+**Who:** you, in the Deployz dashboard, then by your own email or chat.
+
 **Invitation created** shows the invitation link. Copy it now. The link contains the one-time token, and Deployz can't show it again after you close this view.
 
-1. Select **Copy link**.
+1. Select **Copy link**. The link already includes the token. On a customer's page, **Invitation created** also shows the token in a separate **One-time token** field. You don't need to send it separately.
 2. Send the link to your customer. Deployz doesn't email customers, so send it yourself.
 3. Send your customer [Install the application](/customers/install), which describes their steps.
 
@@ -72,7 +79,7 @@ After the customer confirms, the new deployment has its own install link, valid 
 
 [Install the application](/customers/install) covers each step from the customer's side.
 
-## Check an invitation's status
+## Check the status of an invitation
 
 **Who:** you, in the Deployz dashboard.
 
@@ -84,6 +91,8 @@ Open the customer in **Customers**. **Invitations** lists each invitation with i
 | **Used** | The customer confirmed it. The deployment is listed under the customer. |
 | **Expired** | 30 days passed without a confirmation. Create a new invitation. |
 | **Revoked** | You revoked the invitation. It can't be used. |
+
+Invitations appear only on the customer's page. They don't appear with the application's install link.
 
 ## Revoke an invitation
 

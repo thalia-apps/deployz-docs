@@ -3,6 +3,8 @@ title: "What Deployz doesn't support"
 description: "What Deployz doesn't provide, what needs a change in your repository before Deployz can deploy it, and what to do instead."
 ---
 
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
 Deployz supports one architecture, described in [Application requirements](/prepare/requirements). This page lists what falls outside it, so you can decide early whether Deployz fits your application.
 
 There are three kinds of limits:
@@ -13,11 +15,18 @@ There are three kinds of limits:
 
 Deployz won't deploy the application until you resolve every required item, including repository changes. Each item shows the file or dependency it found as evidence. Files in documentation, example, and test folders don't count as evidence.
 
-To resolve an item in your repository, change the repository, push the change to the application's branch, then open the **More actions** menu at the top of the application and select **Re-analyze application**. For help with a specific item, see [Fix analysis problems](/troubleshooting/analysis).
+## Resolve an item in your repository
 
-## Capabilities Deployz doesn't provide
+**Who:** you (the vendor), in your repository and the Deployz dashboard.
 
-The analysis lists one of these under **Not supported** only when your application clearly needs it. When that isn't clear, it lists the item under **Change in your repository** instead, and the fix instructions ask you or your coding agent to check whether the application really uses it.
+1. Change the repository, and push the change to the application's branch.
+2. Open the **More actions** menu at the top of the application, then select **Re-analyze application**.
+
+For instructions you can follow yourself or give to a coding agent, see [Fix analysis findings](/prepare/fix-findings). For help with a specific item, see [Fix analysis problems](/troubleshooting/analysis).
+
+## Capabilities that Deployz does not provide
+
+Each capability below is listed under **Not supported**, with one exception: SQLite. When your application also has a PostgreSQL or MySQL driver, the analysis lists SQLite under **Change in your repository** instead, because you can configure the application to use that engine.
 
 ### Databases and search engines
 
@@ -28,10 +37,11 @@ Deployz hosts PostgreSQL 16 and MySQL 8.0 only.
 | MongoDB | Move the data layer to PostgreSQL or MySQL, or remove the dependency if it isn't used. |
 | SQLite, as the only database driver | Move to PostgreSQL or MySQL. |
 | Elasticsearch or OpenSearch | Use PostgreSQL full-text search, or remove the dependency if it isn't used. |
-| Other databases, such as Cassandra, Neo4j, ClickHouse, or an embedded JVM database like H2 | Move to PostgreSQL or MySQL. |
-| A PostgreSQL image that provides an extension Amazon RDS doesn't offer | Remove the dependency on that extension. |
+| Other databases, such as Cassandra, Neo4j, or ClickHouse | Move to PostgreSQL or MySQL. |
+| An embedded JVM database, such as H2, HSQLDB, or Apache Derby, with no PostgreSQL or MySQL driver | Move to PostgreSQL or MySQL. |
+| A PostgreSQL image in a production Compose file that provides an extension Amazon RDS doesn't offer, such as ParadeDB, TimescaleDB, or Citus | Remove the dependency on that extension. |
 
-SQLite isn't a capability gap when your application also has a PostgreSQL or MySQL driver. Configure the application to use that engine instead. MariaDB is a repository change, not a capability gap. See [Databases](#databases).
+MariaDB is a repository change, not a capability gap. See [Databases](#databases).
 
 ### Redis features
 
@@ -45,7 +55,7 @@ Use a standard single-node Redis setup without these features.
 
 ### Message brokers and workflow engines
 
-- **Kafka**, **RabbitMQ**, and a **Temporal** server aren't hosted. If the application can use a queue Deployz provides, Redis or an SQS Standard queue (Preview), switch to it. Otherwise Deployz doesn't fit this application.
+- **Kafka**, **RabbitMQ**, and a **Temporal** server aren't hosted. If the application can use a queue Deployz provides, Redis or an SQS Standard queue (**Preview**), switch to it. Otherwise Deployz doesn't fit this application.
 - **SQS FIFO queues** aren't supported. Only SQS Standard queues are, and they're at Preview maturity.
 
 ### Infrastructure your repository manages itself
@@ -57,7 +67,7 @@ Deployz creates and owns the infrastructure for every deployment, so it can't ru
 - Your own Terraform, Pulumi, or CloudFormation templates
 - Azure or Google Cloud deployment files
 
-Keep these files if self-hosters use them. Deployz ignores them when they're in a deployment or sample folder, such as `deploy/`, `helm/`, `k8s/`, or `infra/`, and shows a warning instead.
+Keep these files if self-hosters use them. Deployz ignores Kubernetes, Helm, kustomize, Terraform, and Pulumi files in a deployment or sample folder, and shows a warning instead. These folders are `chart/`, `charts/`, `helm/`, `k8s/`, `kube/`, `kubernetes/`, `deploy/`, `deployment/`, `deployments/`, `infra/`, `infrastructure/`, `terraform/`, `contrib/`, `install/`, `dogfood/`, `scaletest/`, and any folder whose name ends in `-docker`. Kubernetes files still count when the application is a Go program that uses the Kubernetes API client. Files in documentation, example, and test folders are never counted.
 
 ### GPUs
 
@@ -65,16 +75,17 @@ Deployz runs containers on standard processors only. If your application require
 
 ## Patterns that need a repository change
 
-Deployz can deploy these applications after you change the repository. Select **Get fix instructions** on the item to get instructions you can follow yourself or give to a coding agent.
+Deployz can deploy these applications after you change the repository. To get instructions you can follow yourself or give to a coding agent, open **Configuration** › **Resources** and select **Get fix instructions** on the item's row. See [Fix analysis findings](/prepare/fix-findings).
 
 ### Container setup
 
 | Detected | What to do instead |
 | --- | --- |
-| No Dockerfile that builds a production image, for example one that's only for development, is a template, or copies nothing from the repository | Add a production Dockerfile that builds and starts the application from source. |
+| No Dockerfile that builds a production container image, for example one that's only for development, is a template, or copies nothing from the repository | Add a production Dockerfile that builds and starts the application from source. |
 | A Dockerfile that copies or reads the `.git` directory | Remove the copy or read of `.git` from the Dockerfile. Deployz builds from a source archive that has no `.git` directory. |
+| A server that listens only on `127.0.0.1` or `localhost` | Bind the server to all network interfaces (`0.0.0.0`). Deployz sends traffic and health checks over the network, so a server bound to localhost never answers them. |
 | A production Compose file with more than one application service | Run the application as one web service. Declare other long-running processes as workers. |
-| An image that runs several processes under a supervisor, such as s6-overlay or supervisord | Build an image that runs only the web process, and declare each other process as a worker. |
+| A container image that runs several processes under a supervisor, such as s6-overlay or supervisord | Build a container image that runs only the web process, and declare each other process as a worker. |
 
 ### Local storage
 
@@ -84,7 +95,7 @@ The container's disk is wiped on every deploy and restart.
 | --- | --- |
 | A persistent volume: a Kubernetes volume claim, a Terraform-managed volume, or named volumes in a production Compose file | Store persistent data in the S3 bucket or the database. |
 | A durable data or configuration directory, such as a `*_CONFIG_DIR` setting, with no `VOLUME` or Compose mount | Store the data in the S3 bucket or the database. |
-| A configuration file the image expects to be mounted, which no Dockerfile instruction creates | Create the file in the Dockerfile, or read the settings from environment variables. |
+| A configuration file the container image expects to be mounted, which no Dockerfile instruction creates | Create the file in the Dockerfile, or read the settings from environment variables. |
 | Files written to the local disk | Store files in object storage. Deployz provides an S3 bucket for every deployment. |
 
 ### Databases
@@ -119,20 +130,20 @@ See [Sizes and AWS cost](/share/sizes-and-cost).
 
 ### Changing what a deployment contains
 
-A deployment keeps the parts it was created with. If your application later needs a database or cache the deployment doesn't have, a different database engine, or a different set of workers, queues, or scheduled jobs, Deployz refuses to deploy the new release to that deployment. To deliver it, create a new deployment for that customer, or change the application's requirements back.
+A deployment keeps the parts it was created with. If your application later needs a database or cache the deployment doesn't have, a different database engine, or a different set of workers, queues (**Preview**), or scheduled jobs (**Preview**), Deployz refuses to deploy the new release to that deployment. To deliver it, create a new deployment for that customer, or change the application's requirements back.
 
 These changes don't need a new deployment: dropping a database or cache the application no longer uses, changes to the runtime, and environment variable values.
 
 Some settings apply only to new deployments:
 
 - **Port and health check path.** An existing deployment keeps the values it was created with. To use new values for a customer, create a new deployment for them.
-- **Migration command.** You can change the command an existing deployment runs, or choose **No separate migration**. You can't add a command to a deployment that was created without a separate migration step. See [Database migrations](/prepare/migrations).
+- **Migration command.** You can change the command an existing deployment runs on its next release deployment, or choose **No separate migration**. You can't add a command to a deployment that was created without a separate migration step. See [Database migrations](/prepare/migrations).
 
 ### Builds
 
-- **One image for all customers.** Deployz builds one image per release. Per-customer builds and values that a customer enters at build time aren't supported. See [Configure environment variables](/prepare/environment-variables).
+- **One container image for all customers.** Deployz builds one container image per release. Per-customer builds and values that a customer enters at build time aren't supported. See [Configure environment variables](/prepare/environment-variables).
 
-### Features Deployz doesn't provide
+### Features that Deployz does not provide
 
 - Deployment notifications by email or Slack, and webhooks
 - Release approval workflows and scheduled releases

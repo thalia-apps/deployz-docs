@@ -3,21 +3,24 @@ title: "Share an install link"
 description: "Give customers a reusable link to install your application in their AWS account."
 ---
 
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
 An install link is a reusable public link for one application. You can post it on your website or send it to any number of customers. Each customer who opens it chooses a Region and size, reviews the plan, and confirms. Each confirmation creates a new customer record and a new customer deployment.
 
 To send a private link to one specific customer instead, use an [invitation](/share/invitations).
 
 ## How install links work
 
-- **One live link per application.** An application has at most one install link that isn't revoked.
+- **One live link per application.** An application has at most one install link that isn't revoked. [Invitations](/share/invitations) don't count toward this limit.
+- **No expiry.** The install link keeps working until you disable, regenerate, or revoke it.
 - **Nothing is created until a customer confirms.** Creating or sharing the link doesn't deploy anything.
 - **Anyone with the link can use it.** The link has no token. Disable or revoke it when you want to stop new installs.
 - **The customer chooses the Region and size.** The size list starts at your application's minimum. Your recommended size is preselected and labeled **Vendor recommended**. You can't recommend a Region on an install link. To recommend one, use an [invitation](/share/invitations).
-- **The sizes are fixed when you create the link.** The link keeps the recommended size you chose and your application's minimum size at that time. Later changes on **Size presets** don't change an existing link. To apply a new minimum, regenerate the link.
+- **The sizes are fixed when you create the link.** The link keeps the recommended size you chose and your application's minimum size at that time. Later changes on **Size presets** don't change an existing link. To apply a new minimum, [regenerate the link](#manage-the-link).
 
 ## Before you start
 
-- Run a successful [test deployment](/share/test-deployment). The **Create install link** action appears on the application **Overview** after the test passes.
+- Run a successful [test deployment](/share/test-deployment). **Create install link** appears on the application **Overview** after the test passes, or once the application has a customer deployment.
 - Start a subscription before your customers confirm. A customer can confirm only while your organization has an active subscription. If you don't have one, the customer sees a message asking them to contact you. See [Pricing and billing](/account/billing).
 
 ## Create the install link
@@ -25,16 +28,18 @@ To send a private link to one specific customer instead, use an [invitation](/sh
 **Who:** you (the vendor), in the Deployz dashboard.
 
 1. In **Applications**, open your application. The **Overview** shows **Ready to share**.
-2. In **Recommended size**, choose the size to preselect for customers. It starts at the application's default size.
+2. In **Recommended size**, choose the size to preselect for customers. It starts at the application's default size. See [Default size and recommended size](/share/sizes-and-cost#default-size-and-recommended-size).
 3. Select **Create install link**.
 
 The link is active as soon as you create it. The **Overview** shows its status and recommended size.
+
+Once the application has customer deployments, the **Overview** shows the link controls in a **Customer install link** card. The card has the same actions as below, including **Create install link** if the application has no live link.
 
 ## Share the link
 
 **Who:** you, in the Deployz dashboard.
 
-- Select **Copy install link** to copy the URL.
+- Select **Copy install link** to copy the URL. **Copy install link** is unavailable while the link is disabled.
 - Select **Preview** to open the install page your customers see.
 - To add an install button to your website, select **Manage**, then **Copy HTML**.
 
@@ -46,18 +51,22 @@ Send your customer [Install the application](/customers/install). It describes w
 
 | Action | What happens | Can you undo it? |
 | --- | --- | --- |
-| **Disable** | The link stays the same, but customers who open it can't install. The status changes to **Disabled**. | Yes. Select **Enable**. |
+| **Disable** | The link stays the same, but customers who open it can't install. They see "This application is not currently available for installation. Contact the publisher." The status changes to **Disabled**. | Yes. Select **Enable**. |
 | **Enable** | A disabled link accepts installs again. | Yes. Select **Disable**. |
-| **Regenerate** | Deployz replaces the link with a new URL. The old link stops working immediately, so customers must use the new one. The new link keeps your recommended size and takes the application's current minimum size. | No. |
-| **Revoke** | The link stops working. Customers who open it see a message that the link isn't valid. No AWS resources are removed. | No. You can create a new link. |
+| **Regenerate** | Deployz replaces the link with a new URL. The old link stops working immediately, so customers must use the new one. The new link is always active, even if the old one was disabled. It keeps your recommended size and takes the application's current minimum size. If the recommended size is below the new minimum, it's raised to the minimum. | No. |
+| **Revoke** | The link stops working. Customers who open it see "This installation link has been revoked. Contact the publisher for a new link." No AWS resources are removed. | No. You can create a new link. |
 
 Disabling, regenerating, or revoking a link never affects deployments that customers already confirmed.
 
 ## What happens when a customer confirms
 
-1. Deployz checks the link, the Region, the size, and your subscription.
+1. Deployz checks the request. The link must be active, and the application must have a built release. The Region must be available for installs, and the size must be allowed. The deployment checks must pass, every required value must be filled in, and the plan must be the one the customer reviewed. If the plan changed since the customer opened the page, they're asked to review the updated plan and confirm again. Finally, your organization must have an active subscription.
 2. Deployz creates a customer record from the name and email the customer entered, and a customer deployment with the Region and size they chose. The Region and size can't change after this.
 3. The deployment appears in **Deployments** and the customer in **Customers**. The customer continues on the install page to connect their AWS account.
+
+<Note>
+  Each confirmation creates a new customer record, even when the email matches an existing customer. If the same customer installs twice from the install link, **Customers** lists them twice.
+</Note>
 
 The new deployment has its own install link, valid for 30 days after the customer confirms. The deployment's **Install link** card shows the expiry date. If the link expires before the customer's AWS account connects, select **Issue new install link** on the deployment to make it valid for 30 more days. See [Reconnect or update the Deployz connector](/operate/connector#you-issue-a-new-install-link).
 

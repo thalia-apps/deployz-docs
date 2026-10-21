@@ -4,6 +4,8 @@ sidebarTitle: "Startup and health"
 description: "Resolve an application that doesn't start or never becomes healthy."
 ---
 
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
 These failures come from the application itself: how it starts, which port it listens on, how it answers health checks, and how it reads its configuration. You fix them. Your customer has nothing to do, and their install page tells them so.
 
 ## How a startup failure looks
@@ -14,7 +16,7 @@ These failures come from the application itself: how it starts, which port it li
 
 **On your customer's install page:** your customer sees **Application couldn't start** and "No action is required from you."
 
-How long Deployz waits: after the install or deploy finishes, the load balancer gives the application five minutes to start before its health checks count. If the deployment still isn't healthy about 30 minutes after the last install or deploy finished, Deployz marks it as failed.
+How long Deployz waits: each new web container gets five minutes after it starts before failed health checks count against it. If the deployment still isn't healthy about 30 minutes after the last install or deploy finished, Deployz marks it as failed.
 
 ## Find the application logs
 
@@ -36,7 +38,7 @@ To see them, ask your customer to open CloudWatch Logs in the deployment's Regio
 **Checks:**
 
 1. Read the **Stopped reason** and **Exit code** in **Technical details**.
-2. On the application's **Configuration** screen, check the **Start command** and **Port**.
+2. On the application's **Configuration** screen, check the **Port**, and check the **Start command** row to see which command Deployz detected. The start command comes from your repository (a `CMD` or `ENTRYPOINT` in the Dockerfile, or a `start` script), so you change it there and create a new release.
 3. Check that every variable the application requires has a value for this customer. See [Configure environment variables](/prepare/environment-variables).
 
 **Fix:** Correct the setting or the code, then deploy again. A code fix needs a new release.
@@ -47,13 +49,19 @@ To see them, ask your customer to open CloudWatch Logs in the deployment's Regio
 
 **Symptom:** Failure code `IMAGE_HEALTH_CHECK_FAILED`. The recovery panel says the application started but never reported itself healthy.
 
-**How the health check works:** Deployz sends HTTP requests to the application's health check path, on its port, through the load balancer. The application passes when the path returns HTTP `200`.
+**How the health check works:** Deployz sends HTTP requests to the application's health check path, on its port, through the load balancer. Which responses pass depends on the path:
+
+- A path the analysis detected, or a path you entered, must return HTTP `200`.
+- If the analysis found no health route and you haven't entered a path, Deployz checks `/` and accepts any response from `200` to `399`, so a redirect to a sign-in page passes.
+- For an application that checks the `Host` header, a `400` response also passes.
+
+For the full explanation, see [Health check path](/prepare/requirements#health-check-path).
 
 **Checks:**
 
 1. **Port.** The **Port** on the **Configuration** screen must match the port the application listens on. Deployz also sets the `PORT` environment variable to this value, so an application that reads `PORT` stays in step. A wrong port shows up as this failure.
 2. **Address.** The application must listen on `0.0.0.0`, not on `localhost` or `127.0.0.1`. An application bound to `localhost` can't receive requests from the load balancer.
-3. **Health check path.** The **Health check** value on the **Configuration** screen must be a path that returns `200` without signing in. A path that redirects, returns `404`, or needs authentication fails.
+3. **Health check path.** The **Health check** value on the **Configuration** screen must be a path that returns `200` without signing in. A path you entered or the analysis detected fails if it redirects, returns `404`, or needs authentication.
 4. **Readiness.** The path must return `200` once the application can serve requests. If startup takes longer than five minutes, for example because of slow migrations or cache warm-up, health checks start failing before the application is ready.
 5. **Dependencies.** If the health route checks the database or cache, a connection problem fails the health check too. See the database and cache sections below.
 
@@ -62,8 +70,8 @@ To see them, ask your customer to open CloudWatch Logs in the deployment's Regio
 **Who acts:** you.
 
 <Frame caption="The health check request, common reasons it fails, and how long Deployz waits.">
-  <img className="dz-diagram-wide" src="/images/diagrams/health-check.svg" alt="How the health check works. The load balancer sends GET /health to the container on its configured port, for example 3000. The application must listen on 0.0.0.0, not 127.0.0.1, and return HTTP 200 once it's ready. Common failures: the port doesn't match, the server is bound to localhost, or the path redirects, returns 404, or needs sign-in. After an install or deploy finishes, the application has five minutes before health checks count. If it still isn't healthy about 30 minutes after the install or deploy finished, Deployz marks it as failed." />
-  <img className="dz-diagram-narrow" src="/images/diagrams/health-check-mobile.svg" alt="How the health check works. The load balancer sends GET /health to the container on its configured port, for example 3000. The application must listen on 0.0.0.0, not 127.0.0.1, and return HTTP 200 once it's ready. Common failures: the port doesn't match, the server is bound to localhost, or the path redirects, returns 404, or needs sign-in. After an install or deploy finishes, the application has five minutes before health checks count. If it still isn't healthy about 30 minutes after the install or deploy finished, Deployz marks it as failed." />
+  <img className="dz-diagram-wide" src="/images/diagrams/health-check.svg" alt="How the health check works. In this example, the analysis detected a /health route, so the load balancer sends GET /health to the container on its configured port, 3000, and the application must return HTTP 200 once it's ready. If the analysis finds no health route, Deployz checks / instead and accepts any response from 200 to 399. The application must listen on 0.0.0.0, not 127.0.0.1. Common failures: the port doesn't match, the server is bound to localhost, or a detected or entered path redirects, returns 404, or needs sign-in. Each new container gets five minutes after it starts before failed health checks count. If the deployment still isn't healthy about 30 minutes after the install or deploy finished, Deployz marks it as failed." />
+  <img className="dz-diagram-narrow" src="/images/diagrams/health-check-mobile.svg" alt="How the health check works. In this example, the analysis detected a /health route, so the load balancer sends GET /health to the container on its configured port, 3000, and the application must return HTTP 200 once it's ready. If the analysis finds no health route, Deployz checks / instead and accepts any response from 200 to 399. The application must listen on 0.0.0.0, not 127.0.0.1. Common failures: the port doesn't match, the server is bound to localhost, or a detected or entered path redirects, returns 404, or needs sign-in. Each new container gets five minutes after it starts before failed health checks count. If the deployment still isn't healthy about 30 minutes after the install or deploy finished, Deployz marks it as failed." />
 </Frame>
 
 ## The port is wrong
@@ -90,7 +98,7 @@ To see them, ask your customer to open CloudWatch Logs in the deployment's Regio
 
 **Symptom:** Failure code `MIGRATION_FAILED`. The recovery panel says the database migration step failed, so the new version wasn't started.
 
-**Cause:** The migration command exited with an error. Deployz runs it as a one-off task before it starts the new version. The task runs your migration command through `sh`, so the release image must include `sh`.
+**Cause:** The migration command exited with an error. Deployz runs it as a one-off task before it starts the new version. The task runs your migration command through `sh`, so the release's container image must include `sh`.
 
 **Checks:** Read the **Stopped reason** and **Exit code**. Ask your customer for the migration task's log lines in CloudWatch Logs.
 
@@ -109,7 +117,7 @@ To see them, ask your customer to open CloudWatch Logs in the deployment's Regio
 **Checks:**
 
 1. **Does the application read its connection settings from the environment?** Deployz provides `DATABASE_URL`, plus `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`, `DATABASE_USER`, and `DATABASE_PASSWORD`. A hard-coded host or a different variable name won't connect.
-2. **Does the application accept an encrypted connection?** The connection settings Deployz provides use TLS. For PostgreSQL, `DATABASE_URL` includes `sslmode=require`. The certificate bundle for the database is in the container, and `NODE_EXTRA_CA_CERTS` points to it. Make sure your database client doesn't turn TLS off.
+2. **Does the application accept an encrypted connection?** The connection settings Deployz provides use TLS. For PostgreSQL, `DATABASE_URL` includes `sslmode=require`. When the task starts, Deployz downloads the certificate bundle for the database into the container, and `NODE_EXTRA_CA_CERTS` points to it. If the download fails, the application still starts, without the bundle. Make sure your database client doesn't turn TLS off.
 
 **Fix:** Change the application to read the provided values and accept TLS, create a new release, and [deploy it](#deploy-again-after-a-fix). If the database stays unreachable, ask your customer to check it in their AWS account.
 
@@ -117,7 +125,7 @@ To see them, ask your customer to open CloudWatch Logs in the deployment's Regio
 
 ## The application fails to reach its cache
 
-**Symptom:** Failure code `REDIS_CONNECTION_FAILED`. The recovery panel says the application started but can't reach its cache.
+**Symptom:** The application starts but can't reach its cache. Deployz reserves the failure code `REDIS_CONNECTION_FAILED` for this, but doesn't currently report it, so the failure can appear under another code.
 
 **Checks:** Make sure the application reads `REDIS_URL`, or `REDIS_HOST` and `REDIS_PORT`, from the environment. The cache connection isn't encrypted, so the URL starts with `redis://`. A client that requires `rediss://` (TLS) can't connect.
 

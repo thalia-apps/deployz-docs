@@ -3,6 +3,11 @@ title: "Sizes and AWS cost"
 description: "Choose deployment sizes and understand what each costs in AWS."
 ---
 
+import BaselineCosts from "/snippets/baseline-costs.mdx";
+import RegionCostFactors from "/snippets/region-cost-factors.mdx";
+
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
 Every deployment uses one of three sizes: Small, Medium, or Large. The size sets the capacity of your application's containers, database, and cache. It's chosen when the deployment is created and can't be changed afterward.
 
 AWS bills the account the deployment runs in. For a customer deployment, that's your customer's account. For a test deployment, it's yours. Deployz fees are separate. See [Pricing and billing](/account/billing).
@@ -20,23 +25,28 @@ AWS bills the account the deployment runs in. For a customer deployment, that's 
 - A deployment includes a database or cache only when your application needs one.
 - Every size creates the same set of resources. Only their capacity differs.
 
-## Choose the recommended and minimum size
+## Default size and recommended size
+
+Each application has two size settings, and each install link and invitation has its own recommended size:
+
+- **Default size** is an application setting. It's the size Deployz preselects whenever you create an install link, an invitation, or a test deployment for the application.
+- **Minimum allowed size** is an application setting. It's the smallest size anyone can choose. Customers don't see sizes below it.
+- **Recommended size** belongs to one install link or invitation. It starts at the default size, and you can change it when you create the link or invitation. Your customer sees it preselected on the install page, labeled **Vendor recommended**.
+
+## Set the default and minimum size
 
 **Who:** you (the vendor), in the Deployz dashboard.
 
-Set two sizes for each application. Both start at Small.
-
-- **Default size** is preselected for your customers.
-- **Minimum allowed size** is the smallest size anyone can choose. Customers don't see sizes below it.
+Both settings start at Small.
 
 1. Open your application, then select **Configuration**.
-2. Select the **Size presets** tab. It shows each size's resources and estimated AWS cost side by side.
-3. Under **Customer sizes**, choose the **Default size** and the **Minimum allowed size**. The default must be the same as the minimum or larger.
+2. Select the **Size presets** tab. It shows each size's resources and estimated AWS cost side by side. The current default size is labeled **Default**, and sizes below the minimum are labeled **Below minimum**.
+3. Under **Customer sizes**, choose the **Default size** and the **Minimum allowed size**. The default must be the same as the minimum or larger. If you raise the minimum above the current default, the default moves up to the new minimum.
 4. Select **Save sizes**.
 
-Changes apply only to install links, invitations, and deployments you create afterward. Existing deployments keep their size. Each install link and invitation keeps the sizes it had when you created it. You can also choose a different recommended size each time you create an install link or an invitation.
+Changes apply only to install links, invitations, and deployments you create afterward. Existing deployments keep their size. Each install link and invitation keeps the sizes it had when you created it. To apply a new minimum to your install link, [regenerate it](/share/install-links#manage-the-link).
 
-## Who chooses a deployment's size
+## Who chooses the size
 
 | Deployment | Who chooses |
 | --- | --- |
@@ -49,17 +59,19 @@ Changes apply only to install links, invitations, and deployments you create aft
 
 ## Estimated monthly AWS cost
 
-Deployz shows an estimated monthly AWS cost on **Size presets** and on the customer's install page. The install page estimate reflects the Region and size the customer selects. The estimates are approximate ranges in US dollars, based on on-demand AWS prices for 730 hours a month. They aren't a quote or a bill.
+Deployz shows an estimated monthly AWS cost on **Size presets** and on the customer's install page. The install page estimate reflects the Region and size the customer selects. On **Size presets**, **Estimate details** names the Region the estimate uses. The estimates are approximate ranges in US dollars, based on on-demand AWS prices for 730 hours a month. They aren't a quote or a bill.
 
-These are the baseline ranges for each resource in US East (N. Virginia), in USD per month:
+### Read the estimate
 
-| Resource | Small | Medium | Large |
-| --- | --- | --- | --- |
-| Each container | $8–$11 | $33–$40 | $68–$80 |
-| Database | $14–$19 | $50–$60 | $100–$115 |
-| Cache | $12–$15 | $18–$24 | $36–$45 |
-| Load balancer | $15–$25 | $15–$25 | $15–$25 |
-| NAT gateway (outbound network access) | $30–$40 | $30–$40 | $30–$40 |
+| What you see | Meaning |
+| --- | --- |
+| A range, such as `$65–$95 + usage` on **Size presets** | The baseline monthly cost of the resources Deployz can price. **+ usage** means some costs depend on how much the application is used, and aren't in the range. See [What the estimate leaves out](#what-the-estimate-leaves-out). |
+| “Some resources could not be priced” | The deployment includes a resource that Deployz has no price for, such as a queue or scheduled job (**Preview**). The real cost is higher than the range. On **Size presets**, this note is under **Estimate details**. On the install page, it reads "Estimate is incomplete". |
+| **Estimate unavailable** | Deployz couldn't produce an estimate. On the install page, this happens when the selected Region isn't available for installs. |
+
+### Baseline cost by resource
+
+<BaselineCosts />
 
 Every deployment gets its own private network, with a load balancer and a NAT gateway. A NAT gateway lets the application reach the internet without being directly reachable from it. Together these cost about $45–$65 a month at any size, so they're most of the cost of a Small deployment.
 
@@ -71,7 +83,19 @@ For example, an application with a web container and a PostgreSQL database, and 
 
 These are illustrative figures for US East (N. Virginia). Check **Size presets** for your own application's estimate.
 
-### What the estimate doesn't include
+### How the estimate is rounded
+
+Deployz multiplies each resource's range by the Region factor and rounds the result to whole dollars. It then adds up the resources and widens the total to multiples of $5: the low end is rounded down and the high end is rounded up. In the example above, the Small resources add up to $67–$95, which shows as $65–$95.
+
+### Regional differences
+
+Prices in other Regions are estimated with a coarse adjustment to the US East (N. Virginia) baseline.
+
+<RegionCostFactors />
+
+See [AWS Regions](/share/regions).
+
+### What the estimate leaves out
 
 Some AWS costs depend on usage, so the estimate leaves them out:
 
@@ -79,12 +103,17 @@ Some AWS costs depend on usage, so the estimate leaves them out:
 - Data processed by the NAT gateway
 - Load balancer capacity used
 - Database storage growth and backups
-- Outbound internet data transfer and data transfer between availability zones
+- Outbound internet data transfer and data transfer between Availability Zones
+
+The estimate also leaves out some smaller fixed costs of each deployment:
+
+- Secrets in AWS Secrets Manager, such as the database credentials
+- Application logs in Amazon CloudWatch Logs
+- The NAT gateway's public IPv4 address (an Elastic IP address), which AWS charges for separately
+- The resources of the Deployz connector
+
+Queues and scheduled jobs (**Preview**) aren't priced. When a deployment includes them, the estimate says that some resources could not be priced.
 
 Deployz fees and any external services your application uses are also not included.
-
-### Regional differences
-
-Prices in other Regions are estimated with a coarse adjustment to the US East (N. Virginia) baseline. For example, estimates for South America (São Paulo) are about 50% higher. See [AWS Regions](/share/regions).
 
 To explain AWS costs to your customers, send them [Costs in your AWS account](/customers/costs).

@@ -30,7 +30,11 @@
             "pages": [
               "prepare/requirements",
               "prepare/not-supported",
+              "prepare/analysis",
+              "prepare/fix-findings",
               "prepare/environment-variables",
+              "prepare/data-services",
+              "prepare/workers-queues-schedules",
               "prepare/migrations"
             ]
           },
@@ -67,6 +71,8 @@
           {
             "group": "Account",
             "pages": [
+              "account/organization-and-team",
+              "account/github",
               "account/billing"
             ]
           },
@@ -92,6 +98,7 @@
             "group": "Reference",
             "pages": [
               "reference/aws-resources",
+              "reference/limits",
               "reference/glossary"
             ]
           }

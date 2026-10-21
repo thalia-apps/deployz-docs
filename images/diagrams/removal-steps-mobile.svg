@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="360" height="640" viewBox="0 0 360 640" role="img" aria-labelledby="title desc">
   <title id="title">What removal deletes and keeps</title>
-  <desc id="desc">What stays in the customer&#x27;s AWS account after each removal step. Before removal, everything is in place. Step 1, Remove deployment in Deployz, deletes the application containers, the load balancer and most networking, the cache, configuration secret, and log groups, and the custom domain. It keeps the database, its credentials, the storage bucket, the certificates, the network the database uses, and the connector stack. Retained resources keep costing money in AWS. Step 2, Delete retained data, deletes everything retained except the connector stack. Step 3, deleting the connector stack in the AWS console, removes the last part. Delete the connector stack last.</desc>
+  <desc id="desc">What stays in the customer&#x27;s AWS account after each removal step. Before removal, everything is in place. Step 1, Remove deployment in Deployz, deletes the application containers, the load balancer and most networking, the cache, configuration secret, and log groups, the custom domain, and the certificates. It keeps the database, its credentials, the storage bucket, the network the database uses, and the connector stack. Retained resources keep costing money in AWS. Step 2, Delete retained data, deletes everything retained except the connector stack. Step 3, deleting the connector stack in the AWS console, removes the last part. Delete the connector stack last.</desc>
 
   <!--
     Deployz docs illustration. Style: deployz-website DESIGN.md section 7 (scene system).
@@ -137,7 +137,7 @@
     <line x1="20" y1="302" x2="340" y2="302" stroke="#F4F4F5" />
     <text class="body" x="20" y="323">Certificates</text>
     <circle cx="210" cy="319.0" r="6" fill="#52525B" />
-    <circle cx="246" cy="319.0" r="6" fill="#FDE68A" stroke="#A16207" stroke-width="1.5" />
+    <circle cx="246" cy="319.0" r="6" fill="#FFFFFF" stroke="#A1A1AA" stroke-width="1.25" stroke-dasharray="2 2" />
     <circle cx="282" cy="319.0" r="6" fill="#FFFFFF" stroke="#A1A1AA" stroke-width="1.25" stroke-dasharray="2 2" />
     <circle cx="318" cy="319.0" r="6" fill="#FFFFFF" stroke="#A1A1AA" stroke-width="1.25" stroke-dasharray="2 2" />
     <line x1="20" y1="336" x2="340" y2="336" stroke="#F4F4F5" />

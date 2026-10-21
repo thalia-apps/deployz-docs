@@ -3,6 +3,8 @@ title: "Deployment status and health"
 description: "What each deployment status means, how the labels on each screen map to each other, and how Deployz verifies health."
 ---
 
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
 Deployz shows a deployment's status in a few places: the **Deployments** list, the deployment detail page, and the **Customers** pages. Each screen uses words that fit its job, but they all come from the same underlying state, so they never disagree.
 
 This page is for vendors. Your customers see their own progress on the install page. See [Install the application](/customers/install).
@@ -13,13 +15,19 @@ A deployment is healthy only when the Deployz connector in your customer's AWS a
 
 The connector checks in with Deployz on a schedule and reports what it observes. Deployz accepts a release as running only when that report shows all of the following:
 
-- Every service the deployment needs finished rolling out, with its full number of running tasks, all on the same release.
-- The load balancer reports the application's targets as healthy.
-- A request to the application's public address succeeds.
+- Every service the deployment needs, including workers, finished rolling out with its full number of running tasks, all on the same release.
+- For the public web service, the load balancer reports every target as healthy.
+- For the public web service, a request to the application's public address succeeds.
 
-Until a check like this passes, the deployment stays in setup, and the detail page shows **Running release** as **Last confirmed** followed by the version and **Verifying…**.
+The load balancer and address checks apply only to the service that receives web traffic. A worker counts as running when its tasks are running on the release.
+
+Until a check like this passes, the detail page shows **Running release** as **Last confirmed** followed by the version and **Verifying…**. This happens during the first install, and again after each update, rollback, or restart, until the connector confirms the release that's running now.
 
 Because health comes from the connector, Deployz can't know the current health when the connector stops checking in. In that case the deployment shows **Needs attention · Lost contact**, and the detail page says it's showing the last confirmed state. See [Connector status](#connector-status).
+
+### The 30-minute verification window
+
+After the install finishes in your customer's AWS account, the application has 30 minutes to pass these checks. If the application still fails the checks after 30 minutes, the install fails. The detail page then shows **Application couldn't start** when the cause is in the application, for example a failing health check or a container that doesn't start. See [Fix startup and health check failures](/troubleshooting/startup-and-health).
 
 ## Statuses on the Deployments list
 
@@ -30,7 +38,7 @@ Each row in **Deployments** has one status badge. The **Status** filter groups t
 | **Waiting for customer** | **Waiting for customer** | You created the deployment, and your customer hasn't started the install yet. |
 | **Setting up** | **In progress** | Your customer started the install. Deployz is connecting to their AWS account, creating infrastructure, or verifying the application. |
 | **Setting up · Slow to connect** | **In progress** | The connector hasn't connected 15 minutes after your customer started the install. The setup in their AWS account may still be running, or it may have failed before the connector started. |
-| **Not started** | **In progress** | The install finished, and the application is configured but waiting for its first start. |
+| **Not started** | **In progress** | The install finished, and the application is configured but waiting for its first start. To start it, open the deployment and select **Deploy update**. |
 | **Live** | **Live** | The connector verified that the application is running and healthy. |
 | **Live**, with **Update available** | **Update available** | The application is live, and a newer release is ready to deploy. See [Deploy an update](/operate/deploy-update). |
 | **Updating** | **In progress** | An update, rollback, or restart is running. The application keeps serving while it runs. |
@@ -40,24 +48,29 @@ Each row in **Deployments** has one status badge. The **Status** filter groups t
 | **Needs attention · Lost contact** | **Failed or needs attention** | The connector stopped checking in. The application may still be running. |
 | **Needs attention · Not responding** | **Failed or needs attention** | Health checks are failing. Users may see errors. |
 | **Needs attention · Degraded** | **Failed or needs attention** | Some health checks are failing, but the application is still reachable. |
-| **Needs attention · Disconnected** | **Failed or needs attention** | Deployz considers the deployment disconnected from its connector. |
 | **Needs attention · Unknown status** | **Failed or needs attention** | Deployz received a status it doesn't recognize. |
 | **Removing** | **In progress** | Deployz is removing the deployment from your customer's AWS account. |
 | **Removed** | **Removed** | The deployment was removed. Retained data may still exist. See [Remove a deployment](/operate/remove). |
 
 When more than one condition applies, the badge shows the most important one. A failed operation comes first, then a lost connector, then failing health checks.
 
-The default sort puts the deployments that need you first: **Failed or needs attention**, then **In progress**, **Waiting for customer**, **Update available**, **Live**, and **Removed** last.
+A configuration change doesn't change the badge. While Deployz applies new configuration values, the deployment keeps its **Live** badge. See [What happens after you save](/operate/configuration#what-happens-after-you-save).
 
-Select the info button next to a badge to see the current step and whether the connector is offline.
+### Filter and sort the list
+
+- **All statuses**, the default view, hides removed deployments. To see them, choose **Removed** in the **Status** filter. When every deployment is removed, the list says so and links to the removed ones.
+- The **Live** filter also includes live deployments with **Update available**.
+- The default sort puts the deployments that need you first: **Failed or needs attention**, then **In progress**, **Waiting for customer**, **Update available**, **Live**, and **Removed** last.
+
+On a wide screen, select the info button next to a badge to see the current step and whether the connector is offline. The info button is hidden on narrow screens, such as a phone.
 
 ## Deployment states and list labels
 
 Underneath the badges, every deployment has one lifecycle state. Use this table to match the state to what the **Deployments** list shows.
 
 <Frame caption="Each lifecycle state and the badge it shows on the Deployments list.">
-  <img className="dz-diagram-wide" src="/images/diagrams/deployment-states.svg" alt="Deployment lifecycle. Not installed (badge Waiting for customer) moves to Waiting for AWS (Setting up) when the customer starts the install, to Installing (Setting up) when the connector connects, and to Healthy (Live) when the connector verifies health. A failed install goes to Failed (Install failed), and Retry deployment returns it to Installing. A healthy deployment shows Update available when a newer release is ready. Deploying an update, rolling back, restarting, or changing configuration shows Updating, then returns to Healthy; if it fails, the badge shows Update failed and the previous release keeps running. Removing the deployment goes to Deleting (Removing), then Deleted (Removed). While installed, a lost connector or failing health checks replace the badge with a Needs attention badge." />
-  <img className="dz-diagram-narrow" src="/images/diagrams/deployment-states-mobile.svg" alt="Deployment lifecycle. Not installed (badge Waiting for customer) moves to Waiting for AWS (Setting up) when the customer starts the install, to Installing (Setting up) when the connector connects, and to Healthy (Live) when the connector verifies health. A failed install goes to Failed (Install failed), and Retry deployment returns it to Installing. A healthy deployment shows Update available when a newer release is ready. Deploying an update, rolling back, restarting, or changing configuration shows Updating, then returns to Healthy; if it fails, the badge shows Update failed and the previous release keeps running. Removing the deployment goes to Deleting (Removing), then Deleted (Removed). While installed, a lost connector or failing health checks replace the badge with a Needs attention badge." />
+  <img className="dz-diagram-wide" src="/images/diagrams/deployment-states.svg" alt="Deployment lifecycle. Not installed (badge Waiting for customer) moves to Waiting for AWS (Setting up) when the customer starts the install, to Installing (Setting up) when the connector connects, and to Healthy (Live) when the connector verifies health. A failed install goes to Failed (Install failed), and Retry deployment returns it to Installing. A healthy deployment shows Update available when a newer release is ready. Deploying an update, rolling back, or restarting shows Updating, then returns to Healthy; if it fails, the badge shows Update failed and the previous release keeps running. A configuration change keeps the Live badge, and a failed one also shows Update failed. Removing the deployment goes to Deleting (Removing), then Deleted (Removed). While installed, a lost connector, failing health checks, or an unrecognized status replace the badge with a Needs attention badge: Lost contact, Not responding, Degraded, or Unknown status." />
+  <img className="dz-diagram-narrow" src="/images/diagrams/deployment-states-mobile.svg" alt="Deployment lifecycle. Not installed (badge Waiting for customer) moves to Waiting for AWS (Setting up) when the customer starts the install, to Installing (Setting up) when the connector connects, and to Healthy (Live) when the connector verifies health. A failed install goes to Failed (Install failed), and Retry deployment returns it to Installing. A healthy deployment shows Update available when a newer release is ready. Deploying an update, rolling back, or restarting shows Updating, then returns to Healthy; if it fails, the badge shows Update failed and the previous release keeps running. A configuration change keeps the Live badge, and a failed one also shows Update failed. Removing the deployment goes to Deleting (Removing), then Deleted (Removed). While installed, a lost connector, failing health checks, or an unrecognized status replace the badge with a Needs attention badge: Lost contact, Not responding, Degraded, or Unknown status." />
 </Frame>
 
 | Deployment state | Deployments list badge |
@@ -69,13 +82,12 @@ Underneath the badges, every deployment has one lifecycle state. Use this table 
 | Update available | **Live**, with an **Update available** badge |
 | Updating | **Updating** |
 | Failed | **Install failed**, **Update failed**, or **Removal failed**, depending on what failed |
-| Disconnected | **Needs attention · Disconnected** |
 | Deleting | **Removing** |
 | Deleted | **Removed** |
 
 For a deployment that is installed and not being removed, a lost connector or failing health checks replace the state's badge with the matching **Needs attention** badge. A failed update shows **Update failed** even though the state returns to Healthy or Update available, because the previous release keeps running.
 
-## What "Live" requires
+## What Live requires
 
 A deployment reads **Live** when the connector has verified the application, as described in [How Deployz decides a deployment is healthy](#how-deployz-decides-a-deployment-is-healthy). A successful AWS setup on its own never makes a deployment **Live**.
 
@@ -84,6 +96,7 @@ A live deployment can still be serving over a temporary address while HTTPS is s
 - **Release `<version>` is running and passing health checks.** The application is live on an HTTPS address.
 - **Release `<version>` is running and healthy over a temporary address. A secure address is being set up.** HTTPS isn't ready yet. Deployz is setting it up, and nobody needs to act.
 - **Release `<version>` is running and healthy over a temporary address. Add a custom domain to serve it over HTTPS.** Someone needs to act before the application has an HTTPS address. See [Add a custom domain](/operate/custom-domains).
+- **Release `<version>` is running and healthy. A newer release is ready to deploy.** The deployment has **Update available**.
 
 The **Application URL** on the detail page shows an **HTTPS active** badge once a secure request to the address succeeds. Deployz considers the deployment fully ready only when it's healthy, serving over HTTPS, and the connector has confirmed the running release.
 
@@ -97,7 +110,7 @@ The detail page opens with one headline that answers "is it working?". It uses t
 | **Setting up in AWS**, **Connecting to AWS**, **Deploying**, or **Verifying your application** | **Setting up** |
 | **Your application is not started** | **Not started** |
 | **Your application is live** | **Live** |
-| **Updating your application**, **Rolling back**, **Restarting your application**, or **Applying configuration** | **Updating** |
+| **Updating your application**, **Rolling back**, or **Restarting your application** | **Updating** |
 | **Install failed**, or **Application couldn't start** when the application itself failed to start | **Install failed** |
 | **Update failed**, **Rollback failed**, **Restart failed**, or **Configuration update failed** | **Update failed** |
 | **Removal failed** | **Removal failed** |
@@ -107,9 +120,27 @@ The detail page opens with one headline that answers "is it working?". It uses t
 | **Removing deployment** | **Removing** |
 | **Deployment removed** or **Deleting retained data** | **Removed** |
 
-When a failed update leaves the previous release running, the headline adds a line such as **Release `<version>` is still live and unaffected.**
+When a failed update leaves the previous release running, the headline adds a line such as **Release `<version>` is still live and unaffected.** If that release's health checks are also failing, the line reads **Release `<version>` is still the running release, but its health checks are failing.** instead.
+
+**Your application is not started** says the release is configured and waiting for its first start. Select **Deploy update** to start it.
+
+While a configuration change is being applied, the headline doesn't change. **Deploy update**, **Configuration**, and the **More actions** items are unavailable, and the page says **Other actions become available when this operation finishes.** When the change finishes, **Recent activity** shows **Configuration updated** or **Configuration update failed**.
 
 For failures and **Needs attention** states, the headline area becomes a recovery panel that explains what happened and who needs to act. See [Find your problem](/troubleshooting/overview).
+
+### Deployment type and billing
+
+Under **Deployment type**, the detail page shows whether the deployment is a test deployment or a production deployment, and how it affects your bill:
+
+| Label | Meaning |
+| --- | --- |
+| **Free test deployment** | A test deployment. It's never billed. |
+| **Counts toward your production deployment total once live** | A production deployment that hasn't been live yet. It isn't billed. |
+| **Counts toward your production deployment total** | A live production deployment. It counts toward your bill. |
+| **Billing paused — not counted while it is failed or disconnected** | A production deployment that was live, but is now failed or its connector is offline. It counts again when it's live and connected. |
+| **No longer counts toward your production deployment total** | The deployment was removed. |
+
+See [Pricing and billing](/account/billing).
 
 ### Infrastructure
 
@@ -117,17 +148,20 @@ The **Infrastructure** section lists each part of the deployment, such as **Appl
 
 | Status | Meaning |
 | --- | --- |
-| **Ready** | The part is running. |
+| **Ready** | The part is running. The list shows a check mark instead of the word. |
 | **Pending** or **Provisioning** | The part is being created. |
 | **Updating** | The part is being changed. |
 | **Deleting** | The part is being removed. |
 | **Failed** | The part couldn't be created or changed. |
 | **Retained** | The part was kept after removal and stays in your customer's AWS account. |
 | **Removed** | The part is gone. |
+| **Unknown** | Deployz has no current status for the part. |
 | **Missing** | The application needs this part, but the deployment doesn't have it. |
 | **Not required** | The application doesn't use this part. |
 
-The **Secure endpoint** shows its HTTPS progress instead: **Setting up**, **Waiting for certificate**, **Activating HTTPS**, **Ready**, or **Failed**.
+The **Secure endpoint** shows its HTTPS progress instead: **Setting up**, **Waiting for certificate**, **Activating HTTPS**, **Ready**, **Failed**, or **Removing**.
+
+If the default HTTPS setup fails, open **View components and `<n>` AWS resources** under the list. The **Secure endpoint** shows the reason and a **Retry HTTPS setup** button, which starts the HTTPS setup again. The button doesn't appear when the failure belongs to a custom domain. To fix a custom domain, see [Fix HTTPS and custom domain problems](/troubleshooting/https-and-domains).
 
 ## Connector status
 

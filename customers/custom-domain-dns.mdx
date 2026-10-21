@@ -3,6 +3,8 @@ title: "Create custom domain DNS records"
 description: "Create the DNS records your software provider needs for a custom domain."
 ---
 
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
 The application always has a permanent HTTPS address on `deployz.dev`. Your software provider can also give it an address on your own domain, for example `app.example.com`. For that, you create two DNS records at your DNS provider.
 
 The two addresses reach your application differently:
@@ -10,13 +12,13 @@ The two addresses reach your application differently:
 - Traffic to the `deployz.dev` address passes through the Deployz Cloudflare network, where HTTPS ends. Cloudflare then connects to the load balancer in your AWS account over HTTPS.
 - Traffic to a custom domain goes directly to the load balancer in your AWS account. It doesn't pass through Deployz.
 
-If you don't want your application traffic to pass through Deployz, ask your software provider to add a custom domain, and use only that address. The default address stays available.
+If you don't want your application traffic to pass through Deployz, ask your software provider to add a custom domain, and use only that address. The default address stays available. For more detail, see [Application traffic](/customers/security#application-traffic).
 
 Your software provider adds and removes the custom domain. You can't add, change, or remove the domain yourself.
 
 <Frame caption="The default address and a custom domain both reach the load balancer in your AWS account.">
-  <img className="dz-diagram-wide" src="/images/diagrams/custom-domain-paths.svg" alt="Two addresses for one deployment. Visitors to the default address, d-<deployment-id>.deployz.dev, pass through Deployz's Cloudflare edge before they reach the load balancer in the customer's AWS account. Visitors to a custom domain such as app.example.com go straight to the load balancer. The customer creates two CNAME records at their DNS provider: Verify ownership, so AWS Certificate Manager can issue the HTTPS certificate in the customer's account, and Route traffic, which points the domain at the load balancer. Deployz only reads these records." />
-  <img className="dz-diagram-narrow" src="/images/diagrams/custom-domain-paths-mobile.svg" alt="Two addresses for one deployment. Visitors to the default address, d-<deployment-id>.deployz.dev, pass through Deployz's Cloudflare edge before they reach the load balancer in the customer's AWS account. Visitors to a custom domain such as app.example.com go straight to the load balancer. The customer creates two CNAME records at their DNS provider: Verify ownership, so AWS Certificate Manager can issue the HTTPS certificate in the customer's account, and Route traffic, which points the domain at the load balancer. Deployz only reads these records." />
+  <img className="dz-diagram-wide" src="/images/diagrams/custom-domain-paths.svg" alt="Two addresses for one deployment. Visitors to the default address, d-<deployment-id>.deployz.dev, pass through the Deployz Cloudflare network before they reach the load balancer in the customer's AWS account. Visitors to a custom domain such as app.example.com go straight to the load balancer. The customer creates two CNAME records at their DNS provider: Verify ownership, so AWS Certificate Manager can issue the HTTPS certificate in the customer's account, and Route traffic, which points the domain at the load balancer. Deployz only reads these records." />
+  <img className="dz-diagram-narrow" src="/images/diagrams/custom-domain-paths-mobile.svg" alt="Two addresses for one deployment. Visitors to the default address, d-<deployment-id>.deployz.dev, pass through the Deployz Cloudflare network before they reach the load balancer in the customer's AWS account. Visitors to a custom domain such as app.example.com go straight to the load balancer. The customer creates two CNAME records at their DNS provider: Verify ownership, so AWS Certificate Manager can issue the HTTPS certificate in the customer's account, and Route traffic, which points the domain at the load balancer. Deployz only reads these records." />
 </Frame>
 
 ## Before you start
@@ -39,7 +41,7 @@ Your software provider adds and removes the custom domain. You can't add, change
     The **Route traffic** record points the domain at the application's load balancer in your AWS account. Create a second `CNAME` record with the **Name** and **Value** shown.
   </Step>
   <Step title="Check the records">
-    Select **Check now**. Deployz also checks automatically and continues once it detects the records. DNS changes can take some time to appear.
+    Select **Check now**. Deployz also checks automatically and continues once it detects the records. DNS changes can take some time to appear. Deployz runs a check at most once every 30 seconds, so selecting **Check now** more often shows the latest result again.
   </Step>
 </Steps>
 
@@ -47,7 +49,7 @@ Your software provider adds and removes the custom domain. You can't add, change
   Some DNS providers add your domain to the end of the name automatically. If yours does, enter only the part of the **Name** before your domain, so the record doesn't end up with the domain twice.
 </Tip>
 
-Keep both records in place after the domain is active. AWS uses the validation record to renew the certificate.
+Keep both records in place after the domain is active. AWS uses the validation record to renew the certificate. To see the records again, select **View DNS records** on the card.
 
 ## What happens next
 
@@ -58,18 +60,23 @@ The card's status shows the progress:
 | **Setting up** | A certificate for the domain is being requested. |
 | **Waiting for DNS** | Deployz is waiting to detect the two records. |
 | **Connecting** | The domain is verified, and Deployz is configuring HTTPS. |
-| **Active** | The application is available securely at `https://` followed by your domain. |
+| **Active** | The application is available securely at `https://` followed by your domain. Select **Open domain** to open it. |
 | **Needs attention** | The domain couldn't be connected. |
 | **Removing** | Your software provider is removing the domain. |
 
 The certificate is issued in your AWS account, and traffic to your custom domain goes directly to the load balancer in your account. It doesn't pass through Deployz. Deployz only reads your DNS records. It doesn't change them.
 
-## If the check doesn't pass
+Once the domain is active, the **Access** section of the install page shows the custom domain as the application's address.
+
+If your software provider removes the domain, it stops routing to the application. Your DNS records aren't deleted automatically. Delete them at your DNS provider when you no longer need them.
+
+## If the check does not pass
 
 While the status is **Waiting for DNS** or **Connecting**, the card shows the latest result of the check:
 
 - **Verification record not found:** Deployz can't find the validation record yet. Check that its name and value match exactly, then wait for DNS to update.
 - **Domain isn't pointing to this deployment:** update the routing record to the value shown.
 - **HTTPS isn't reachable yet:** the load balancer may still be starting, or the application may not be running. Wait, then check again.
+- **This deployment isn't running:** the domain setup resumes once the deployment is running again. If the install page shows **Deployment failed**, see [If the deployment fails](/customers/install#if-the-deployment-fails).
 
-If the status is **Needs attention**, Deployz doesn't retry the domain. Ask your software provider to remove the domain and add it again.
+If the status is **Needs attention**, the card shows the reason and says "Ask the application owner to remove this domain and add it again." Deployz doesn't retry the domain. Ask your software provider to remove the domain and add it again. If the reason is **Deployz couldn't configure HTTPS**, your AWS account doesn't currently allow Deployz to complete the domain setup. Check with your AWS administrator before your software provider adds the domain again.

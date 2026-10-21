@@ -3,6 +3,8 @@ title: "Restart a deployment"
 description: "Restart the services of a deployment without changing its release."
 ---
 
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
 A restart replaces the running copies of every service in the deployment with fresh ones. The release, the configuration, the database, and stored files stay the same. A restart doesn't run database migrations.
 
 ## When to restart
@@ -27,8 +29,8 @@ If the same problem returns after a restart, look for the cause. See [Fix startu
 2. Open the **More actions** menu (the three-dot button next to the actions), then select **Restart**.
 3. In **Restart `<application>`?**, select **Restart**.
 
-The application restarts behind the load balancer. The deployment changes to **Updating**, and the detail page shows **Restarting your application**. The restart finishes when every restarted service is running again. **Recent activity** then shows **Restarted**.
+The application restarts behind the load balancer. The deployment changes to **Updating**, and the detail page shows **Restarting your application**. The restart finishes when every restarted service is running its full number of tasks again and the load balancer reports every target of the web service as healthy. **Recent activity** then shows **Restarted**.
 
 If the restart fails, the detail page shows **Restart failed**. See [Find your problem](/troubleshooting/overview).
 
-**Restart** is unavailable while the deployment isn't installed, while its connector is offline, or while another operation is running. The detail page shows the reason. The rules are the same as for [deploying an update](/operate/deploy-update).
+**Restart** is unavailable while the deployment isn't installed, while its connector is offline, or while another operation is running. The detail page shows the reason. The rules are the same as in [When an update is unavailable](/operate/deploy-update#when-an-update-is-unavailable).

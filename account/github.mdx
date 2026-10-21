@@ -1,0 +1,51 @@
+---
+title: "Connect GitHub"
+description: "Give Deployz access to your repositories, manage that access, and understand what happens if you remove it."
+---
+
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
+Deployz reads your code through the Deployz GitHub App. When you install the app on a GitHub account, you choose which repositories Deployz can read. Deployz requests read-only access to your code. It uses that access to analyze your application and to build releases.
+
+## Connect GitHub
+
+**Who:** any member of your organization, in the Deployz dashboard and on GitHub.
+
+1. In the sidebar, select **Applications**. If you already have applications, select **Add application**.
+2. If GitHub isn't connected yet, the page shows **Connect your code**. Select **Connect GitHub**.
+3. On GitHub, install the Deployz GitHub App on your personal account or a GitHub organization, and choose the repositories Deployz can read.
+4. GitHub returns you to **Applications**, which now lists your repositories, grouped by GitHub account.
+
+If you weren't signed in to Deployz when GitHub returned you, Deployz shows **Finish connecting GitHub**. Select **Sign in** to finish connecting.
+
+To add an application from the list, see the [Quickstart](/quickstart).
+
+## Manage GitHub access
+
+**Who:** any member of your organization, in the Deployz dashboard and on GitHub.
+
+To give Deployz access to more repositories, or to connect another GitHub account:
+
+1. In **Applications**, below the repository list, select **Manage GitHub access**. When you search and nothing matches, the same button appears with the empty result.
+2. On GitHub, add the repositories, or install the app on another account.
+3. Return to Deployz. The new repositories appear in the list.
+
+If Deployz can't load the repositories for one account, that account shows **Couldn't reach GitHub**, and the rest of the list still works. Try again later, or check on GitHub that the Deployz GitHub App is still installed on that account.
+
+## One GitHub installation per organization
+
+Each installation of the Deployz GitHub App on a GitHub account can belong to only one Deployz organization. The first organization that connects it keeps it.
+
+If you connect the same installation from a second Deployz organization, GitHub returns you to **Applications**, but the repositories don't appear and Deployz doesn't show an error. To work with those repositories, use the Deployz organization that connected them. If you're not a member of it, ask its owner or an admin to [invite you](/account/organization-and-team#invite-a-teammate).
+
+## What removing access affects
+
+You can uninstall the Deployz GitHub App, or remove a repository from its access, on GitHub at any time. For the applications that use that repository, Deployz then can't read the code:
+
+- **Analysis fails.** Analyzing or re-analyzing the application fails. See [Analysis failed](/troubleshooting/analysis#analysis-failed).
+- **New releases can't be built.** Building a release fails because Deployz can't fetch the code. See [Fix a failed build](/releases/build-failures).
+- **The commit list doesn't load.** When you create a release, Deployz can't list the branch's commits.
+
+Releases you already built, and the deployments that run them, don't depend on GitHub access. They keep running, and you can still deploy a built release or roll back.
+
+If you removed a repository from the app's access, select **Manage GitHub access** and grant access to the repository again. Then re-analyze the application.

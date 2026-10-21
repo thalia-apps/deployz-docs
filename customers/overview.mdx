@@ -3,9 +3,11 @@ title: "Install an application with Deployz"
 description: "What happens when your software provider runs their application in your AWS account."
 ---
 
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
 Your software provider uses Deployz to run their application inside your own AWS account. This guide explains what happens, what you approve, and what stays under your control. You don't need a Deployz account.
 
-## What's happening
+## What is happening
 
 Your software provider sent you an install link. When you follow it, you:
 
@@ -13,11 +15,11 @@ Your software provider sent you an install link. When you follow it, you:
 2. Approve a standard AWS CloudFormation stack in your AWS console. This stack creates the Deployz connector, a small component that manages the application in your account.
 3. Follow the progress on the install page until the application is ready, then open it at its HTTPS address.
 
-The connector only calls out to Deployz. Deployz never connects into your account, and it never sees or stores your AWS credentials. For the full detail, see [Security and AWS access](/customers/security).
+The connector's only connection to Deployz is one it starts itself, over HTTPS. Deployz never connects into your account, and it never sees or stores your AWS credentials. For the full detail, see [Security and AWS access](/customers/security).
 
 ## Who does what
 
-| | Your software provider | You |
+| Area | Your software provider | You |
 | --- | --- | --- |
 | The application | Builds it, releases updates, rolls back, restarts, and changes its configuration through Deployz | Uses it |
 | Install | Sends the install link and can retry a failed deployment | Chooses the Region and size, enters any settings you're asked for, and approves the connector stack |
@@ -27,7 +29,7 @@ The connector only calls out to Deployz. Deployz never connects into your accoun
 
 Your software provider manages releases and updates through Deployz. You keep ownership of your AWS account, your data, your AWS charges, and the ability to revoke Deployz access at any time.
 
-## What you can and can't do
+## What you can and cannot do
 
 On the install page, you can:
 

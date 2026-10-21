@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="492" viewBox="0 0 720 492" role="img" aria-labelledby="title desc">
   <title id="title">What removal deletes and keeps</title>
-  <desc id="desc">What stays in the customer&#x27;s AWS account after each removal step. Before removal, everything is in place. Step 1, Remove deployment in Deployz, deletes the application containers, the load balancer and most networking, the cache, configuration secret, and log groups, and the custom domain. It keeps the database, its credentials, the storage bucket, the certificates, the network the database uses, and the connector stack. Retained resources keep costing money in AWS. Step 2, Delete retained data, deletes everything retained except the connector stack. Step 3, deleting the connector stack in the AWS console, removes the last part. Delete the connector stack last.</desc>
+  <desc id="desc">What stays in the customer&#x27;s AWS account after each removal step. Before removal, everything is in place. Step 1, Remove deployment in Deployz, deletes the application containers, the load balancer and most networking, the cache, configuration secret, and log groups, the custom domain, and the certificates. It keeps the database, its credentials, the storage bucket, the network the database uses, and the connector stack. Retained resources keep costing money in AWS. Step 2, Delete retained data, deletes everything retained except the connector stack. Step 3, deleting the connector stack in the AWS console, removes the last part. Delete the connector stack last.</desc>
 
   <!--
     Deployz docs illustration. Style: deployz-website DESIGN.md section 7 (scene system).
@@ -167,8 +167,8 @@
     <text class="body" x="28" y="351">Certificates</text>
     <rect x="285" y="336" width="74" height="22" rx="11" style="fill:#F4F4F5;stroke:#D4D4D8" />
     <text class="badge" x="322" y="351" text-anchor="middle">In place</text>
-    <rect x="395" y="336" width="74" height="22" rx="11" style="fill:#FEFCE8;stroke:#FDE68A" />
-    <text class="badge" x="432" y="351" text-anchor="middle" style="fill:#A16207">Kept</text>
+    <rect x="395" y="336" width="74" height="22" rx="11" style="fill:#FFFFFF;stroke:#D4D4D8;stroke-dasharray:3 3" />
+    <text class="badge" x="432" y="351" text-anchor="middle" style="fill:#A1A1AA">Deleted</text>
     <rect x="505" y="336" width="74" height="22" rx="11" style="fill:#FFFFFF;stroke:#D4D4D8;stroke-dasharray:3 3" />
     <text class="badge" x="542" y="351" text-anchor="middle" style="fill:#A1A1AA">Deleted</text>
     <rect x="615" y="336" width="74" height="22" rx="11" style="fill:#FFFFFF;stroke:#D4D4D8;stroke-dasharray:3 3" />

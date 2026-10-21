@@ -3,11 +3,13 @@ title: "Configure environment variables"
 description: "Decide who provides each environment variable and how its value reaches each deployment."
 ---
 
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
 Your application reads settings from environment variables. For each one, you decide who provides the value: Deployz, you, or each customer. Deployz then delivers the right value to every deployment.
 
 <Frame caption="Who provides each value, and where Deployz delivers it.">
-  <img className="dz-diagram-wide" src="/images/diagrams/environment-variables-flow.svg" alt="Where environment variable values go. You, each customer, and Deployz provide values. Deployz stores saved secrets encrypted with AWS KMS and delivers each value where it's used. Build values, which only you provide, go into the release image, which is the same for every customer, so don't use them for secrets. Runtime values go to each customer's AWS account: your runtime values, that customer's own values, and secrets Deployz generates for that deployment. The account owner can read them there." />
-  <img className="dz-diagram-narrow" src="/images/diagrams/environment-variables-flow-mobile.svg" alt="Where environment variable values go. You, each customer, and Deployz provide values. Deployz stores saved secrets encrypted with AWS KMS and delivers each value where it's used. Build values, which only you provide, go into the release image, which is the same for every customer, so don't use them for secrets. Runtime values go to each customer's AWS account: your runtime values, that customer's own values, and secrets Deployz generates for that deployment. The account owner can read them there." />
+  <img className="dz-diagram-wide" src="/images/diagrams/environment-variables-flow.svg" alt="Where environment variable values go. You, each customer, and Deployz provide values. Deployz stores saved secrets encrypted with AWS KMS and delivers each value where it's used. Build values, which only you provide, go into the release's container image, which is the same for every customer, so don't use them for secrets. Runtime values go to each customer's AWS account: your runtime values, that customer's own values, and secrets Deployz generates for that deployment. Plain values are set on the Amazon ECS task definition, and secret values are stored in AWS Secrets Manager. The account owner can read them there." />
+  <img className="dz-diagram-narrow" src="/images/diagrams/environment-variables-flow-mobile.svg" alt="Where environment variable values go. You, each customer, and Deployz provide values. Deployz stores saved secrets encrypted with AWS KMS and delivers each value where it's used. Build values, which only you provide, go into the release's container image, which is the same for every customer, so don't use them for secrets. Runtime values go to each customer's AWS account: your runtime values, that customer's own values, and secrets Deployz generates for that deployment. Plain values are set on the Amazon ECS task definition, and secret values are stored in AWS Secrets Manager. The account owner can read them there." />
 </Frame>
 
 ## How Deployz finds your variables
@@ -22,7 +24,7 @@ Values in sample files like `.env.example` are treated as evidence of the name o
 
 Detection isn't complete for every pattern. A variable your application reads only indirectly, for example through a dynamic key or a configuration file loaded at runtime, may not appear. You can add it by hand.
 
-When required variables still need a decision or a value, the application **Overview** shows **Configuration needs review**, with a **Review configuration** action.
+Before you have any customer deployments, the application **Overview** shows **Configuration needs review** while variables still need a decision or a value. Select **Review required changes** to open the variables.
 
 ## Review and save your variables
 
@@ -36,7 +38,7 @@ When required variables still need a decision or a value, the application **Over
     The list opens on the **Vendor & customer** filter. Select **Needs input** to see only variables that need a decision or a value. The other filters are **Managed**, **Optional**, and **All**.
   </Step>
   <Step title="Review each variable">
-    Each detected variable starts with a suggestion, marked **Suggested**, and the reason for it. A suggestion with weak evidence, such as a name found only in a sample file, is also marked **Uncertain**. Select **Review** or **Edit** on a row to change its settings. To take every remaining suggestion as it is, select the accept button above the list, for example **Accept 4 suggested decisions**.
+    Each detected variable starts with a suggestion, marked **Suggested**, and the reason for it. A suggestion with weak evidence, such as a name found only in a sample file, is also marked **Uncertain**. See [How Deployz suggests a setting](#how-deployz-suggests-a-setting). Select **Review** or **Edit** on a row to change its settings. To take every remaining suggestion as it is, select the accept button above the list, for example **Accept 4 suggested decisions**.
   </Step>
   <Step title="Enter your values">
     For each variable you provide, enter the value in **Value**.
@@ -58,28 +60,45 @@ Each row shows a status:
 | **Set by customer** | Each customer enters the value when they install. |
 | **Optional** | The application doesn't need a value. |
 
+### How Deployz suggests a setting
+
+Deployz never saves a suggestion on its own. It suggests **Who provides** from what the analysis found:
+
+| What the analysis found | Suggestion |
+| --- | --- |
+| A value Deployz can supply, such as a database connection or a generated secret | **Managed by Deployz** |
+| The code reads the variable with no default, and the name looks like a credential | **Set by customer** |
+| The code reads the variable with no default, and the name doesn't look like a credential | **Set by vendor** |
+| The code reads the variable with a default, or the name appears only in a sample file | **Optional / not needed** |
+
+A suggestion is marked **Uncertain** when the evidence is weak, for example when the only evidence is a sample file such as `.env.example`. For **When used**, see [Build or runtime](#build-or-runtime).
+
 ## Choose who provides each value
 
-In **Who provides**, choose one option for each variable. The table shows the short form in brackets.
+In **Who provides**, choose one option for each variable. The table shows the short form in parentheses.
 
 | Option | Who supplies the value | Use it for |
 | --- | --- | --- |
-| **Managed by Deployz** (Deployz) | Deployz, at install | Connection details for the database, cache, bucket, and queue Deployz creates; the deployment's own public URL; and internal secrets Deployz can generate, such as a signing key |
+| **Managed by Deployz** (Deployz) | Deployz, at install | Connection details for the database, cache, bucket, and queues (**Preview**) Deployz creates; the deployment's own public URL; and internal secrets Deployz can generate, such as a signing key |
 | **Set by vendor** (Vendor) | You, once for all customers | API keys and settings that are the same for every customer |
 | **Set by customer** (Customer) | Each customer, on the install page | Values that differ per customer, or credentials the customer owns |
 | **Optional / not needed** | Nobody | Variables your application can run without |
 
-**Managed by Deployz** is available only for values Deployz can supply. When it generates a secret, Deployz creates a new random value for each deployment.
+**Managed by Deployz** is available only for values Deployz can supply. When it generates a secret, Deployz creates a new random value for each deployment. For the variables Deployz sets in every deployment, see [Variables Deployz sets](/prepare/data-services#variables-deployz-sets).
 
 ### Map a variable to a managed value
 
-Your application might read a database or cache setting under a name the analysis can't recognize. In that case, tell Deployz which value to put there:
+Your application might read a database or cache setting under a name the analysis can't recognize. In that case, tell Deployz which value to put there.
+
+**Who:** you (the vendor), in the Deployz dashboard, on **Configuration** › **Variables**.
 
 1. On the variable's row, choose **Managed by Deployz** in **Who provides**. For a name the analysis didn't detect, select **Add managed value** instead and enter the name.
 2. In **Value**, choose the managed value, for example **Database URL**, **Database host**, **JDBC URL**, **Redis URL**, or **Bucket name**. The list shows only the resources your application has.
 3. Select **Save changes**.
 
 ### Add a variable by hand
+
+**Who:** you (the vendor), in the Deployz dashboard, on **Configuration** › **Variables**.
 
 Select **Add value** for a plain value or **Add secret** for a secret, enter the name and value, then select **Save changes**. Variables you add are provided by you.
 
@@ -88,7 +107,10 @@ Select **Add value** for a plain value or **Add secret** for a secret, enter the
 In **When used**, choose when your application reads the variable:
 
 - **Runtime.** The container reads the value when it starts. Most variables are runtime variables.
-- **Build.** The value is used while Deployz builds the image, for example a `NEXT_PUBLIC_`, `VITE_`, or `REACT_APP_` variable that a frontend build inlines. Deployz suggests build for these names. You confirm the choice.
+- **Build.** The value is used while Deployz builds the container image, for example a variable that a frontend build inlines. You confirm the choice. Deployz suggests **Build** for:
+  - Names that start with `NEXT_PUBLIC_`, `VITE_`, `REACT_APP_`, `NUXT_PUBLIC_`, `EXPO_PUBLIC_`, `GATSBY_`, or `PUBLIC_`.
+  - A Dockerfile `ARG` without a default that your production Compose file sets under `build.args`.
+  - A Dockerfile `ARG` without a default that selects the base image in a `FROM` line.
 
 Build values have limits:
 
@@ -100,17 +122,19 @@ Build values have limits:
   RUN npm run build
   ```
 
-- A build value is part of the release image. Anyone who can pull the image might be able to read it, so don't use build values for secrets.
+- A build value is part of the release's container image. Anyone who can pull the container image might be able to read it, so don't use build values for secrets.
 - If a required build value has no value, you can't create a release. The **New release** form lists the missing names with a **Review configuration** link.
 
 ## Required and secret
 
 - **Required.** The application can't run without this variable. Deployz checks for missing required values before a deployment starts, and a customer can't complete the install page until they enter theirs.
-- **Secret.** The value is masked. After you save a secret, the dashboard shows **Secret saved** and never displays the value again. To change it, enter a new value.
+- **Secret.** The value is masked. After you save a secret, the dashboard shows **Secret saved** and never displays the value again. To change it, enter a new value. A secret value can be up to 4,096 bytes.
 
 If a row shows **Re-enter this secret**, Deployz can't deliver the stored value. Enter the secret again and save.
 
 ## Write labels and help text for customers
+
+**Who:** you (the vendor), in the Deployz dashboard, on **Configuration** › **Variables**.
 
 For each **Set by customer** variable, add text that helps the customer enter the right value:
 
@@ -128,10 +152,10 @@ The row shows a preview. On the install page, the customer sees these fields in 
 
 | Change | Effect |
 | --- | --- |
-| Save a new build value | Applies to the next release you create. Existing release images don't change. |
+| Save a new build value | Applies to the next release you create. Existing releases don't change. |
 | Save or remove a runtime value you provide | Reaches every running deployment of the application within a few minutes. |
 | Change a decision, such as who provides a value | Applies to the next install or configuration update. Saving a decision doesn't update running deployments on its own. |
-| Deploy, roll back, or restart | Changes only the release image. The deployment's runtime configuration stays as it is. |
+| Deploy, roll back, or restart | Changes only the release. The deployment's runtime configuration stays as it is. |
 
 A runtime update finishes only after the new containers are running and healthy. If the update fails, the deployment keeps serving its previous configuration. Fix the value and save it again to retry.
 

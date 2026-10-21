@@ -1,0 +1,113 @@
+---
+title: "Workers, queues, and scheduled jobs"
+description: "How Deployz finds background workers, message queues, and scheduled jobs in your repository, and how it runs them in each deployment."
+---
+
+{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+
+Besides the web service, a deployment can run work in the background: long-running workers, message queues between your processes, and jobs that run on a schedule. Deployz finds these in your repository during the analysis and creates them in each deployment. You can't add them by hand in the dashboard.
+
+Workers, queues, and scheduled jobs all run the same container image as your web service, from the same release. Each one gets the same environment variables, except queue variables, which only the processes that use a queue get. See [Variables Deployz sets](/prepare/data-services#variables-deployz-sets).
+
+<Note>
+  Queues and scheduled jobs are at **Preview** maturity. They haven't been qualified on real AWS accounts.
+</Note>
+
+<Warning>
+  A deployment keeps the workers, queues, and scheduled jobs it was created with. If your application later gains or loses one, Deployz refuses to deploy to existing deployments that don't match. Create a new deployment for the customer instead, or change the application back. See [Changing what a deployment contains](/prepare/not-supported#changing-what-a-deployment-contains).
+</Warning>
+
+## Workers
+
+A worker is a long-running process, such as a job runner, that runs next to the web service. Deployz runs one container for each worker your repository declares. Workers have no URL and receive no traffic.
+
+Deployz finds a worker in either of these places:
+
+- **A `Procfile`.** Each process line becomes a worker, except `web` and processes that don't run continuously, such as `release`, `migration`, `build`, `test`, or `dev`.
+- **A production Compose file.** A service whose name or command looks like a worker, such as a `worker` service that runs a job runner.
+
+Each worker runs one task, with the CPU and memory of the deployment's size. See [Sizes and AWS cost](/share/sizes-and-cost).
+
+Declare each worker's start command in your repository. The dashboard has no field for it. If the analysis finds code that looks like background jobs but no command that starts them, it reports a **Recommended** finding, **Background job runner**. If your web process already runs those jobs, you don't need to change anything. Otherwise, add a line for the worker to a `Procfile`, push the change, and re-analyze.
+
+## Queues
+
+Deployz can create Amazon SQS Standard queues (**Preview**) for messages that your processes send to each other. SQS FIFO queues aren't supported.
+
+### How Deployz finds a queue
+
+Deployz creates a queue only when the evidence is clear. It reads JavaScript and TypeScript code only. All of these must be true:
+
+- Your application depends on an SQS library: `@aws-sdk/client-sqs`, `aws-sdk`, `sqs-consumer`, or `sqs-producer`.
+- Your code reads the queue's URL from an environment variable named `QUEUE_URL`, or a name ending in `_QUEUE_URL` or `_SQS_URL`, such as `ORDERS_QUEUE_URL`.
+- A process sends messages to the queue, and a process receives them. Deployz works out which process does what by following the imports from each process's entry file.
+- The process that receives messages is a worker or a scheduled job, not the web service.
+
+When the evidence is weaker or unclear, the analysis doesn't create a queue. It reports a **Recommended** finding, **Confirm a queue or schedule**, with what it found. This also happens when Python code uses SQS through `boto3`. To resolve it, make the producer and consumer clear in your code, or remove the queue code if you don't use it, then re-analyze. Select **Get fix instructions** on the row for help. See [Fix analysis findings](/prepare/fix-findings).
+
+### How your processes connect
+
+Deployz sets the queue's URL under the variable name your code reads. If your code also reads an ARN variable for the queue, such as `ORDERS_QUEUE_ARN`, Deployz sets that too. Only the processes that use the queue get these variables.
+
+Each process gets only the permissions it needs, on that queue only:
+
+| Role | Permissions |
+| --- | --- |
+| Sends messages | `sqs:SendMessage` |
+| Receives messages | `sqs:ReceiveMessage`, `sqs:DeleteMessage`, `sqs:ChangeMessageVisibility`, `sqs:GetQueueAttributes` |
+
+A queue keeps messages for 4 days, with a visibility timeout of 30 seconds. Messages are encrypted with SQS-managed keys, and the queue refuses requests that don't use HTTPS.
+
+### Dead-letter queue
+
+If your code reads a dead-letter queue URL for a queue, in a variable such as `ORDERS_DLQ_URL` or `ORDERS_DEAD_LETTER_QUEUE_URL`, Deployz creates a dead-letter queue for it. A message moves there after it's received 5 times without being deleted. The dead-letter queue keeps messages for 14 days.
+
+<Warning>
+  When a deployment is removed, its queues and every message in them are deleted.
+</Warning>
+
+## Scheduled jobs
+
+A scheduled job (**Preview**) runs a command from your release on a schedule, as a one-off task that stops when the command finishes. Deployz runs it with Amazon EventBridge Scheduler.
+
+### How Deployz finds a scheduled job
+
+Deployz creates a scheduled job only from a production deployment file that names both a schedule and a command:
+
+- **`render.yaml`:** a service with `type: cron`, a `schedule`, and a `startCommand` or `dockerCommand`.
+- **A Kubernetes `CronJob` manifest:** a `schedule`, and a `command` or `args`. A `CronJob` with `suspend: true` is created turned off.
+
+These don't create a scheduled job:
+
+- A cron library that runs inside your application process. That work runs in the process itself.
+- CI schedules, such as scheduled GitHub Actions workflows, and a cron string on its own.
+- `vercel.json` `crons` and `crontab` or `.cron` files. The analysis reports a **Confirm a queue or schedule** finding for these, because they don't name a command Deployz can run.
+
+### Schedule format
+
+A schedule is a standard cron expression with five fields: minute, hour, day of month, month, and day of week. The shortcuts `@hourly`, `@daily`, `@weekly`, `@monthly`, `@yearly`, and `@annually` also work.
+
+The analysis reports a **Confirm a queue or schedule** finding instead of creating the job when the expression:
+
+- Doesn't have exactly five fields, for example because it includes seconds or a year.
+- Uses `L`, `W`, `#`, or `?`.
+- Restricts both the day of month and the day of week.
+
+### Time zone
+
+A Kubernetes `CronJob` can set `timeZone` to a time zone name, such as `Europe/Berlin`. If the name isn't valid, the analysis reports a finding instead of creating the job. A job without a time zone, including every `render.yaml` job, runs in UTC.
+
+### Releases and rollbacks
+
+A scheduled job always runs the release the deployment is on:
+
+- After you deploy an update, scheduled jobs switch to the new release only once the update has finished successfully. If the update fails, they stay on the previous release.
+- When you roll back, scheduled jobs move to the release you roll back to. See [Roll back a deployment](/operate/rollback).
+
+Deployz doesn't show a run history for scheduled jobs.
+
+## Next steps
+
+- [Analyze your application and read the results](/prepare/analysis)
+- [Databases, cache, and file storage](/prepare/data-services)
+- [AWS resources Deployz creates](/reference/aws-resources)

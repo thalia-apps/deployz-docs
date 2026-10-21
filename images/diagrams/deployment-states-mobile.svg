@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="360" height="1379" viewBox="0 0 360 1379" role="img" aria-labelledby="title desc">
   <title id="title">Deployment states and badges</title>
-  <desc id="desc">Deployment lifecycle. Not installed (badge Waiting for customer) moves to Waiting for AWS (Setting up) when the customer starts the install, to Installing (Setting up) when the connector connects, and to Healthy (Live) when the connector verifies health. A failed install goes to Failed (Install failed), and Retry deployment returns it to Installing. A healthy deployment shows Update available when a newer release is ready. Deploying an update, rolling back, restarting, or changing configuration shows Updating, then returns to Healthy; if it fails, the badge shows Update failed and the previous release keeps running. Removing the deployment goes to Deleting (Removing), then Deleted (Removed). While installed, a lost connector or failing health checks replace the badge with a Needs attention badge.</desc>
+  <desc id="desc">Deployment lifecycle. Not installed (badge Waiting for customer) moves to Waiting for AWS (Setting up) when the customer starts the install, to Installing (Setting up) when the connector connects, and to Healthy (Live) when the connector verifies health. A failed install goes to Failed (Install failed), and Retry deployment returns it to Installing. A healthy deployment shows Update available when a newer release is ready. Deploying an update, rolling back, or restarting shows Updating, then returns to Healthy; if it fails, the badge shows Update failed and the previous release keeps running. A configuration change keeps the Live badge, and a failed one also shows Update failed. Removing the deployment goes to Deleting (Removing), then Deleted (Removed). While installed, a lost connector, failing health checks, or an unrecognized status replace the badge with a Needs attention badge: Lost contact, Not responding, Degraded, or Unknown status.</desc>
 
   <!--
     Deployz docs illustration. Style: deployz-website DESIGN.md section 7 (scene system).
@@ -146,10 +146,9 @@
     <rect x="74" y="803" width="74.96" height="22" rx="11" style="fill:#EFF6FF;stroke:#BFDBFE" />
     <circle cx="85" cy="814" r="3.5" fill="#2563EB" />
     <text class="badge" x="94" y="818.5" style="fill:#1D4ED8">Updating</text>
-    <text class="note" x="74" y="840">Deploy, roll back, restart, or change</text>
-    <text class="note" x="74" y="856">configuration. If it fails, the badge</text>
-    <text class="note" x="74" y="872">shows Update failed and the previous</text>
-    <text class="note" x="74" y="888">release keeps running.</text>
+    <text class="note" x="74" y="840">Deploy, roll back, or restart. If it fails,</text>
+    <text class="note" x="74" y="856">the badge shows Update failed and the</text>
+    <text class="note" x="74" y="872">previous release keeps running.</text>
   </g>
     <path class="track" d="M22 623 V790 H58" marker-end="url(#arrow)" />
     <line class="track" x1="36" y1="623" x2="36" y2="949" marker-end="url(#arrow)" />
@@ -185,6 +184,6 @@
     <rect x="35" y="1313" width="6" height="6" rx="3" style="fill:#A1A1AA" />
     <text class="body" x="54" y="1320">Degraded: some health checks fail</text>
     <rect x="35" y="1339" width="6" height="6" rx="3" style="fill:#A1A1AA" />
-    <text class="body" x="54" y="1346">Disconnected</text>
+    <text class="body" x="54" y="1346">Unknown status: not recognized</text>
   </g>
 </svg>
