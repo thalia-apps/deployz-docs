@@ -164,9 +164,6 @@
     "strict": true,
     "default": "light"
   },
-  "background": {
-    "decoration": "gradient"
-  },
   "fonts": {
     "heading": {
       "family": "Inter"
