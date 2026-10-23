@@ -60,12 +60,7 @@ Issuing a new link gives the connector a new credential. What your customer does
 
 **Who:** your customer, in their AWS console.
 
-The install page shows **Update the connector stack. Do not create a new one.** A second stack with the same name fails to create. Your customer:
-
-1. Selects **Open connector stack in AWS**, then **Update**, then **Replace existing template**.
-2. Enters the template URL, if the install page shows one.
-3. Enters the new `RelayCredential` and `EnrollmentCode` from the install page, and keeps every other value as it is.
-4. Submits the update.
+The install page shows **Update the connector stack. Do not create a new one.** A second stack with the same name fails to create. Your customer updates the existing stack with the new `EnrollmentCode` and `RelayCredential` from the install page, and keeps every other value as it is. Send them [Update the connector stack](/customers/update-connector#reconnect-the-connector) for the steps.
 
 When the connector reconnects, its status returns to **Online**, and progress continues on the install page and in your dashboard.
 
@@ -103,10 +98,11 @@ When an update exists, the deployment detail page shows **Connector update avail
 
 **Who:** you send the instructions; your customer updates the stack in their AWS console.
 
-1. Send your customer these steps, with the template URL from the alert on the detail page if it shows one.
-2. Your customer opens the connector stack and selects **Update**, then **Replace existing template**. The alert's **Open connector stack in AWS** button opens the AWS CloudFormation console in the deployment's Region, so it works only for someone signed in to your customer's AWS account. Send your customer the steps rather than selecting it yourself.
-3. Your customer enters the template URL, if you sent one.
-4. Your customer keeps all existing parameter values (**Use existing value**), especially `RelayCredential`, and submits the update.
+1. Copy the template URL from the alert on the detail page, if it shows one.
+2. Send your customer the template URL and a link to [Update the connector stack](/customers/update-connector#update-to-a-newer-connector).
+3. Your customer replaces the stack's template, keeps all existing parameter values (**Use existing value**), especially `RelayCredential`, and submits the update.
+
+The alert's **Open connector stack in AWS** button opens the AWS CloudFormation console in the deployment's Region, so it works only for someone signed in to your customer's AWS account. Send your customer the steps rather than selecting it yourself.
 
 A connector update keeps the existing credential. It isn't a reconnect, so your customer doesn't need new values.
 

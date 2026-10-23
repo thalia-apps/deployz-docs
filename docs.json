@@ -116,6 +116,7 @@
               "customers/security",
               "customers/costs",
               "customers/custom-domain-dns",
+              "customers/update-connector",
               "customers/remove"
             ]
           }
