@@ -86,7 +86,7 @@ It grants no IAM management, so a role under the boundary can't create or widen 
 AWS can't limit which accounts a role trusts. A role in your application stack could be set up to trust another account, but it can still do only the actions above.
 
 <Note>
-  A connector stack keeps the permissions it was created with until you update it. A connector stack created before Deployz added this boundary doesn't have it. A connector stack created before Deployz added the installation scope keeps its earlier, wider permissions, where some actions reach any Deployz application in the same AWS account and Region, not only this deployment. Updating the connector stack applies the current permissions. Your software provider sends you the update steps. An application that's already installed keeps the roles it was created with and keeps working. Ask your software provider if you're not sure which applies to your deployment.
+  A connector stack keeps the permissions it was created with until you update it. A connector stack created before Deployz added this boundary doesn't have it. A connector stack created before Deployz added the installation scope keeps its earlier, wider permissions, where some actions reach any Deployz application in the same AWS account and Region, not only this deployment. Updating the connector stack applies the current permissions. Your software provider tells you when an update is available. See [Update the connector stack](/customers/update-connector#update-to-a-newer-connector). An application that's already installed keeps the roles it was created with and keeps working. Ask your software provider if you're not sure which applies to your deployment.
 </Note>
 
 ### Resources limited by name

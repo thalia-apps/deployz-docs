@@ -41,7 +41,7 @@ If **Retry connection** says the deployment was already installed, your customer
 **Who:** your customer, in their AWS console and on the install page.
 
 1. Reopen the install link, so the page shows the current values.
-2. If the page shows **Reconnect the existing connector**, update the existing connector stack with the values shown. Don't create a second stack.
+2. If the page shows **Reconnect the existing connector**, update the existing connector stack with the values shown. Don't create a second stack. See [Update the connector stack](/customers/update-connector#reconnect-the-connector).
 3. Otherwise, select **Retry connection** and create the stack from the page. The stack created with the old values can't connect, so your customer can delete it in CloudFormation.
 
 **Who acts:** your customer. If you aren't sure which values your customer used, select **Issue new install link** in the deployment's **Install link** card, and ask your customer to reopen the link.
@@ -81,7 +81,7 @@ Operations you started before the connector went offline wait for it. If the con
 
 1. In the dialog, select **Issue new install link**. The new link is valid for 30 days.
 2. Send the new link to your customer.
-3. Your customer opens the link and follows the steps it shows. If it shows **Reconnect the existing connector**, they update the existing stack. See [Your customer reconnects the existing connector](/operate/connector#your-customer-reconnects-the-existing-connector).
+3. Your customer opens the link and follows the steps it shows. If it shows **Reconnect the existing connector**, they update the existing stack. See [Update the connector stack](/customers/update-connector#reconnect-the-connector).
 4. When the connector connects, Deployz starts the install again. You don't need to select **Retry deployment** again.
 
 <Warning>
@@ -94,6 +94,6 @@ Operations you started before the connector went offline wait for it. If the con
 
 **Cause:** Your customer's connector is older than the current version. When the update is required, Deployz can't verify new releases on this deployment until it's done.
 
-**Fix:** Your customer updates the existing connector stack and keeps all existing values. This isn't a reset, and it doesn't need a new install link. See [Reconnect or update the Deployz connector](/operate/connector).
+**Fix:** Your customer updates the existing connector stack and keeps all existing values. This isn't a reset, and it doesn't need a new install link. Send your customer [Update the connector stack](/customers/update-connector#update-to-a-newer-connector) and the template URL from the alert. See also [Update the connector](/operate/connector#update-the-connector).
 
 **Who acts:** your customer, in their AWS console.
