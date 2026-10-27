@@ -3,7 +3,7 @@ title: "Security and AWS access"
 description: "What Deployz creates in your AWS account, what it can access, and how to revoke access."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit a40d82f7 on 2026-10-27 */}
 
 This page is for the person who reviews this deployment for security. It describes the Deployz connector, the AWS permissions it holds, the data Deployz receives, and how to revoke access. For a list of every AWS resource, see [AWS resources Deployz creates](/reference/aws-resources).
 
@@ -145,6 +145,7 @@ The connector sends Deployz operational information about the deployment:
 - Installation ID, AWS account ID, and AWS Region
 - Connector version, and the release and container image version that runs
 - Deployment state, infrastructure status, health state, and timestamps
+- The status of the connector stack in your AWS account, such as updating or rolled back
 - Resource identifiers
 - AWS error messages: stack events, stopped-task reasons, and exit codes
 - Health-check status code and response time (not the response body)
@@ -177,7 +178,7 @@ If the install page asks you for secret values:
 - Encrypted backup copies may remain for up to 7 days.
 - Deployz doesn't display secret values or write them to application logs.
 
-Values your software provider changes after your account connects are held in Deployz until the connector collects them. Deployz then deletes its copy.
+Values your software provider changes after your account connects are held in Deployz until the connector reports that it applied them. Deployz then deletes its copy.
 
 ## Logs
 
