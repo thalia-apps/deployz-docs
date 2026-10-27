@@ -3,7 +3,7 @@ title: "Run a test deployment"
 description: "Install your application in your own AWS account with the same flow your customers use."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
 
 A test deployment installs your application in an AWS account you control, through the same install page and AWS steps your customers go through. Run one before you share your application, so you find configuration and startup problems before a customer does.
 
@@ -62,13 +62,13 @@ When the test deployment is created, **Deployment created** shows its install li
 
 You don't need to copy the link now. After you leave this page, the link stays on the test deployment's page, in the **Install link** card. Open it from **Deployments**.
 
-The install link is valid for 30 days after you create the test deployment. The **Install link** card shows the expiry date. If the link expires before your AWS account connects, select **Issue new install link** on the deployment to make it valid for 30 more days. See [Reconnect or update the Deployz connector](/operate/connector#you-issue-a-new-install-link).
+The install link is valid for 7 days after you create the test deployment. The **Install link** card shows the expiry date. If the link expires before your AWS account connects, select **Issue new install link** on the deployment to make it valid for 7 more days. See [Reconnect or update the Deployz connector](/operate/connector#you-issue-a-new-install-link).
 
 ## Install it in your AWS account
 
 **Who:** you, on the install page and in your AWS console.
 
-1. Select **Open**, or copy the install link and open it in your browser.
+1. Select **Open**, or copy the install link and open it in your browser. If you're signed in to the dashboard in that browser, the page opens without a code. Otherwise, the page asks you to verify your email. Enter the email on the customer record you chose, and enter the 8-digit code Deployz sends to it.
 2. On the install page, select **Connect AWS account**. The AWS console opens in a new tab, in the Region you chose.
 3. Sign in to the AWS account you want to use, and create the stack.
 4. Return to the install page and follow the progress. When the deployment is ready, select **Open application**.

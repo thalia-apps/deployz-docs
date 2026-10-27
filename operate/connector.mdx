@@ -3,7 +3,7 @@ title: "Reconnect or update the Deployz connector"
 description: "Restore or update the connection between Deployz and a customer's AWS account."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
 
 The Deployz connector runs in your customer's AWS account. It reports the application's health to Deployz and carries out the actions you start, such as updates, restarts, and removal. Your customer creates its stack during the install. For how the connector works, see [The Deployz connector](/how-it-works#the-deployz-connector).
 
@@ -37,7 +37,7 @@ After 15 minutes, the install page shows **Still connecting** and a **Retry conn
 
 ### You issue a new install link
 
-**Who:** you (the vendor), in the Deployz dashboard.
+**Who:** you (an owner or admin), in the Deployz dashboard. Members can't issue a new install link.
 
 <Warning>
 A new install link keeps the same address, but Deployz replaces the connection code (`EnrollmentCode`) and the connector credential (`RelayCredential`) behind it. A connector stack or Quick Create link that your customer started with the old values stops working. Ask your customer to reopen the link and use the new values.
@@ -47,7 +47,7 @@ A new install link keeps the same address, but Deployz replaces the connection c
 2. In the **Install link** card, select **Issue new install link**.
 3. Select **Copy install link**, and send the link to your customer.
 
-A deployment's install link is valid for 30 days after the deployment is created. Issuing a new install link makes it valid for 30 more days from that time. The **Install link** card shows the date, for example **This link expires on `<date>`**. After that date, the link can't start an install, and the card says the link expired. Issue a new install link to make it work again. Once the connector has connected, the link keeps working so your customer can follow the install progress.
+A deployment's install link is valid for 7 days after the deployment is created. Issuing a new install link makes it valid for 7 more days from that time. The **Install link** card shows the date, for example **This link expires on `<date>`**. After that date, the link can't start an install, and the card says the link expired. Issue a new install link to make it work again. Once the connector has connected, the link keeps working so your customer can follow the install progress.
 
 Deployz also offers **Issue new install link** in the **Retry deployment** dialog when a failed first install can't be retried because the connector is disconnected.
 
@@ -99,11 +99,25 @@ When an update exists, the deployment detail page shows **Connector update avail
 **Who:** you send the instructions; your customer updates the stack in their AWS console.
 
 1. Copy the template URL from the alert on the detail page, if it shows one.
-2. Send your customer the template URL and a link to [Update the connector stack](/customers/update-connector#update-to-a-newer-connector).
+2. Send your customer the template URL and a link to [Update the connector stack](/customers/update-connector#update-to-a-newer-connector). Your customer also sees an **Update connector** button with the same steps on their install page, after they sign in with an emailed code.
 3. Your customer replaces the stack's template, keeps all existing parameter values (**Use existing value**), especially `RelayCredential`, and submits the update.
 
 The alert's **Open connector stack in AWS** button opens the AWS CloudFormation console in the deployment's Region, so it works only for someone signed in to your customer's AWS account. Send your customer the steps rather than selecting it yourself.
 
 A connector update keeps the existing credential. It isn't a reconnect, so your customer doesn't need new values.
+
+### Follow the update
+
+Deployz reads the connector stack's status from the connector's check-ins. While your customer updates the stack, the detail page shows:
+
+| Alert | What it means | What to do |
+| --- | --- | --- |
+| **Connector update in progress** | The stack is updating. New operations start after the update completes. The application keeps running. | Wait. |
+| **Connector update rolled back** | AWS restored the previous connector version. The application keeps running. | Your customer can try the update again. |
+| **Connector update failed** | AWS couldn't update or restore the stack. | Your customer must open the connector stack in AWS and look at its events. See [Fix connector problems](/troubleshooting/connector#the-connector-needs-an-update). |
+
+While the stack updates, the connector starts no new operations, so a deploy or restart you request waits until the update ends.
+
+Deployz marks the update done only when the connector reports the new version on a stable stack. The deployment's activity then shows **Connector updated**. A rolled-back or failed update shows **Connector update rolled back** or **Connector update failed** instead. A connector stack created from an older template can't report its stack status. Until it's updated, these alerts don't appear for it, and Deployz recognizes the update when the connector reports its new version.
 
 A current connector also requires a permissions boundary on every IAM role in the application stack, and limits its permissions to this deployment's resources. A connector stack created earlier keeps its earlier, wider permissions until your customer updates it. See [Security and AWS access](/customers/security). After your customer updates, existing deployments keep their roles and keep working. A deployment that was prepared before the boundary but not yet installed can't install with the updated connector. Create a new deployment for that customer instead. See [Fix install failures](/troubleshooting/install).

@@ -3,7 +3,7 @@ title: "Install an application with Deployz"
 description: "What happens when your software provider runs their application in your AWS account."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
 
 Your software provider uses Deployz to run their application inside your own AWS account. This guide explains what happens, what you approve, and what stays under your control. You don't need a Deployz account.
 
@@ -12,8 +12,9 @@ Your software provider uses Deployz to run their application inside your own AWS
 Your software provider sent you an install link. When you follow it, you:
 
 1. Choose the AWS Region and size for the application, and review what will be created and the estimated monthly AWS cost.
-2. Approve a standard AWS CloudFormation stack in your AWS console. This stack creates the Deployz connector, a small component that manages the application in your account.
-3. Follow the progress on the install page until the application is ready, then open it at its HTTPS address.
+2. Verify your email with a code that Deployz sends you.
+3. Approve a standard AWS CloudFormation stack in your AWS console. This stack creates the Deployz connector, a small component that manages the application in your account.
+4. Follow the progress on the install page until the application is ready, then open it at its HTTPS address.
 
 The connector's only connection to Deployz is one it starts itself, over HTTPS. Deployz never connects into your account, and it never sees or stores your AWS credentials. For the full detail, see [Security and AWS access](/customers/security).
 
@@ -34,7 +35,9 @@ Your software provider manages releases and updates through Deployz. You keep ow
 On the install page, you can:
 
 - Review what will be created, the estimated AWS cost, and the security details before you approve anything.
+- Verify your email with a code, and sign in again with a new code whenever your session ends.
 - Retry the connection if the connector doesn't connect.
+- Return to the deployment page later to check the connector, open it in AWS, and see recent activity.
 - Follow the progress and open the application when it's ready.
 - See the DNS records for a custom domain and check them.
 
@@ -47,7 +50,7 @@ You can't deploy updates, roll back, restart, change the configuration, or remov
     Make sure you can create the connector stack, that your organization's policies and AWS quotas allow it, and decide on a Region. See [Before you install](/customers/before-you-install).
   </Step>
   <Step title="Review and approve">
-    Open the install link, choose a Region and size, review the plan and cost, then approve the connector stack in your AWS console. See [Install the application](/customers/install).
+    Open the install link, choose a Region and size, review the plan and cost, verify your email with the 8-digit code Deployz sends you, then approve the connector stack in your AWS console. See [Install the application](/customers/install).
   </Step>
   <Step title="Follow the progress">
     Deployz creates the infrastructure and starts the application. Progress shows on the install page.

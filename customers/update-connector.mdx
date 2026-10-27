@@ -12,7 +12,7 @@ You update the stack for one of two reasons:
 | Why | How you find out | What changes |
 | --- | --- | --- |
 | [Reconnect the connector](#reconnect-the-connector) | The install page shows **Reconnect the existing connector**. | The connection values: `EnrollmentCode`, and usually `RelayCredential`. |
-| [Update to a newer connector](#update-to-a-newer-connector) | Your software provider asks you to update the connector. | Only the template. Every parameter keeps its existing value. |
+| [Update to a newer connector](#update-to-a-newer-connector) | Your deployment page shows **Update available** or **Update required**, or your software provider asks you to update. | Only the template. Every parameter keeps its existing value. |
 
 ## Reconnect the connector
 
@@ -47,26 +47,52 @@ Use the values on the page you have open now. If your software provider sends an
 
 ## Update to a newer connector
 
-**Who:** you, in your AWS console, when your software provider asks you to.
+**Who:** you, on your deployment page and in your AWS console.
 
-Deployz occasionally publishes a newer connector. Your software provider sees when one is available and sends you the steps, usually with a template URL. Updating is your decision, because the connector runs in your account. A newer connector can add actions that your software provider needs, and gives the connector the current permissions. See [Security and AWS access](/customers/security).
+Deployz occasionally publishes a newer connector. Updating is your decision, because the connector runs in your account. A newer connector can add actions that your software provider needs, and gives the connector the current permissions. See [Security and AWS access](/customers/security).
 
-This update keeps the connector's existing credential, so you don't need new values.
+This update keeps the connector's existing credential, so you don't need new values. Your application keeps running. The connector can be offline for a few minutes during the update.
+
+### Check the connector status
+
+Open your install link and sign in with the emailed code. The **Deployz connector** card shows the connector's **Version** and its **Updates** status:
+
+| Updates status | What it means | What to do |
+| --- | --- | --- |
+| **Up to date** | The connector is the current version. | Nothing. |
+| **Update available** | A newer connector exists. | Update when it suits you. |
+| **Update required** | Your software provider can't verify releases until you update. | Update the connector. |
+| **Updating** | AWS is updating the connector stack. | Wait. The page shows the result. |
+| **Update rolled back** | AWS restored the previous connector version. The application keeps running. | Try the update again. If it rolls back again, check the stack's **Events** tab for the reason. |
+| **Update failed** | The connector stack is in a failed state in AWS. | Open the stack in AWS and check its **Events** tab. Contact your software provider if you can't resolve it. |
+
+A connector stack created from an older template can't report its stack status to Deployz. Until you update it, the page can't show **Updating**, **Update rolled back**, or **Update failed**. It shows **Update available** or **Update required** instead.
+
+### Update the stack
+
+Select **Update connector** on the card. The **Update the Deployz connector** dialog shows the same steps and the template URL.
 
 <Steps>
   <Step title="Open the connector stack">
-    Sign in to the AWS account that holds the connector stack. In the CloudFormation console, in the application's Region, select the connector stack, then select **Update**.
+    Select **Open the stack in AWS**. Sign in to the AWS account that holds the connector stack. In the CloudFormation console, in the application's Region, select the connector stack, then select **Update**.
   </Step>
   <Step title="Replace the template">
-    Select **Replace existing template**. If your software provider sent a template URL, choose the Amazon S3 URL option and enter it.
+    Select **Replace existing template**. Choose the Amazon S3 URL option and enter the **Template URL** from the dialog.
   </Step>
   <Step title="Keep every parameter value">
-    For each parameter, keep the existing value (**Use existing value**). Don't change `RelayCredential`: a changed credential disconnects the connector.
+    For each parameter, keep the existing value (**Use existing value**). Don't change `RelayCredential` or `EnrollmentCode`: a changed credential disconnects the connector.
+  </Step>
+  <Step title="Review the changes">
+    Before you submit, review the change set. If a resource shows **Replacement: True**, or a secret is replaced, stop and contact your software provider.
   </Step>
   <Step title="Submit the update">
     Acknowledge that AWS CloudFormation might create IAM resources, then submit the update.
   </Step>
 </Steps>
+
+To update from a terminal instead, select **Use the AWS CLI instead** in the dialog. It shows an `aws cloudformation update-stack` command with your Region, stack name, and template URL filled in, and every parameter set to its previous value.
+
+Deployz marks the update done only when the connector reports the new version and the stack is stable. The page then shows **Up to date**, and **Connector update verified** appears under **Activity**. While the stack is updating, the connector starts no new operations. It continues afterward.
 
 After the update, an application that's already installed keeps the roles it was created with and keeps working.
 

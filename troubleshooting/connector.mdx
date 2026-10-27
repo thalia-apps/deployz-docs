@@ -4,7 +4,7 @@ sidebarTitle: "Connector"
 description: "Resolve a Deployz connector that is offline or never connects."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
 
 The Deployz connector is the small service your customer installs in their AWS account. It connects out to Deployz about once a minute, picks up work such as installs and updates, and reports status. If it can't connect, Deployz can't install, update, or check the deployment. For what the connector is and how to update it, see [Reconnect or update the Deployz connector](/operate/connector).
 
@@ -79,7 +79,7 @@ Operations you started before the connector went offline wait for it. If the con
 
 **Who:** you (the vendor), in the Deployz dashboard, then your customer, on the install page and in their AWS console.
 
-1. In the dialog, select **Issue new install link**. The new link is valid for 30 days.
+1. In the dialog, select **Issue new install link**. The new link is valid for 7 days.
 2. Send the new link to your customer.
 3. Your customer opens the link and follows the steps it shows. If it shows **Reconnect the existing connector**, they update the existing stack. See [Update the connector stack](/customers/update-connector#reconnect-the-connector).
 4. When the connector connects, Deployz starts the install again. You don't need to select **Retry deployment** again.
@@ -90,10 +90,17 @@ Operations you started before the connector went offline wait for it. If the con
 
 ## The connector needs an update
 
-**Symptom:** The deployment page shows **Connector update available** or **Connector update required to verify releases**.
+**Symptom:** The deployment page shows **Connector update available** or **Connector update required to verify releases**. Or it shows **Connector update in progress**, **Connector update rolled back**, or **Connector update failed**.
 
-**Cause:** Your customer's connector is older than the current version. When the update is required, Deployz can't verify new releases on this deployment until it's done.
+**Cause:** Your customer's connector is older than the current version, or an update they started didn't finish. When the update is required, Deployz can't verify new releases on this deployment until it's done.
 
-**Fix:** Your customer updates the existing connector stack and keeps all existing values. This isn't a reset, and it doesn't need a new install link. Send your customer [Update the connector stack](/customers/update-connector#update-to-a-newer-connector) and the template URL from the alert. See also [Update the connector](/operate/connector#update-the-connector).
+| What the page shows | What it means | Fix |
+| --- | --- | --- |
+| **Connector update available** or **Connector update required to verify releases** | The connector is older than the current version. | Your customer updates the existing connector stack and keeps all existing values. |
+| **Connector update in progress** | The stack is updating. New operations start after the update completes. | Wait. |
+| **Connector update rolled back** | AWS restored the previous connector version. The application keeps running. | Your customer tries the update again. If it rolls back again, they open the stack's **Events** tab in CloudFormation and look for the failed resource. |
+| **Connector update failed** | AWS couldn't update or restore the stack. | Your customer opens the connector stack in AWS and looks at its events. Their install page links to the stack. Fix the cause, then update again. |
+
+**Fix:** Your customer updates the existing connector stack and keeps all existing values. This isn't a reset, and it doesn't need a new install link. Send your customer [Update the connector stack](/customers/update-connector#update-to-a-newer-connector) and the template URL from the alert. Their install page shows the same steps under **Update connector**. See also [Update the connector](/operate/connector#update-the-connector).
 
 **Who acts:** your customer, in their AWS console.

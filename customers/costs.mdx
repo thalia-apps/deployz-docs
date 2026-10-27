@@ -6,7 +6,7 @@ description: "What you pay AWS for, and what keeps costing money after removal."
 import BaselineCosts from "/snippets/baseline-costs.mdx";
 import RegionCostFactors from "/snippets/region-cost-factors.mdx";
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
 
 The application runs in your AWS account, so AWS bills you directly for the resources it uses. Deployz doesn't bill you. Any fees for the application itself are between you and your software provider.
 
@@ -20,6 +20,9 @@ Each deployment creates its own set of resources. The install page lists the one
 | Application Load Balancer | When the application serves web traffic |
 | NAT gateway, with an Elastic IP address | Always, as part of the application's own network |
 | S3 bucket for stored files | Always |
+| Background workers (Amazon ECS on AWS Fargate) | When the application runs background processes |
+| Queues and dead-letter queues (Amazon SQS) | When the application uses them |
+| Schedules (Amazon EventBridge Scheduler) and the tasks they start | When the application has scheduled jobs |
 | Database (Amazon RDS for PostgreSQL or MySQL) | When the application needs one |
 | Cache (Amazon ElastiCache for Valkey) | When the application needs one |
 | Deployz connector (AWS Lambda, run every minute by an Amazon EventBridge rule) | Always |
@@ -33,7 +36,7 @@ The install page shows an **Estimated AWS cost** per month for the Region and si
 - It uses on-demand AWS prices for one instance of each resource, running all month.
 - Prices come from a US East (N. Virginia) baseline, adjusted by a factor for your Region.
 - The total is rounded to steps of $5.
-- It doesn't include usage-based charges, such as outbound internet data transfer, data transfer between Availability Zones, load balancer capacity, data processed by the NAT gateway, files stored in S3, and database storage growth and backups.
+- It doesn't include usage-based charges, such as outbound internet data transfer, data transfer between Availability Zones, load balancer capacity, data processed by the NAT gateway, files stored in S3, and database storage growth and backups. Queues, schedules, and one-off tasks are billed by usage only.
 - It doesn't price smaller charges either: Secrets Manager secrets, CloudWatch Logs, CloudWatch alarms, the NAT gateway's Elastic IP address, and the Deployz connector's Lambda, EventBridge, and Systems Manager usage.
 
 If some resources can't be priced, the page says the estimate is incomplete. Your actual charges depend on usage.

@@ -4,7 +4,7 @@ sidebarTitle: "Analyze your application"
 description: "How Deployz analyzes your repository, what the three results mean, and how to review findings, resources, and re-analyze."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
 
 When you add an application, Deployz analyzes its repository to work out how to build, start, and host it. The analysis reads your files without building or running anything. It reports whether Deployz can deploy the application, and lists anything you need to set or change first.
 
@@ -34,7 +34,7 @@ The analysis can't predict every build problem, because it doesn't build your co
 
 Each finding is either required or recommended:
 
-- **Required.** You must resolve it before you can run a test deployment or deploy to customers. On the **Overview**, the card shows a count such as **2 changes required before you can deploy**, with **Review required changes**.
+- **Required.** You must resolve it before you can run a test deployment or deploy to customers. For some items you can instead [mark them as not used in production](#mark-a-blocker-as-not-used-in-production). On the **Overview**, the card shows a count such as **2 changes required before you can deploy**, with **Review required changes**.
 - **Recommended.** It doesn't block a deployment, but it can cause problems later. Examples are confirming which Dockerfile Deployz builds, giving Deployz a way to update your database, and confirming a background worker, queue, or scheduled job.
 
 When required changes are open, the **Overview** groups them by where you resolve them:
@@ -43,7 +43,7 @@ When required changes are open, the **Overview** groups them by where you resolv
 | --- | --- |
 | **Set in Deployz** | A setting in the Deployz dashboard, such as the port, the health check path, or how database migrations run. A missing start command is also listed here, but you set it in your repository. See [Analysis troubleshooting](/troubleshooting/analysis#the-application-needs-input). |
 | **Change in your repository** | A change you push to GitHub, such as adding a Dockerfile or listening on all network interfaces. |
-| **Not supported** | A capability Deployz doesn't provide. A setting or a small change can't resolve it. |
+| **Not supported** | A capability Deployz doesn't provide. A setting or a small change can't resolve it. If you know your application doesn't use it in production, you can [mark it as not used](#mark-a-blocker-as-not-used-in-production). |
 
 If the analysis can't tell whether your application really needs an unsupported capability, it lists the item under **Change in your repository** instead of **Not supported**. This happens with SQLite when your application also has a PostgreSQL or MySQL driver.
 
@@ -76,7 +76,7 @@ A row that needs you shows a label:
 | **Blocking** | A question that blocks a deployment until you resolve it. |
 | **Needs review** | Deployz couldn't determine this value. |
 
-To resolve a row, use its action. Settings open an editor, such as **Fix port**. Other findings open [fix instructions for your coding agent](/prepare/fix-findings) through **Get fix instructions**.
+To resolve a row, use its action. Settings open an editor, such as **Fix port**. Other findings open [fix instructions for your coding agent](/prepare/fix-findings) through **Get fix instructions**. A blocking row that you can dispute also has **Not used in production**. A blocker appears once, on the row with its actions.
 
 External services your application calls directly, such as Stripe, appear under **External integrations**. Deployz doesn't create them, and their usage is billed separately by the provider.
 
@@ -87,6 +87,27 @@ Below the table, expand **Technical details**:
 - **Detected components** lists each part of the application the analysis found. Each one is marked **Detected automatically**, or **Confirmed** when you set it yourself.
 - The evidence for each detected fact, such as the file and reason for the port.
 - **Checks completed** lists the checks your application passed.
+
+## Mark a blocker as not used in production
+
+If a blocking finding is a false positive, for example a MongoDB driver that only a development script uses, you can tell Deployz the application doesn't use it in production.
+
+**Who:** you (the vendor), in the Deployz dashboard.
+
+<Warning>
+  Deployz doesn't create the item you mark. If your application needs it, a test deployment fails. For storage items, files the application writes to its disk are lost when it restarts or updates, so confirm only if the application doesn't need them later.
+</Warning>
+
+1. On **Configuration** › **Resources**, find the blocking row. On the **Overview**, **Is this wrong?** links to it with **Review it in Resources**.
+2. Select **Not used in production**.
+3. In the **Mark ... as not used in production?** dialog, expand **Why Deployz found it** to see the evidence. Storage items also show **Files can be lost**.
+4. Select **Mark as not used**. Select **Cancel** to leave the finding as it is.
+
+Deployz analyzes the application again without the item. Your answer then appears under **Your answers**. To withdraw it, select **Undo**, and Deployz analyzes again.
+
+A vendor answer applies only while the analysis finds the same evidence. If the evidence changes, the answer shows **Evidence changed**: check it again. Re-analyzing keeps your answers while the evidence still matches.
+
+You can mark these findings: MongoDB, Elasticsearch, other unsupported databases, SQLite, MariaDB, unsupported Redis setups, message brokers, several application services, persistent volumes, and files written to the local disk. You can't mark a GPU requirement, an application that runs its own infrastructure, a missing Dockerfile, or a Dockerfile that copies `.git`. Every other check still runs.
 
 ## Choose which data services to create
 
@@ -124,7 +145,7 @@ You can also start it from:
 
 **Re-analyze application** in the **More actions** menu is unavailable while an analysis is running.
 
-Deployz analyzes the latest commit on the application's branch again. Settings you changed yourself, such as the port or the health check path, are kept. Settings you didn't change follow the new analysis.
+Deployz analyzes the latest commit on the application's branch again. Settings you changed yourself, such as the port or the health check path, are kept. Settings you didn't change follow the new analysis. Your [not-used answers](#mark-a-blocker-as-not-used-in-production) are kept while their evidence still matches.
 
 A new analysis doesn't change what your customers run. To deliver a code change, [create a release](/releases/create) after the analysis passes.
 

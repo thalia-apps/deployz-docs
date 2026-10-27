@@ -3,9 +3,36 @@ title: "Changelog"
 description: "Changes to Deployz and its documentation that affect vendors and their customers."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
 
 {/* Add an <Update> entry for each user-visible change: new Regions, features leaving Preview, pricing changes, removed flows. Newest entry first. */}
+
+<Update label="2026-10-27" description="Customer sign-in, connector updates, and false blockers" tags={["Customers", "Connector", "Analysis", "Team"]}>
+  **Customer install page**
+
+  - Your customer now verifies their email with an 8-digit code before they connect their AWS account. Deployz sends the code to the email on the customer record, so check that it's correct. Without the code, the page shows only the application and publisher names. See [Verify your email](/customers/install#verify-your-email).
+  - After the install, your customer can return to the same address to see the connector, the AWS location of the deployment, and recent activity. Signed in to the dashboard, you open the page without a code.
+  - Invitations and a deployment's install link now expire after 7 days instead of 30. **Issue new install link** makes the link valid for 7 more days. See [Limits](/reference/limits).
+  - An application install link accepts up to 50 new deployments in any 24 hours.
+
+  **Connector updates**
+
+  - Your customer can start a connector update from their install page with **Update connector**. See [Update the connector stack](/customers/update-connector#update-to-a-newer-connector).
+  - Deployz now follows the connector stack in AWS. The deployment page shows **Connector update in progress**, **Connector update rolled back**, or **Connector update failed**, and marks an update done only when the new connector runs on a stable stack. New connector stacks can read the status of their own stack for this. See [Update the connector](/operate/connector#update-the-connector).
+
+  **Analysis and releases**
+
+  - If a blocker comes from something your application doesn't use in production, such as a database driver used only in tests, you can select **Not used in production** on its row. Deployz analyzes again without it, and a test deployment confirms the result. See [Mark a blocker as not used in production](/prepare/analysis#mark-a-blocker-as-not-used-in-production).
+  - On a first install, an application with a database migration starts only after the migration succeeds. If the migration fails, the deployment fails, and you deploy again after the fix. See [Database migrations](/prepare/migrations).
+  - An application builds one release at a time.
+  - The cost estimate now prices queues and schedules (**Preview**) as usage-based, and the install plan lists workers, queues, and schedules. See [Sizes and AWS cost](/share/sizes-and-cost#estimated-monthly-aws-cost).
+
+  **Team and removal**
+
+  - Only owners and admins can remove a deployment, delete retained data, select **Complete removal anyway**, issue a new install link, or delete an application or customer. See [Roles](/account/organization-and-team#roles).
+  - You must verify your email before you invite teammates.
+  - You can now remove a deployment whose connector never connected. Nothing is removed from your customer's AWS account, and the install link stops working. See [Remove a deployment](/operate/remove).
+</Update>
 
 <Update label="2026-10-21" description="Security, billing, and recovery" tags={["Security", "Billing", "Deployments", "Analysis"]}>
   **Security**

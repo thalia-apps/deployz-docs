@@ -16,6 +16,7 @@ Start here when something goes wrong. Find your symptom in the table, or open th
 | The analysis shows "Taking longer than usual" | [The analysis is taking longer than usual](/troubleshooting/analysis#the-analysis-is-taking-longer-than-usual) |
 | The application shows **Needs input** | [The application needs input](/troubleshooting/analysis#the-application-needs-input) |
 | The **Overview** shows **Not deployable on Deployz** | [The application needs an unsupported capability](/troubleshooting/analysis#the-application-needs-an-unsupported-capability) |
+| A blocker comes from something your application doesn't use in production | [Mark a blocker as not used in production](/prepare/analysis#mark-a-blocker-as-not-used-in-production) |
 | The **Overview** shows **Deployable after repository changes**, or changes required before you can deploy | [A finding needs a change you can make](/troubleshooting/analysis#a-finding-needs-a-change-you-can-make) |
 | The **Overview** shows "Not yet confirmed by a build" or "The release build failed" | [The result changes after a release build](/troubleshooting/analysis#the-result-changes-after-a-release-build) |
 | A deployment is blocked with "A migration command is set, but no database is required" | [A migration command is set but no database is required](/troubleshooting/analysis#a-migration-command-is-set-but-no-database-is-required) |
@@ -25,6 +26,7 @@ Start here when something goes wrong. Find your symptom in the table, or open th
 | You can't create a customer deployment because of your subscription | [Pricing and billing](/account/billing) |
 | The install page shows **Still connecting**, or the deployments list shows **Setting up · Slow to connect** | [The install page shows Still connecting](/troubleshooting/connector#the-install-page-shows-still-connecting) |
 | The connector stack completed in AWS, but the install page keeps showing **Still connecting** | [The connector never connects after a new install link](/troubleshooting/connector#the-connector-never-connects-after-a-new-install-link) |
+| Your customer's sign-in code doesn't arrive, or the install page says "Too many wrong codes" | [The sign-in code does not arrive](/troubleshooting/install#the-sign-in-code-does-not-arrive) |
 | AWS CloudFormation says the connector stack already exists | [The connector stack already exists](/troubleshooting/install#the-connector-stack-already-exists) |
 | **Install failed** because of an AWS organization policy (`AWS_SCP_BLOCKED`) | [An AWS organization policy blocks the setup](/troubleshooting/install#an-aws-organization-policy-blocks-the-setup) |
 | **Install failed** because the connector was refused permission (`AWS_PERMISSION_DENIED`) | [The connector lacks permission](/troubleshooting/install#the-connector-lacks-permission) |
@@ -51,7 +53,7 @@ Start here when something goes wrong. Find your symptom in the table, or open th
 | **Your application is not responding** or **Your application is degraded** | [A live application stops responding](/troubleshooting/startup-and-health#a-live-application-stops-responding) |
 | You need the application's logs | [Find the application logs](/troubleshooting/startup-and-health#find-the-application-logs) |
 | **Lost contact with this deployment**, or **Needs attention · Lost contact** | [The connector is offline](/troubleshooting/connector#the-connector-is-offline) |
-| **Connector update available** or **Connector update required to verify releases** | [The connector needs an update](/troubleshooting/connector#the-connector-needs-an-update) |
+| **Connector update available**, **Connector update required to verify releases**, **Connector update rolled back**, or **Connector update failed** | [The connector needs an update](/troubleshooting/connector#the-connector-needs-an-update) |
 | The deployment is running over a temporary address, not HTTPS | [The default HTTPS address stays in setup](/troubleshooting/https-and-domains#the-default-https-address-stays-in-setup) |
 | The endpoint shows **Failed** with **Retry HTTPS setup** | [The default HTTPS address failed](/troubleshooting/https-and-domains#the-default-https-address-failed) |
 | A message on the custom domain card | [Read the custom domain card](/troubleshooting/https-and-domains#read-the-custom-domain-card) |
@@ -60,6 +62,7 @@ Start here when something goes wrong. Find your symptom in the table, or open th
 | A custom domain stays in setup, or shows "We couldn't connect this domain" | [A custom domain update timed out](/troubleshooting/https-and-domains#a-custom-domain-update-timed-out) |
 | You want to change a custom domain | [Change a custom domain](/troubleshooting/https-and-domains#change-a-custom-domain) |
 | **Removal failed** | [If removal fails](/operate/remove#if-removal-fails) |
+| "Your role does not allow this action" | [Roles](/account/organization-and-team#roles) |
 
 ## Troubleshoot by stage
 
@@ -97,7 +100,7 @@ When a deployment fails or needs attention, its page in the dashboard opens with
 2. **Impact.** What still works. After a failed update, for example, the panel says that the previous release is still live and unaffected.
 3. **Cause and fix.** **Why it happened** and **How to fix it**. For the six application startup codes and for `UNKNOWN`, Deployz can write the explanation from the failure signals instead. It then shows **Likely cause** and **Suggested fix**, and may say how sure it is. Check that kind of explanation against **Technical details** before you act on it.
 4. **Recoverability.** One line that says whether the failure can be temporary or who needs to act. The classes are below.
-5. **Actions.** The recovery action, for example **Retry deployment**, **Retry update**, or **Retry removal**. When a failed first install needs Deployz, the panel shows the text **Contact Deployz support** instead of a button.
+5. **Actions.** The recovery action, for example **Retry deployment**, **Retry update**, or **Retry removal**. When a failed first install needs Deployz, the panel shows a **Contact Deployz support** link instead of a button.
 6. **Technical details.** Collapsed by default. It holds the **Failure code**, the operation and attempt, the AWS resource that failed, error messages, and, for startup failures, the container's exit code and stopped reason.
 
 Your customer sees a simpler panel on their install page. It explains what happened, whether anything in their AWS account was cleaned up, and whether they need to act. It doesn't show the failure code.
@@ -110,7 +113,7 @@ Every failure code belongs to one recoverability class. The class tells you who 
 | --- | --- | --- | --- |
 | Can be temporary | “This can be temporary. Retry when the cause clears. If it continues, contact Deployz support.” | You, once the cause clears | On a failed first install, select **Retry deployment**. A failed first install doesn't recover on its own. On a deployment with a running release, the deployment returns to its normal status when the connector reports the application healthy again, and you can also deploy again. If it continues, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). |
 | Needs a change | “Needs a change before a retry can succeed — see the fix above.” | You, or your customer in their AWS account | Make the change the fix describes, then retry. |
-| Needs Deployz | “This needs a fix on the Deployz side — contact support rather than retrying.” | Deployz | [Contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). Don't retry in a loop. On a failed first install, the dashboard shows the text **Contact Deployz support** instead of **Retry deployment**. |
+| Needs Deployz | “This needs a fix on the Deployz side — contact support rather than retrying.” | Deployz | [Contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). Don't retry in a loop. On a failed first install, the dashboard shows a **Contact Deployz support** link instead of **Retry deployment**. |
 | Can't be retried as is | “Retrying will not help until the underlying requirement changes.” | You | Change the requirement, for example the Region or the application itself. |
 
 Your customer can't retry, update, or remove anything in Deployz. When the fix is in their AWS account, they make the change and tell you, and you retry.

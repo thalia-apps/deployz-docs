@@ -3,7 +3,7 @@ title: "Fix a failed build"
 description: "Find out why a release build failed and how to fix it."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
 
 **Symptom:** a release on the **Releases** tab shows **Build failed**.
 
@@ -52,7 +52,7 @@ The details panel labels the likely owner of the problem:
 | --- | --- | --- |
 | **Likely a repository issue** | The error comes from your Dockerfile or your code. | Fix the error, push the change, then create a new release from the new commit. |
 | **Likely temporary** | The log shows a network or rate-limit error. | Wait a few minutes, then create a new release from the same commit. |
-| **Likely a Deployz build issue** | The failure happened in a step Deployz runs, not in your build. | Select **Copy report for Deployz support** and [send it to support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). Don't change your application to work around it. |
+| **Likely a Deployz build issue** | The failure happened in a step Deployz runs, not in your build. | Select **Copy report for Deployz support** and [send it to support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). Don't change your application to work around it. The panel links to **How to contact Deployz support**. |
 | **Cause not determined** | The evidence doesn't show the cause. This includes builds that ran out of memory or time. | Use the coding-agent prompt, and check the build log for the earliest error. |
 
 ## Investigate with a coding agent or AI
