@@ -3,7 +3,7 @@ title: "Database migrations"
 description: "How Deployz runs your database migrations, and how to keep them safe for rollback."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
 
 If your application uses a database, Deployz can run your migration command on every deployment, so each customer's database matches the release it runs. This page explains how Deployz finds the command, how and when it runs, and how to write migrations that stay safe when you roll back.
 
@@ -70,7 +70,12 @@ When you deploy a release, Deployz runs these steps in the customer's AWS accoun
 
 The migration succeeds only when the command exits with code `0`. Deployz runs the command through `sh -c`, so your container image must include `sh`.
 
-If the migration fails, Deployz doesn't update any service. The previous release keeps serving customers, and the deployment shows **Migration failed**. Fix the migration in your repository and create a new release, or correct the migration command, then deploy again. See [`MIGRATION_FAILED`](/reference/failure-codes#migration_failed) and [The database migration failed](/troubleshooting/startup-and-health#the-database-migration-failed).
+If the migration fails, Deployz doesn't update or start any service, and the deployment shows **Migration failed**:
+
+- **First install.** Nothing was serving yet, so Deployz starts the service only after the first migration succeeds. If it fails, the deployment is **Failed**. Fix the migration and deploy again.
+- **Later releases.** The update fails and the previous release keeps serving customers.
+
+Fix the migration in your repository and create a new release, or correct the migration command, then deploy again. See [`MIGRATION_FAILED`](/reference/failure-codes#migration_failed) and [The database migration failed](/troubleshooting/startup-and-health#the-database-migration-failed).
 
 ### When a migration runs again
 

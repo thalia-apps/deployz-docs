@@ -3,9 +3,9 @@ title: "Install the application"
 description: "Review the plan, connect your AWS account, and follow the progress until the application is ready."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
 
-Installing has three parts: you review and confirm the plan on the install page, approve the connector stack in your AWS console, then follow the progress on the install page until the application is ready.
+Installing has four parts: you review and confirm the plan on the install page, verify your email with a code, approve the connector stack in your AWS console, then follow the progress on the install page until the application is ready.
 
 Before you start, complete the checks in [Before you install](/customers/before-you-install).
 
@@ -40,7 +40,39 @@ If **Continue to setup** is unavailable, the line under it says what's missing, 
 
 If the page shows **Setup could not continue**, follow the message under it. For example, if the plan changed after you reviewed it, the page shows the updated plan. Review it, then select **Continue to setup** again. If the message asks you to contact your software provider, they need to fix something before you can continue.
 
-After you continue, the page opens a new address for your deployment. Keep this address. You return to it to follow the progress, and anyone with it can view the page, so don't share it.
+After you continue, the page opens a new address for your deployment. Keep this address. You return to it to follow the progress. The page asks for an emailed code before it shows anything beyond the application and publisher names, so a copy of the address alone doesn't give someone access.
+
+## Verify your email
+
+**Who:** you, on the install page.
+
+Before you can connect your AWS account, the page asks you to verify your email. This proves that you're the person your software provider set the deployment up for.
+
+<Steps>
+  <Step title="Send the code">
+    Under **Verify your email**, enter the email address your software provider has for this deployment. For a link you opened yourself, that's the email you entered under **Your details**. Select **Send code**.
+  </Step>
+  <Step title="Enter the code">
+    Check your inbox for a message with the subject "Your sign-in code for" followed by the application name, sent by Deployz. Under **Enter the code**, enter the 8-digit code and select **Continue**. The code expires after 10 minutes, and you get 5 attempts for each code.
+  </Step>
+</Steps>
+
+The page gives the same answer for every email address and never says whether an address has access. If you enter a different address, the page looks the same, but no email arrives.
+
+To get another code, select **Send a new code**, which is available 60 seconds after the last one. To start over with a different address, select **Use another email**.
+
+### If the code does not arrive
+
+1. Check your spam or junk folder for a message from Deployz.
+2. Make sure you entered the email address your software provider has for you. A different address gets no email, and the page doesn't tell you. Select **Use another email** to try another address, or ask your software provider which address they have.
+3. Wait 60 seconds, then select **Send a new code**. You can request up to 5 codes per hour for one address.
+4. After 10 wrong codes for one address within an hour, the page asks you to wait one hour before you request a new code.
+
+If none of this works, ask your software provider to check the email on your customer record.
+
+The first email you verify becomes the owner of the deployment. If your software provider later changes the email on your customer record, the owner doesn't change.
+
+You stay signed in until the page has been idle for 30 minutes, or for 12 hours at most. The page shows **Signed in as** your email and a **Sign out** button.
 
 ## Connect your AWS account
 
@@ -48,7 +80,7 @@ After you continue, the page opens a new address for your deployment. Keep this 
 
 The page is now titled **Deploy** followed by the application name and **to your AWS account**. It shows the Region and release, the estimated AWS cost, **What will be deployed** (select **View AWS resources** for the complete list), and the data that stays after removal.
 
-If the page shows an **Invitation expires** date, connect your AWS account before then. After that date, the page says **This install link has expired**. Once your AWS account has connected, the link keeps working so you can follow the progress.
+If the page shows an **Invitation expires** date, connect your AWS account before then. After that date, the page says **This install link has expired**. Once your AWS account has connected, the link keeps working so you can follow the progress. When your session ends, the page asks for a new code.
 
 If **Connect AWS account** is unavailable and the page says your software provider hasn't published a setup template yet, contact them for a working link.
 
@@ -136,12 +168,24 @@ If your software provider sets up a custom domain for the application, a **Custo
 
 Once your AWS account has connected, the page notes that this install link has been used. To install again, ask your software provider for a new link.
 
+## Come back to the deployment page
+
+**Who:** you, on the same address, after you verify your email.
+
+The address keeps working after the install, so you can return to check on the deployment. You sign in with a new code when your session has ended. The page shows:
+
+- **Deployz connector:** whether the connector is connected, when it last contacted Deployz, its version, and whether an update is available. If one is, select **Update connector**. See [Update the connector stack](/customers/update-connector).
+- **AWS location:** the AWS account, Region, and connector stack. Select **Open in AWS** to open the stack in CloudFormation.
+- **Activity:** recent events for the deployment.
+
+Select **Sign out** to end your session.
+
 ## If the link does not open
 
 | The page says | What to do |
 | --- | --- |
 | **This install link has expired** | Ask your software provider for a new link. |
-| **This install link was revoked** | Ask your software provider for a new link. |
+| **This install link was revoked** | Ask your software provider for a new link. If the message says your software provider removed this installation, they removed the deployment before it was installed, and you don't need to do anything in AWS. |
 | **This link isn't valid** | Check that you used the complete link. For a personal invitation, the part after `#` is required. Otherwise ask your software provider for a new link. |
 | **This application cannot be installed** | The message under it says why, for example that the link was revoked, expired, or already used, or that the application isn't available right now. Contact your software provider. |
 | **We can't load this page right now** | Deployz couldn't load the page. Your link is still valid. Select **Try again**, or come back a little later. |

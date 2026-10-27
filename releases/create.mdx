@@ -3,7 +3,7 @@ title: "Create a release"
 description: "Build an immutable release from a commit on your application's branch."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
 
 A release is one version of your application: a container image that Deployz builds from one commit, with a version label you choose. A release never changes after it's built, so every customer who runs version `v1.3.0` runs the same container image.
 
@@ -31,13 +31,13 @@ Creating a release doesn't update any customer. Running deployments keep their c
     Select **Create release**. The **New release** form opens.
   </Step>
   <Step title="Enter a version">
-    In **Version**, enter a label such as `v1.3.0`. Deployz suggests the next patch version after your newest release, or `v0.1.0` for the first one. When your newest release's version isn't in the `1.2.3` or `v1.2.3` form, the field starts empty. Each version must be unique for the application, including versions whose build failed. If you reuse a version, the form shows "Couldn't create this release. Try again."
+    In **Version**, enter a label such as `v1.3.0`. Deployz suggests the next patch version after your newest release, or `v0.1.0` for the first one. When your newest release's version isn't in the `1.2.3` or `v1.2.3` form, the field starts empty. A version can use letters, digits, `.`, `_`, and `-`. It must start with a letter, a digit, or `_`, and can be up to 101 characters long. Each version must be unique for the application, including versions whose build failed. If you reuse a version, the form shows "Version `<version>` already exists for this application. Use a different version number."
   </Step>
   <Step title="Choose the commit">
-    In **Commit**, select a commit from the list. The list shows commits from your application's branch. To use another commit, select **Enter commit SHA manually** and paste its SHA, from 7 to 40 characters. Deployz checks the SHA with GitHub. If the commit isn't in the repository, the form shows "This commit doesn't exist in the repository." If GitHub is unavailable, enter the full 40-character SHA.
+    In **Commit**, select a commit from the list. The list shows commits from your application's branch. To use another commit, select **Enter commit SHA manually** and paste its SHA, from 7 to 40 hexadecimal characters (`0`-`9` and `a`-`f`). Deployz checks the SHA with GitHub. If the commit isn't in the repository, the form shows "This commit doesn't exist in the repository." If GitHub is unavailable, enter the full 40-character SHA.
   </Step>
   <Step title="Create it">
-    Select **Create release**. Deployz starts building the container image. A build usually takes a few minutes, and the page updates when it finishes.
+    Select **Create release**. Deployz starts building the container image. A build usually takes a few minutes, and the page updates when it finishes. An application builds one release at a time. If another release is still building, the form shows "Another release of this application is still building. Wait until it finishes."
   </Step>
 </Steps>
 

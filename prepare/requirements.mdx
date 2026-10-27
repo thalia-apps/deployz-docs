@@ -3,7 +3,7 @@ title: "Application requirements"
 description: "The application architecture Deployz supports: one container image, a web service, optional workers and data services, and a dedicated network in one AWS Region."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
 
 Deployz supports one application architecture and runs it the same way in every customer's AWS account. Check your application against this page before you add it. If something you rely on isn't listed here, read [What Deployz doesn't support](/prepare/not-supported).
 
@@ -34,7 +34,7 @@ Deployz adds the optional parts only when the analysis finds that your applicati
 
 - **A Dockerfile in the repository.** Deployz builds your application from a Dockerfile that produces a production container image. A Dockerfile that's only for development, is a template, copies files the repository doesn't contain, or copies nothing from the repository doesn't count. The build can't use the `.git` directory, because Deployz builds from a source archive that doesn't include it.
 - **One container image per release.** The web service, every worker, the migration task, and scheduled jobs all run the same container image with different commands. A worker that needs its own Dockerfile isn't supported.
-- **A start command in the repository.** The Dockerfile needs a `CMD` or `ENTRYPOINT`, or the repository needs a `start` script in `package.json`. The Deployz dashboard has no field for the start command, so set it in your repository.
+- **A start command in the repository.** The Dockerfile needs a `CMD` or `ENTRYPOINT`, or the repository needs a `start` script in `package.json`. Deployz uses the last `CMD` or `ENTRYPOINT` in the production stage. The `CMD` of a `HEALTHCHECK` doesn't count. The Deployz dashboard has no field for the start command, so set it in your repository.
 - **Linux on x86_64.** Deployz builds and runs containers on Linux with the x86_64 CPU architecture (`linux/amd64`). Containers run on AWS Fargate.
 
 ### How Deployz builds the container image
@@ -42,7 +42,7 @@ Deployz adds the optional parts only when the analysis finds that your applicati
 Deployz builds the container image when you [create a release](/releases/create):
 
 - It runs `docker build` with the Dockerfile the analysis selected.
-- The build context is the Dockerfile's own directory. For example, `COPY requirements.txt .` in `backend/Dockerfile` copies `backend/requirements.txt`. When the analysis finds that a Dockerfile is meant to be built from the repository root, such as one in a `docker/` folder, Deployz uses the root instead.
+- The build context is the Dockerfile's own directory. For example, `COPY requirements.txt .` in `backend/Dockerfile` copies `backend/requirements.txt`. When the analysis finds that a Dockerfile is meant to be built from the repository root, such as one in a `docker/` folder, Deployz uses the root instead. This also applies to a Dockerfile in a subdirectory that copies its whole context from a directory with no project file.
 - A multi-stage Dockerfile builds its last stage. If the last stage is a tooling stage rather than the application, Deployz builds the application stage the analysis found.
 - Build values you configure reach the build as build arguments. See [Build or runtime](/prepare/environment-variables#build-or-runtime).
 

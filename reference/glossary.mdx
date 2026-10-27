@@ -58,13 +58,13 @@ The terms Deployz uses in the dashboard, on the install page, and in this docume
 **Install link:** A link that lets a customer install your application in their AWS account. There are two kinds:
 
 - **The application's install link** is reusable. You share the same link with any number of customers, and each confirmation creates a new customer record and a new deployment. Each application has one live install link at a time, which you can disable, enable, regenerate, or revoke. See [Share an install link](/share/install-links).
-- **A deployment's own install link** is on its deployment page. It's valid for 30 days. When you issue a new install link, the address stays the same, but the connection code and the connector credential change, and the link is valid for 30 more days. A connector stack or Quick Create link started with the old values stops working. See [Reconnect or update the Deployz connector](/operate/connector).
+- **A deployment's own install link** is on its deployment page. It's valid for 7 days. When you issue a new install link, the address stays the same, but the connection code and the connector credential change, and the link is valid for 7 more days. A connector stack or Quick Create link started with the old values stops working. See [Reconnect or update the Deployz connector](/operate/connector).
 
-**Install page:** The page your customer opens from an install link or invitation. On it, they review what will be created and the estimated AWS cost, choose a Region and size, enter any settings you asked for, and connect their AWS account. It then shows the install's progress. See [Install the application](/customers/install).
+**Install page:** The page your customer opens from an install link or invitation. On it, they review what will be created and the estimated AWS cost, choose a Region and size, enter any settings you asked for, verify their email with an emailed code, and connect their AWS account. It then shows the install's progress. See [Install the application](/customers/install).
 
 **Installation ID:** An identifier created inside your customer's AWS account when they create the connector stack. Deployz uses it to tag and name the deployment's resources, which keeps them apart from other deployments in the same account. It isn't part of the Quick Create link. See [Security and AWS access](/customers/security).
 
-**Invitation:** A private, single-use install link for one specific customer. It expires 30 days after you create it, and you can revoke it while it's active. See [Invite a specific customer](/share/invitations).
+**Invitation:** A private, single-use install link for one specific customer. It expires 7 days after you create it, and you can revoke it while it's active. See [Invite a specific customer](/share/invitations).
 
 ## L
 

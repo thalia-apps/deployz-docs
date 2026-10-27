@@ -3,7 +3,7 @@ title: "What Deployz doesn't support"
 description: "What Deployz doesn't provide, what needs a change in your repository before Deployz can deploy it, and what to do instead."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
 
 Deployz supports one architecture, described in [Application requirements](/prepare/requirements). This page lists what falls outside it, so you can decide early whether Deployz fits your application.
 
@@ -13,7 +13,7 @@ There are three kinds of limits:
 - **Patterns that need a repository change.** Deployz can't run the repository as it is, but a known change fixes it, such as removing a `.git` copy from the Dockerfile or moving files from the local disk to S3. The **Overview** shows **Deployable after repository changes**, and the item is listed under **Change in your repository**.
 - **Platform limits.** Things Deployz doesn't provide for any application, whatever your repository contains.
 
-Deployz won't deploy the application until you resolve every required item, including repository changes. Each item shows the file or dependency it found as evidence. Files in documentation, example, and test folders don't count as evidence.
+Deployz won't deploy the application until you resolve every required item, including repository changes. If you know the application doesn't use a blocking database, Redis, broker, volume, or local-file item in production, you can [mark it as not used in production](/prepare/analysis#mark-a-blocker-as-not-used-in-production). GPU, infrastructure your repository manages itself, a missing Dockerfile, and a `.git` copy can't be marked. Each item shows the file or dependency it found as evidence. Files in documentation, example, and test folders don't count as evidence.
 
 ## Resolve an item in your repository
 
@@ -81,7 +81,7 @@ Deployz can deploy these applications after you change the repository. To get in
 
 | Detected | What to do instead |
 | --- | --- |
-| No Dockerfile that builds a production container image, for example one that's only for development, is a template, or copies nothing from the repository | Add a production Dockerfile that builds and starts the application from source. |
+| No Dockerfile that builds a production container image, for example one that's only for development, builds a documentation site (such as Docusaurus, MkDocs, VitePress, or Sphinx), is a template, or copies nothing from the repository | Add a production Dockerfile that builds and starts the application from source. |
 | A Dockerfile that copies or reads the `.git` directory | Remove the copy or read of `.git` from the Dockerfile. Deployz builds from a source archive that has no `.git` directory. |
 | A server that listens only on `127.0.0.1` or `localhost` | Bind the server to all network interfaces (`0.0.0.0`). Deployz sends traffic and health checks over the network, so a server bound to localhost never answers them. |
 | A production Compose file with more than one application service | Run the application as one web service. Declare other long-running processes as workers. |

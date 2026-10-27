@@ -6,7 +6,7 @@ description: "Choose deployment sizes and understand what each costs in AWS."
 import BaselineCosts from "/snippets/baseline-costs.mdx";
 import RegionCostFactors from "/snippets/region-cost-factors.mdx";
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
 
 Every deployment uses one of three sizes: Small, Medium, or Large. The size sets the capacity of your application's containers, database, and cache. It's chosen when the deployment is created and can't be changed afterward.
 
@@ -66,7 +66,7 @@ Deployz shows an estimated monthly AWS cost on **Size presets** and on the custo
 | What you see | Meaning |
 | --- | --- |
 | A range, such as `$65–$95 + usage` on **Size presets** | The baseline monthly cost of the resources Deployz can price. **+ usage** means some costs depend on how much the application is used, and aren't in the range. See [What the estimate leaves out](#what-the-estimate-leaves-out). |
-| “Some resources could not be priced” | The deployment includes a resource that Deployz has no price for, such as a queue or scheduled job (**Preview**). The real cost is higher than the range. On **Size presets**, this note is under **Estimate details**. On the install page, it reads "Estimate is incomplete". |
+| “Some resources could not be priced” | The deployment includes a resource that Deployz has no price for. The real cost is higher than the range. On **Size presets**, this note is under **Estimate details**. On the install page, it reads "Estimate is incomplete". |
 | **Estimate unavailable** | Deployz couldn't produce an estimate. On the install page, this happens when the selected Region isn't available for installs. |
 
 ### Baseline cost by resource
@@ -103,6 +103,8 @@ Some AWS costs depend on usage, so the estimate leaves them out:
 - Data processed by the NAT gateway
 - Load balancer capacity used
 - Database storage growth and backups
+- Messages sent to and received from queues (**Preview**), and scheduled invocations (**Preview**)
+- One-off tasks, such as migrations and scheduled jobs, which are billed by how long they run
 - Outbound internet data transfer and data transfer between Availability Zones
 
 The estimate also leaves out some smaller fixed costs of each deployment:
@@ -112,7 +114,7 @@ The estimate also leaves out some smaller fixed costs of each deployment:
 - The NAT gateway's public IPv4 address (an Elastic IP address), which AWS charges for separately
 - The resources of the Deployz connector
 
-Queues and scheduled jobs (**Preview**) aren't priced. When a deployment includes them, the estimate says that some resources could not be priced.
+Workers are priced like the web container, as one always-running copy each. Queues and schedules are billed by usage only, so they add no fixed amount and show as usage-based.
 
 Deployz fees and any external services your application uses are also not included.
 

@@ -4,7 +4,7 @@ sidebarTitle: "Limits"
 description: "The fixed limits, expiry times, and timeouts that apply to Deployz applications, links, deployments, and the data services they create."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
 
 These limits are fixed. You can't change them for an application, an organization, or a deployment.
 
@@ -19,12 +19,30 @@ These limits are fixed. You can't change them for an application, an organizatio
 
 ## Links and invitations
 
+How long each link lasts:
+
 | Item | Expires |
 | --- | --- |
 | Application install link | Doesn't expire. It works until you disable, regenerate, or revoke it. |
-| Customer invitation | 30 days after you create it, if it isn't used. See [Invite a specific customer](/share/invitations). |
-| A deployment's install link | 30 days after the deployment is created. **Issue new install link** makes it valid for 30 more days from that time. See [Reconnect or update the Deployz connector](/operate/connector). |
+| Customer invitation | 7 days after you create it, if it isn't used. See [Invite a specific customer](/share/invitations). |
+| A deployment's install link | 7 days after the deployment is created. **Issue new install link** makes it valid for 7 more days. See [Reconnect or update the Deployz connector](/operate/connector). |
 | Team invitation | 7 days after you send it. See [Invite a teammate](/account/organization-and-team#invite-a-teammate). |
+
+How many you can create or accept:
+
+| Item | Limit |
+| --- | --- |
+| Team invitations you can send | 50 per day. |
+| New deployments from one application install link | 50 per rolling 24 hours. After that, customers see "This installation link has reached its daily limit." until the window frees up. See [Share an install link](/share/install-links). |
+
+## Customer sign-in
+
+| Item | Limit |
+| --- | --- |
+| Sign-in code | 8 digits. It expires after 10 minutes and allows 5 attempts. |
+| Sending a new code | 60 seconds after the last one. At most 5 codes per email address per hour. |
+| Wrong codes | After 10 wrong codes for one email address within an hour, the customer must wait one hour. |
+| Customer session | Ends after 30 minutes without activity, or after 12 hours. |
 
 ## Regions and sizes
 
@@ -52,6 +70,7 @@ For how values reach a deployment, see [Configure environment variables](/prepar
 | Item | Limit |
 | --- | --- |
 | Release build | 60 minutes. A build that runs longer fails. See [Fix a failed build](/releases/build-failures). |
+| Release builds at the same time | One per application. A second build request is refused until the first finishes. |
 | Health check grace period | 300 seconds after a web container starts. Failed health checks don't count against the container during this time. |
 | Time for a new install to become healthy | 30 minutes after the install's last step finishes. If the application still fails its health checks after that, the install fails. |
 | Default HTTPS address setup | 30 minutes. If the address isn't ready by then, Deployz stops and reports a failure. |

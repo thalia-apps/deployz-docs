@@ -3,7 +3,7 @@ title: "Organization and team"
 description: "Invite teammates, understand roles, and manage your Deployz organization and account."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
 
 An organization is where your team works in Deployz. It holds your applications, releases, customers, deployments, GitHub connection, and subscription. Everyone in the organization sees and works with the same things.
 
@@ -13,12 +13,15 @@ When you sign up, Deployz creates an organization for you, named after the part 
 
 Each member of an organization has one role: owner, admin, or member. An organization always has exactly one owner.
 
-Roles control only who can manage the team and the organization itself. Every member, whatever their role, can do everything else in the organization: add and analyze applications, build releases, create test deployments, install links, and invitations, deploy updates, roll back, change configuration, add custom domains, remove deployments, and manage billing.
+Roles control who can manage the team and the organization, and who can take destructive actions on applications, customers, and deployments. Every member, whatever their role, can do everything else in the organization: add and analyze applications, build releases, create test deployments, install links, and invitations, deploy updates, roll back, change configuration, add custom domains, and manage billing.
 
 | Action | Owner | Admin | Member |
 | --- | --- | --- | --- |
-| Work with applications, releases, customers, and deployments | Yes | Yes | Yes |
-| Remove deployments and add custom domains | Yes | Yes | Yes |
+| Everything else with applications, releases, customers, and deployments | Yes | Yes | Yes |
+| Add custom domains | Yes | Yes | Yes |
+| Delete an application or a customer | Yes | Yes | No |
+| Remove a deployment, select **Complete removal anyway**, or select **Delete retained data** | Yes | Yes | No |
+| Issue a new install link, which resets the connector's connection | Yes | Yes | No |
 | Start a subscription and manage billing | Yes | Yes | Yes |
 | Rename the organization | Yes | Yes | No |
 | Invite teammates, and resend or revoke team invitations | Yes | Yes | No |
@@ -27,10 +30,12 @@ Roles control only who can manage the team and the organization itself. Every me
 | Delete the organization | Yes | No | No |
 | Leave the organization | No. Transfer ownership first. | Yes | Yes |
 
+A member who tries one of the actions marked "No" sees "Your role does not allow this action."
+
 Nobody can change their own role. The owner role can't be given through a role change or an invitation. It moves only when the owner [transfers ownership](#transfer-ownership).
 
 <Warning>
-  Every member can remove customer deployments and manage billing. Invite only people you trust with your customers' deployments.
+  Every member can manage billing and add custom domains. Give the admin role only to people you trust to remove customer deployments and delete retained data.
 </Warning>
 
 The **Settings** page shows your role in **Your role**, and the **Team** page lists everyone's role.
@@ -44,9 +49,12 @@ The **Settings** page shows your role in **Your role**, and the **Team** page li
 3. In **Role**, choose **Member** or **Admin**. The default is **Member**.
 4. Select **Send invitation**.
 
+You must verify your own email address before you can invite anyone. If you haven't, the form says "Verify your email address first" and shows **Resend verification email**. Open the link in the email, then reload the page. Deployz sends a verification email when you sign up, and you can use the rest of the dashboard before you verify.
+
 Deployz emails your teammate an invitation link. The invitation appears under **Pending invitations**, with who invited them and when it expires.
 
 - **Team invitations expire after 7 days.** After that, the invitation shows **Expired** and can't be accepted.
+- **50 team invitations per day.** Sending and resending both count, for your organization and for you as the sender. Try again the next day.
 - **One pending invitation per email address.** If the person already has a pending invitation, resend it instead. If they're already in the organization, Deployz tells you.
 
 Team invitations are separate from the invitations you send customers to install your application. For those, see [Invite a specific customer](/share/invitations).
@@ -65,7 +73,7 @@ Team invitations are separate from the invitations you send customers to install
 **Who:** the invited teammate, from the invitation email.
 
 1. Open the link in the invitation email. The page shows **Join** followed by the organization name.
-2. Sign in, or create an account, with the exact email address the invitation was sent to. If you're signed in with a different address, sign out, then sign in with the invited address.
+2. Sign in, or create an account, with the exact email address the invitation was sent to. Verify that address first if you haven't. The page shows **Resend verification email**. If you're signed in with a different address, sign out, then sign in with the invited address.
 3. Select **Accept**. To turn the invitation down, select **Decline**.
 
 When you accept, Deployz switches you to the organization you joined. If you're already signed in, you can also accept or decline pending invitations on your **Profile settings** page, under **Invitations**.

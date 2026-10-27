@@ -3,7 +3,7 @@ title: "Deployment status and health"
 description: "What each deployment status means, how the labels on each screen map to each other, and how Deployz verifies health."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
 
 Deployz shows a deployment's status in a few places: the **Deployments** list, the deployment detail page, and the **Customers** pages. Each screen uses words that fit its job, but they all come from the same underlying state, so they never disagree.
 
@@ -173,7 +173,7 @@ The **Deployz connector** row under **Infrastructure** shows whether the connect
 | **Offline** | The connector hasn't checked in for 15 minutes or more. Deployz can't run actions, and health is unknown. |
 | **Not connected yet** | No connector has connected to this deployment. |
 
-The row also shows when the connector last checked in. To fix an offline connector, see [Reconnect or update the Deployz connector](/operate/connector).
+While the connector isn't checking in, the **Infrastructure** rows read **Last known:** followed by the last status, **Running release** shows **Last confirmed** without **Verifying…**, and the **HTTPS active** badge doesn't appear. The row also shows when the connector last checked in. To fix an offline connector, see [Reconnect or update the Deployz connector](/operate/connector).
 
 ## Customer statuses
 

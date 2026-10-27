@@ -4,7 +4,7 @@ sidebarTitle: "Install"
 description: "Resolve failures that happen while installing into a customer's AWS account."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
 
 An install can fail because of something in your customer's AWS account: a policy, a permission, a limit, or AWS capacity. This page covers those failures, who fixes each one, and how you retry. If the install finished but the application never became healthy, see [Fix startup and health check failures](/troubleshooting/startup-and-health) instead.
 
@@ -85,7 +85,7 @@ Your customer's install page tells them that something in the account must chang
 
 **Who:** your customer checks their limits. Deployz support helps with the retry.
 
-**Fix:** Ask your customer to check their account's service limits for Amazon ElastiCache in this Region. Deployz treats this failure as one that needs Deployz, so the dashboard shows the text **Contact Deployz support** instead of **Retry deployment**. [Contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur) with the deployment ID.
+**Fix:** Ask your customer to check their account's service limits for Amazon ElastiCache in this Region. Deployz treats this failure as one that needs Deployz, so the dashboard shows a **Contact Deployz support** link instead of **Retry deployment**. [Contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur) with the deployment ID.
 
 ## The setup failed and was rolled back
 
@@ -138,6 +138,23 @@ If your customer already created a second connector stack, they delete that extr
 
 **Fix:** Create a new deployment for this customer. A new deployment is prepared with the boundary. No application resources were created, so there's nothing to clean up.
 
+## The sign-in code does not arrive
+
+**Symptom:** Your customer opens the install page, enters their email under **Verify your email**, and no code arrives. Or the page says "Too many wrong codes. Wait one hour, then request a new code."
+
+**Cause:** The email must match the one on the customer record. The page answers the same way for every address and never says whether an address has access, so a wrong address looks like a success but sends nothing. A message can also land in spam. Deployz sends at most 5 codes per address per hour, and blocks an address for one hour after 10 wrong codes.
+
+**Who:** your customer, then you.
+
+**Fix:**
+
+1. Ask your customer to check their spam folder for a message from Deployz with the subject "Your sign-in code for" and the application name.
+2. In **Customers**, open the customer and check **Email**. If it's wrong, select **Edit customer**, correct it, and save. This works only before the customer's first verified sign-in. After that, the first verified address stays the owner of the deployment.
+3. Ask your customer to wait 60 seconds, then select **Send a new code**.
+4. After too many wrong codes, ask your customer to wait one hour.
+
+Signed in to the dashboard, you can open the customer's page without a code to check the deployment yourself.
+
 ## Retry a failed install
 
 **Who:** you (the vendor), in the Deployz dashboard.
@@ -156,8 +173,8 @@ What you see instead of **Retry deployment** depends on the failure:
 | You see | What it means |
 | --- | --- |
 | **Retry deployment** | You can retry once the cause is fixed. Deployz offers it for every failure code except those that need Deployz. |
-| The text **Contact Deployz support**, with no button | The fault is on the Deployz side. [Contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur) instead of retrying. |
-| **Issue new install link** in the **Retry deployment** dialog, with the retry button unavailable | The connector is disconnected or never connected, and the retry needs it. Issue a new install link and send it to your customer. The new link is valid for 30 days. When the connector connects, the install starts again. See [Retry deployment says the connector is disconnected](/troubleshooting/connector#retry-deployment-says-the-connector-is-disconnected). |
+| A **Contact Deployz support** link, with no button | The fault is on the Deployz side. [Contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur) instead of retrying. |
+| **Issue new install link** in the **Retry deployment** dialog, with the retry button unavailable | The connector is disconnected or never connected, and the retry needs it. Issue a new install link and send it to your customer. The new link is valid for 7 days. When the connector connects, the install starts again. See [Retry deployment says the connector is disconnected](/troubleshooting/connector#retry-deployment-says-the-connector-is-disconnected). |
 | **Deploy update** | The install succeeded, but no release started. Deploy a release instead. See [Deploy an update](/operate/deploy-update). |
 
 **Retry deployment** is only for a first install that failed. Once an install has succeeded, you recover by deploying again with **Deploy update** or **Retry update**. See [Deploy an update](/operate/deploy-update).

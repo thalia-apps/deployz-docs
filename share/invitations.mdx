@@ -3,7 +3,7 @@ title: "Invite a specific customer"
 description: "Send one customer a private invitation to install your application."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
 
 An invitation is a private install link for one customer and one application. Use it when you know who will install, and you want the deployment tied to that customer's record in Deployz. To share one link with many customers, use an [install link](/share/install-links) instead.
 
@@ -12,7 +12,7 @@ An invitation is a private install link for one customer and one application. Us
 - **Bound to one customer.** The invitation names the customer, and its deployment appears under that customer.
 - **Used once.** An invitation creates exactly one deployment. After the customer confirms, it can't be used again.
 - **Secured by a one-time token.** The invitation link includes a secret token as its last part, after the `#`. Deployz shows the token once, when you create the invitation, and can't show it again.
-- **Expires after 30 days.** An unused invitation stops working 30 days after you create it. To give the customer more time, create a new invitation.
+- **Expires after 7 days.** An unused invitation stops working 7 days after you create it. To give the customer more time, create a new invitation.
 - **Nothing is created until the customer confirms.** Creating an invitation doesn't deploy anything.
 - **The customer makes the final choices.** You can recommend a Region and a size. The customer sees your recommendations preselected and chooses the final Region and size. If the Region you recommended is no longer available for installs when the customer opens the link, the install page shows no Region recommendation.
 
@@ -57,7 +57,7 @@ You can create an invitation from the **Invite customer** page or from a custome
 **Invitation created** shows the invitation link. Copy it now. The link contains the one-time token, and Deployz can't show it again after you close this view.
 
 1. Select **Copy link**. The link already includes the token. On a customer's page, **Invitation created** also shows the token in a separate **One-time token** field. You don't need to send it separately.
-2. Send the link to your customer. Deployz doesn't email customers, so send it yourself.
+2. Send the link to your customer. Deployz doesn't email the invitation link, so send it yourself. Deployz does email the customer a sign-in code later, when they verify their email.
 3. Send your customer [Install the application](/customers/install), which describes their steps.
 
 On the **Invite customer** page, **Invitation created** also offers **Set up configuration**. Use it to enter this customer's configuration values for them, instead of having the customer enter them on the install page.
@@ -73,9 +73,13 @@ On the **Invite customer** page, **Invitation created** also offers **Set up con
 1. They open the link. No Deployz account is needed.
 2. They choose the AWS Region and size, enter any values you asked them to provide, and review the resources and estimated monthly AWS cost.
 3. They confirm. Deployz creates the deployment, with the Region and size they chose. Neither can be changed later.
-4. They connect their AWS account and follow the install progress until the application is ready.
+4. They verify their email with a code, connect their AWS account, and follow the install progress until the application is ready.
 
-After the customer confirms, the new deployment has its own install link, valid for 30 days. The deployment's **Install link** card shows the expiry date. If the link expires before the customer's AWS account connects, select **Issue new install link** on the deployment to make it valid for 30 more days. See [Reconnect or update the Deployz connector](/operate/connector#you-issue-a-new-install-link).
+<Note>
+  Before the customer can connect their AWS account, they verify their email with an 8-digit code that Deployz sends to the email on their customer record. Make sure that email is correct and that the customer can read it. To fix it, open the customer in **Customers**, select **Edit customer**, and change **Email** before their first sign-in. After the first verified sign-in, that address stays the owner of the deployment, and later edits to the customer record don't change it. If you're signed in to the dashboard, you can open the customer's page without a code.
+</Note>
+
+After the customer confirms, the new deployment has its own install link, valid for 7 days. The deployment's **Install link** card shows the expiry date. If the link expires before the customer's AWS account connects, select **Issue new install link** on the deployment to make it valid for 7 more days. See [Reconnect or update the Deployz connector](/operate/connector#you-issue-a-new-install-link).
 
 [Install the application](/customers/install) covers each step from the customer's side.
 
@@ -89,7 +93,7 @@ Open the customer in **Customers**. **Invitations** lists each invitation with i
 | --- | --- |
 | **Active** | The customer can still open and confirm it. |
 | **Used** | The customer confirmed it. The deployment is listed under the customer. |
-| **Expired** | 30 days passed without a confirmation. Create a new invitation. |
+| **Expired** | 7 days passed without a confirmation. Create a new invitation. |
 | **Revoked** | You revoked the invitation. It can't be used. |
 
 Invitations appear only on the customer's page. They don't appear with the application's install link.

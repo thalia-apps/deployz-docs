@@ -3,7 +3,7 @@ title: "Failure codes"
 description: "Every Deployz failure code, what it means, and who needs to act."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
 
 When a deployment fails, Deployz assigns it one failure code. The code tells you what went wrong and who needs to act. Deployz has 24 codes.
 
@@ -212,7 +212,7 @@ These failures come from the application itself. You fix them. Your customer has
 
 ### `MIGRATION_FAILED`
 
-**Meaning:** The database migration step failed, so the new version didn't start.
+**Meaning:** The database migration step failed, so the new version didn't start. On a first install nothing was serving yet, so the deployment is failed. On a later release the previous release keeps serving.
 
 **Recoverability:** Needs a change. You act.
 

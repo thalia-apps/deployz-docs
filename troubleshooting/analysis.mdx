@@ -4,7 +4,7 @@ sidebarTitle: "Analysis"
 description: "Resolve failed analyses, open questions, required changes, and capabilities Deployz doesn't support."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
 
 When you add an application, Deployz analyzes its repository to work out how to build, start, and host it. This page covers what to do when the analysis fails, asks you a question, or finds something you need to change. All of it happens in the Deployz dashboard, before any customer is involved.
 
@@ -75,7 +75,7 @@ Open environment variable decisions block a test deployment and customer deploym
 
 **Cause:** The application clearly needs something Deployz doesn't provide. Examples are MongoDB, SQLite as the only database, Elasticsearch, Redis features beyond a standard single-node cache, its own message broker, a GPU, or its own infrastructure code.
 
-**Fix:** A setting can't resolve this. Change the application so it no longer needs the unsupported part, push the change, and re-analyze. For the full list and the alternatives, see [What Deployz doesn't support](/prepare/not-supported).
+**Fix:** A setting can't resolve this. If the item is a false positive and the application doesn't use it in production, select **Not used in production** on its row. See [Mark a blocker as not used in production](/prepare/analysis#mark-a-blocker-as-not-used-in-production). This isn't available for a GPU, your own infrastructure code, a missing Dockerfile, or a `.git` copy. Otherwise, change the application so it no longer needs the unsupported part, push the change, and re-analyze. For the full list and the alternatives, see [What Deployz doesn't support](/prepare/not-supported).
 
 **Who acts:** you.
 
