@@ -148,6 +148,23 @@
       "href": "https://app.deployz.dev"
     }
   },
+  "footer": {
+    "links": [
+      {
+        "header": "Support",
+        "items": [
+          {
+            "label": "Support form",
+            "href": "https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur"
+          },
+          {
+            "label": "help@deployz.dev",
+            "href": "mailto:help@deployz.dev"
+          }
+        ]
+      }
+    ]
+  },
   "contextual": {
     "options": [
       "copy",
