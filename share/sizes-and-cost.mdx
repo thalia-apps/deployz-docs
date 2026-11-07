@@ -65,7 +65,7 @@ Deployz shows an estimated monthly AWS cost on **Size presets** and on the custo
 
 | What you see | Meaning |
 | --- | --- |
-| A range, such as `$65–$95 + usage` on **Size presets** | The baseline monthly cost of the resources Deployz can price. **+ usage** means some costs depend on how much the application is used, and aren't in the range. See [What the estimate leaves out](#what-the-estimate-leaves-out). |
+| A range, such as `$80–$110 + usage` on **Size presets** | The baseline monthly cost of the resources Deployz can price. **+ usage** means some costs depend on how much the application is used, and aren't in the range. See [What the estimate leaves out](#what-the-estimate-leaves-out). |
 | “Some resources could not be priced” | The deployment includes a resource that Deployz has no price for. The real cost is higher than the range. On **Size presets**, this note is under **Estimate details**. On the install page, it reads "Estimate is incomplete". |
 | **Estimate unavailable** | Deployz couldn't produce an estimate. On the install page, this happens when the selected Region isn't available for installs. |
 
@@ -73,19 +73,19 @@ Deployz shows an estimated monthly AWS cost on **Size presets** and on the custo
 
 <BaselineCosts />
 
-Every deployment gets its own private network, with a load balancer and a NAT gateway. A NAT gateway lets the application reach the internet without being directly reachable from it. Together these cost about $45–$65 a month at any size, so they're most of the cost of a Small deployment.
+Every deployment gets its own private network, with a load balancer and a NAT gateway. A NAT gateway lets the application reach the internet without being directly reachable from it. Together these cost about $60–$80 a month at any size, so they're most of the cost of a Small deployment.
 
 For example, an application with a web container and a PostgreSQL database, and no cache or workers, is estimated at about:
 
 | Small | Medium | Large |
 | --- | --- | --- |
-| $65–$95 | $125–$165 | $210–$260 |
+| $80–$110 | $140–$180 | $225–$275 |
 
 These are illustrative figures for US East (N. Virginia). Check **Size presets** for your own application's estimate.
 
 ### How the estimate is rounded
 
-Deployz multiplies each resource's range by the Region factor and rounds the result to whole dollars. It then adds up the resources and widens the total to multiples of $5: the low end is rounded down and the high end is rounded up. In the example above, the Small resources add up to $67–$95, which shows as $65–$95.
+Deployz multiplies each resource's range by the Region factor and rounds the result to whole dollars. It then adds up the resources and widens the total to multiples of $5: the low end is rounded down and the high end is rounded up. In the example above, the Small resources add up to $82–$110, which shows as $80–$110.
 
 ### Regional differences
 
@@ -107,12 +107,7 @@ Some AWS costs depend on usage, so the estimate leaves them out:
 - One-off tasks, such as migrations and scheduled jobs, which are billed by how long they run
 - Outbound internet data transfer and data transfer between Availability Zones
 
-The estimate also leaves out some smaller fixed costs of each deployment:
-
-- Secrets in AWS Secrets Manager, such as the database credentials
-- Application logs in Amazon CloudWatch Logs
-- The NAT gateway's public IPv4 address (an Elastic IP address), which AWS charges for separately
-- The resources of the Deployz connector
+The estimate also leaves out the resources of the Deployz connector. Smaller fixed costs of each deployment, such as Secrets Manager secrets, CloudWatch alarms and logs, and public IPv4 addresses, are included in the load balancer and NAT gateway ranges.
 
 Workers are priced like the web container, as one always-running copy each. Queues and schedules are billed by usage only, so they add no fixed amount and show as usage-based.
 

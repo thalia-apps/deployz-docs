@@ -3,9 +3,9 @@ title: "Pricing and billing"
 description: "What's free, what you pay for, and how billing works."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit e4c2dff8 on 2026-11-07 */}
 
-You can evaluate Deployz for free, with no card and no time limit. You pay once you subscribe to install your application for customers: a $49/month platform fee, plus $19/month for each customer deployment while it runs for your customer.
+You can evaluate Deployz for free, with no card and no time limit. You pay once you subscribe to install your application for customers: a $49/month platform fee, plus $19/month for each customer deployment while it runs for your customer. A subscription always includes at least one customer deployment, so it starts at $68/month.
 
 Deployz fees cover the platform. AWS bills your customer directly for the resources their deployment uses. You don't resell infrastructure. See [Sizes and AWS cost](/share/sizes-and-cost).
 
@@ -26,11 +26,11 @@ A test deployment is never charged. AWS bills the account you install it into fo
 | Platform | $49/month | When you subscribe | When you cancel your subscription |
 | Each customer deployment | $19/month | When the deployment first becomes ready | When you remove it, as soon as Deployz accepts the removal. Paused while the deployment has failed or its connector is offline. |
 
-Prices are in US dollars. For example, with five customer deployments running for your customers, you pay $49 + 5 × $19 = $144 a month.
+Prices are in US dollars, before tax. Your subscription always bills at least one customer deployment, even while none is running, so it costs at least $49 + $19 = $68 a month. Your first customer deployment uses that one, so it doesn't add to the total. For example, with five customer deployments running for your customers, you pay $49 + 5 × $19 = $144 a month.
 
 ### When the platform fee starts
 
-The platform fee starts when you subscribe. Subscribe before your first customer confirms an install link or invitation, because a customer can confirm only while your subscription is active. You start the subscription from the **Invite customer** page. See [Start a subscription](#start-a-subscription). The first charge covers the platform fee only, because no customer deployment is live yet.
+The platform fee starts when you subscribe. Subscribe before your first customer confirms an install link or invitation, because a customer can confirm only while your subscription is active. You start the subscription from the **Billing** page or the **Invite customer** page. See [Start a subscription](#start-a-subscription). The first charge is $68: the platform fee plus one customer deployment. If you restart a canceled subscription while several of your customer deployments still run, the first charge covers all of them.
 
 ### When a customer deployment is charged
 
@@ -48,25 +48,27 @@ While a deployment is paused, its page in the dashboard shows **Billing paused �
 
 After removal, retained data that you haven't deleted can keep costing money in your customer's AWS account, but it doesn't add to your Deployz bill. See [Remove a deployment](/operate/remove).
 
-When the number of charged deployments changes during a billing period, Deployz updates your subscription with its billing partner, Creem. The change is prorated for the rest of the period and applied right away, not at your next billing date. If Deployz can't reach Creem at that moment, it retries later, so an update can take some time to appear.
+When the number of charged deployments changes during a billing period, Deployz updates your subscription with its billing partner, Polar. The change is prorated for the rest of the period and applied right away, not at your next billing date. If Deployz can't reach Polar at that moment, it retries later, so an update can take some time to appear.
 
 ### Included production deployments
 
-Your organization might have a number of included production deployments. They're shared across all your applications and customers. You're charged $19/month only for each charged customer deployment beyond that number. Included deployments don't replace the platform fee. When your organization has any, the **Billing** page shows how many.
+Your organization might have a number of included production deployments. They're shared across all your applications and customers. You're charged $19/month only for each charged customer deployment beyond that number. Included deployments don't replace the platform fee or the minimum of one billed customer deployment. When your organization has any, the **Billing** page shows how many.
 
 ## Who can manage billing
 
-Any member of your organization can start a subscription, open the billing portal, and update payment details. Billing isn't limited to the owner or admins. See [Roles](/account/organization-and-team#roles).
+Only the owner and admins of your organization can start, restart, or cancel a subscription, open the billing portal, and update payment details. Other members see "Only an owner or admin can change billing." instead of these actions. See [Roles](/account/organization-and-team#roles).
 
 ## Start a subscription
 
-**Who:** you (the vendor), in the Deployz dashboard.
+**Who:** an owner or admin, in the Deployz dashboard.
 
-1. Open the **Invite customer** page. To get there, select **Invite customer** in **Customers**.
-2. In **Start your subscription**, select **Start subscription**.
-3. Enter your payment details in the Creem checkout and complete the payment.
+1. Select **Billing** in the sidebar. You can also start from the **Invite customer** page: select **Invite customer** in **Customers**, then go to **Start your subscription**.
+2. Select **Start subscription**. If your subscription has ended, the button is **Restart subscription**.
+3. In the Polar checkout, which opens in a new tab, enter your payment details and complete the payment. If you have a discount code, enter it in the checkout.
 
-When the payment goes through, the page shows "Payment received. Customers can now confirm installations." Your customers can now confirm install links and invitations.
+While you pay, the Deployz page says "Complete the payment in the new tab. This page updates when your subscription starts." When the payment goes through, it shows "Payment received. Activating your subscription…". Activation can take a minute. After that, your customers can confirm install links and invitations.
+
+Deployz sets the number of customer deployments in the checkout, so you can't change it there. Deployz updates the number for you as customer deployments start and stop.
 
 The **Start your subscription** section appears on the **Invite customer** page while you're evaluating or after your subscription was canceled. If your payment failed or your subscription is paused, the page shows **Update your payment details** or **Resume your subscription** instead.
 
@@ -76,22 +78,27 @@ The **Start your subscription** section appears on the **Invite customer** page 
 
 Select **Billing** in the sidebar.
 
-- **During evaluation**, the page shows **Evaluation — free**, what's included, and what starts billing.
-- **With a subscription**, **Current charges** shows your subscription status, the next billing date, the platform fee, the number of active, paused, included, and billed production deployments, the deployments by customer, and your monthly total. Paused deployments appear only when you have any.
-- **After you cancel**, the page still shows **Current charges**, with a **Canceled** badge. A banner across the dashboard says **Your subscription has ended**.
+- **During evaluation**, the page shows **You are evaluating Deployz — free**, what's always free, the prices, and **Start subscription**.
+- **With a subscription**, the page shows **Next payment, before tax** and your **Payment method**. **Current charges** shows your subscription status, the next billing date, the platform fee, the number of active, paused, included, and billed production deployments, the deployments by customer, and your monthly total. Paused deployments appear only when you have any. **Invoices** lists the payments for your current subscription, each with a PDF to download. Earlier invoices are in the billing portal.
+- **After your subscription ends**, the page shows **Your subscription has ended**, with **Restart subscription**. A banner across the dashboard says **Your subscription has ended**.
 
 If your last payment failed, a banner across the dashboard says **Your last payment did not go through**, with **Update payment details**. A paused subscription shows no banner.
 
 ## Manage payment details and invoices
 
-**Who:** you, in the Deployz dashboard.
+**Who:** an owner or admin, in the Deployz dashboard.
 
-Deployz uses a billing partner, Creem, for payments. Creem is the merchant of record for your subscription: it processes your payments and handles your card, invoices and receipts, tax, refunds, and cancellation. Your card statement and invoices show Creem, not Deployz.
+Deployz uses a billing partner, Polar, for payments. Polar is the merchant of record for your subscription: it processes your payments and handles your card, invoices and receipts, tax, and cancellation. Prices are shown before tax, and Polar adds any tax that applies.
 
 1. Select **Billing** in the sidebar.
-2. Under **Manage billing**, select one of these:
-   - **Open billing portal** to view invoices or cancel your subscription.
+2. Select one of these. Each one opens the Polar billing portal in a new tab.
    - **Update payment details** to change your card.
+   - **Open billing portal** to see all your invoices.
+   - **Cancel subscription** to cancel.
+
+When you cancel, your subscription stays active until the end of the period you paid for. Until then, the **Billing** page shows **Your subscription ends on** that date. To keep your subscription, open the billing portal before that date.
+
+If you own several organizations and pay for each with the same email address, the billing portal lists all the subscriptions paid with that email.
 
 For questions about your Deployz subscription or charges, email [help@deployz.dev](mailto:help@deployz.dev).
 
@@ -102,8 +109,8 @@ For questions about your Deployz subscription or charges, email [help@deployz.de
 | **Evaluating** | You don't have a subscription yet. | Everything in the free evaluation. Start a subscription before customers install. |
 | **Active** | Your subscription is paid and current. | Everything, including new customer deployments. |
 | **Past due** | Your last payment failed. | Select **Update payment details** in the banner or on the **Billing** page. |
-| **Paused** | Your subscription is paused. | Resume it in the billing portal. |
-| **Canceled** | Your subscription has ended. | Start a new subscription from the **Invite customer** page. |
+| **Paused** | Your subscription is paused. | Select **Resume in billing portal** on the **Billing** page. |
+| **Canceled** | Your subscription has ended. | Select **Restart subscription** on the **Billing** page, or **Start subscription** on the **Invite customer** page. |
 
 ## Payment problems never stop running deployments
 

@@ -37,7 +37,7 @@ The install page shows an **Estimated AWS cost** per month for the Region and si
 - Prices come from a US East (N. Virginia) baseline, adjusted by a factor for your Region.
 - The total is rounded to steps of $5.
 - It doesn't include usage-based charges, such as outbound internet data transfer, data transfer between Availability Zones, load balancer capacity, data processed by the NAT gateway, files stored in S3, and database storage growth and backups. Queues, schedules, and one-off tasks are billed by usage only.
-- It doesn't price smaller charges either: Secrets Manager secrets, CloudWatch Logs, CloudWatch alarms, the NAT gateway's Elastic IP address, and the Deployz connector's Lambda, EventBridge, and Systems Manager usage.
+- It includes smaller fixed charges, such as Secrets Manager secrets, CloudWatch Logs and alarms, and public IPv4 addresses, in the load balancer and NAT gateway ranges. It doesn't price the Deployz connector's Lambda, EventBridge, and Systems Manager usage.
 
 If some resources can't be priced, the page says the estimate is incomplete. Your actual charges depend on usage.
 
@@ -45,7 +45,7 @@ If some resources can't be priced, the page says the estimate is incomplete. You
 
 <BaselineCosts />
 
-For example, a Small deployment with one service and a database, in US East (N. Virginia), comes to an estimated $65–$95 per month before usage-based charges. The NAT gateway and the load balancer are a large part of the cost at every size.
+For example, a Small deployment with one service and a database, in US East (N. Virginia), comes to an estimated $80–$110 per month before usage-based charges. The NAT gateway and the load balancer are a large part of the cost at every size.
 
 ### Region factor
 

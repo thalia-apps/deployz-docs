@@ -130,9 +130,9 @@ These failures come from the policies, permissions, or limits of your customer's
 
 **Recoverability:** Needs a change. Your customer acts, then you retry.
 
-**Why it happens:** Your customer's account rejected the database this application needs.
+**Why it happens:** Your customer's account rejected the database this application needs. A common cause is an AWS free plan, which accepts fewer days of automated backups than the default of 7.
 
-**What to do:** Ask your customer whether their account limits databases in this Region, for example with a policy or a quota. After they resolve it, retry. See [Database creation failed](/troubleshooting/install#database-creation-failed).
+**What to do:** If the account is on an AWS free plan, choose a lower **Backup retention period** on the failed deployment's page, then select **Retry deployment**. Otherwise, ask your customer whether their account limits databases in this Region, for example with a policy or a quota. After they resolve it, retry. See [Database creation failed](/troubleshooting/install#database-creation-failed).
 
 ### `DATABASE_CONNECTION_FAILED`
 
