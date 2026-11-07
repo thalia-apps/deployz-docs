@@ -71,11 +71,17 @@ Your customer's install page tells them that something in the account must chang
 
 **Symptom:** Failure code `DATABASE_CREATE_FAILED`. The recovery panel says the database could not be created.
 
-**Cause:** Your customer's account rejected the database this application needs, for example because a policy or a quota limits databases in this Region.
+**Cause:** Your customer's account rejected the database this application needs. Common causes:
 
-**Who:** your customer, in their AWS account, then you.
+- The account is on an AWS free plan, which accepts fewer days of automated backups than the Deployz default of 7.
+- A policy or a quota limits databases in this Region.
 
-**Fix:** Ask your customer to check whether their account limits databases in this Region. **Technical details** shows the reason AWS gave. After they resolve it, [retry](#retry-a-failed-install).
+**Who:** you, in the Deployz dashboard, or your customer, in their AWS account, then you.
+
+**Fix:** **Technical details** shows the reason AWS gave.
+
+- **AWS free plan:** on the failed deployment's page, choose a lower **Backup retention period**, from 1 to 35 days, then select **Retry deployment**. Or ask your customer to upgrade their AWS plan. The setting appears only after a first install fails this way, and it never changes a database that already exists. A deployment created before this setting existed doesn't show it: create a new deployment for the customer instead.
+- **Policy or quota:** ask your customer to check whether their account limits databases in this Region. After they resolve it, [retry](#retry-a-failed-install).
 
 ## Cache setup failed
 

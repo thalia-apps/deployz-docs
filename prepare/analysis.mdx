@@ -28,7 +28,7 @@ When the analysis finishes, the **Overview** shows one of three results. The mos
 | **Deployable after repository changes** | Deployz can deploy the application after you change your repository, for example to stop writing files to the local disk. | Change the repository, push, and re-analyze. |
 | **Not deployable on Deployz** | The application needs a capability Deployz doesn't provide, such as MongoDB or a GPU. | Change the application so it no longer needs it. See [What Deployz doesn't support](/prepare/not-supported). |
 
-The analysis can't predict every build problem, because it doesn't build your code. Until a release builds successfully, **Deployable with Deployz settings** shows "Not yet confirmed by a build." If release builds have failed and none has passed, the result changes to **Deployable after repository changes** with "The release build failed." Select **Review failure details**, and see [Fix a failed build](/releases/build-failures).
+The result is a prediction, and the **Overview** says so: "This result is a prediction. A test deployment confirms it." The analysis can't predict every build problem, because it doesn't build your code. Until a release builds successfully, **Deployable with Deployz settings** shows "Not yet confirmed by a build." If release builds have failed and none has passed, the result changes to **Deployable after repository changes** with "The release build failed." Select **Review failure details**, and see [Fix a failed build](/releases/build-failures).
 
 ### Required and recommended findings
 
@@ -103,11 +103,19 @@ If a blocking finding is a false positive, for example a MongoDB driver that onl
 3. In the **Mark ... as not used in production?** dialog, expand **Why Deployz found it** to see the evidence. Storage items also show **Files can be lost**.
 4. Select **Mark as not used**. Select **Cancel** to leave the finding as it is.
 
-Deployz analyzes the application again without the item. Your answer then appears under **Your answers**. To withdraw it, select **Undo**, and Deployz analyzes again.
+Deployz analyzes the application again and treats the item as answered. Your answer applies only to that item: the final review still runs, and a blocker of any other kind still blocks. Your answer then appears under **Your answers**. To withdraw it, select **Undo**, and Deployz analyzes again.
 
 A vendor answer applies only while the analysis finds the same evidence. If the evidence changes, the answer shows **Evidence changed**: check it again. Re-analyzing keeps your answers while the evidence still matches.
 
-You can mark these findings: MongoDB, Elasticsearch, other unsupported databases, SQLite, MariaDB, unsupported Redis setups, message brokers, several application services, persistent volumes, and files written to the local disk. You can't mark a GPU requirement, an application that runs its own infrastructure, a missing Dockerfile, or a Dockerfile that copies `.git`. Every other check still runs.
+### When Deployz asks you to confirm a finding
+
+Some findings come from signs in your code rather than proof, such as files written to the local disk, a persistent volume, SQLite, or binding to `localhost`. If a final review finds signs that such a finding may not apply to your application, Deployz keeps the finding and adds a recommended item named **Confirm:** followed by the finding's name. Deployz doesn't remove a finding by itself.
+
+Check the evidence under **Why Deployz found it**. If the application doesn't need the item in production, select **Not used in production** on the original finding. If it does, make the change.
+
+### Findings you can mark
+
+You can mark these findings: MongoDB, Elasticsearch, other unsupported databases, SQLite, MariaDB, unsupported Redis setups, message brokers, several application services, persistent volumes, files written to the local disk, and binding to `localhost`. You can't mark a GPU requirement, an application that runs its own infrastructure, a missing Dockerfile, or a Dockerfile that copies `.git`. Every other check still runs.
 
 ## Choose which data services to create
 

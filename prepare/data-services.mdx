@@ -23,7 +23,7 @@ When your application needs a relational database, Deployz creates one Amazon RD
 - **Storage:** starts at 20 GB of gp3 storage and grows automatically up to 100 GB. The instance class depends on the deployment's size. See [Sizes and AWS cost](/share/sizes-and-cost).
 - **Network:** private. The database isn't publicly accessible, and only the deployment's own containers can reach it.
 - **Encryption:** storage is encrypted at rest.
-- **Backups:** automated daily backups, kept for 7 days, taken between 03:00 and 05:00 UTC.
+- **Backups:** automated daily backups, kept for 7 days, taken between 03:00 and 05:00 UTC. If the database can't be created because the AWS account accepts fewer days, for example on an AWS free plan, you can lower this before you retry. See [Database creation failed](/troubleshooting/install#database-creation-failed).
 - **TLS:** Deployz downloads the Amazon RDS certificate bundle for the Region into each container when it starts, at `/deployz/certs/rds-ca-bundle.pem`, and points the usual variables at it. The PostgreSQL connection URL includes `sslmode=require`. If the download fails, the container starts without the bundle.
 
 If your application runs migrations, see [Database migrations](/prepare/migrations).

@@ -3,12 +3,33 @@ title: "Changelog"
 description: "Changes to Deployz and its documentation that affect vendors and their customers."
 ---
 
-{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
+{/* Last checked against deployz commit e4c2dff8 on 2026-11-07 */}
 
 {/* Add an <Update> entry for each user-visible change: new Regions, features leaving Preview, pricing changes, removed flows. Newest entry first. */}
 
-<Update label="2026-11-03" description="New billing partner" tags={["Billing"]}>
-  - Deployz now uses Creem as its billing partner. Creem is the merchant of record for your subscription and handles payments, invoices and receipts, tax, refunds, and cancellation. Your card statement and invoices show Creem. Prices don't change. See [Pricing and billing](/account/billing#manage-payment-details-and-invoices).
+<Update label="2026-11-07" description="Polar billing, two-factor sign-in, and cost estimates" tags={["Billing", "Team", "Analysis", "Deployments", "Customers"]}>
+  **Billing**
+
+  - Deployz now uses Polar as its billing partner. Polar is the merchant of record for your subscription and handles payments, invoices and receipts, tax, and cancellation. See [Manage payment details and invoices](/account/billing#manage-payment-details-and-invoices).
+  - A subscription now always bills at least one customer deployment, so it starts at $68/month: the $49 platform fee plus $19. Your first customer deployment uses that one. Prices per deployment don't change. See [What you pay for](/account/billing#what-you-pay-for).
+  - You can start a subscription from the **Billing** page, and enter a discount code in the checkout. Only owners and admins can start a subscription or manage billing. See [Start a subscription](/account/billing#start-a-subscription).
+  - The **Billing** page shows your next payment, your payment method, and your invoices.
+
+  **Your account**
+
+  - New passwords must have at least 12 characters. Existing passwords keep working until you change them.
+  - You can turn on two-factor sign-in, which asks for a code from your email each time you sign in with your password. See [Turn on two-factor sign-in](/account/organization-and-team#turn-on-two-factor-sign-in).
+
+  **Analysis**
+
+  - Marking a blocker as **Not used in production** now applies only to that item. The final review still runs on the rest of the application. See [Mark a blocker as not used in production](/prepare/analysis#mark-a-blocker-as-not-used-in-production).
+  - When a final review finds signs that a finding may not apply, Deployz adds a **Confirm:** item and asks you, instead of removing the finding. See [When Deployz asks you to confirm a finding](/prepare/analysis#when-deployz-asks-you-to-confirm-a-finding).
+
+  **Deployments**
+
+  - If the database can't be created because the AWS account is on a free plan, you can lower the database's **Backup retention period** and retry. See [Database creation failed](/troubleshooting/install#database-creation-failed).
+  - Cost estimates now include public IPv4 addresses, secrets, alarms, and logs in the load balancer and NAT gateway ranges, so estimates are about $15 a month higher. See [Sizes and AWS cost](/share/sizes-and-cost#estimated-monthly-aws-cost).
+  - When an install fails, the customer's install page now asks them to contact you to retry.
 </Update>
 
 <Update label="2026-10-27" description="Customer sign-in, connector updates, and false blockers" tags={["Customers", "Connector", "Analysis", "Team"]}>
@@ -26,7 +47,7 @@ description: "Changes to Deployz and its documentation that affect vendors and t
 
   **Analysis and releases**
 
-  - If a blocker comes from something your application doesn't use in production, such as a database driver used only in tests, you can select **Not used in production** on its row. Deployz analyzes again without it, and a test deployment confirms the result. See [Mark a blocker as not used in production](/prepare/analysis#mark-a-blocker-as-not-used-in-production).
+  - If a blocker comes from something your application doesn't use in production, such as a database driver used only in tests, you can select **Not used in production** on its row. Deployz analyzes again with your answer, and a test deployment confirms the result. See [Mark a blocker as not used in production](/prepare/analysis#mark-a-blocker-as-not-used-in-production).
   - On a first install, an application with a database migration starts only after the migration succeeds. If the migration fails, the deployment fails, and you deploy again after the fix. See [Database migrations](/prepare/migrations).
   - An application builds one release at a time.
   - The cost estimate now prices queues and schedules (**Preview**) as usage-based, and the install plan lists workers, queues, and schedules. See [Sizes and AWS cost](/share/sizes-and-cost#estimated-monthly-aws-cost).
