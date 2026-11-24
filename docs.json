@@ -123,6 +123,79 @@
         ]
       },
       {
+        "tab": "API reference",
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": [
+              "api/overview",
+              "api/authentication",
+              "api/pipeline",
+              "api/errors"
+            ]
+          },
+          {
+            "group": "Applications",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "directory": "api-reference",
+              "overlays": [
+                "api-reference/overlay.yaml"
+              ]
+            },
+            "pages": [
+              "GET /api/v1/applications",
+              "GET /api/v1/applications/{id}"
+            ]
+          },
+          {
+            "group": "Releases",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "directory": "api-reference",
+              "overlays": [
+                "api-reference/overlay.yaml"
+              ]
+            },
+            "pages": [
+              "POST /api/v1/applications/{id}/releases",
+              "GET /api/v1/applications/{id}/releases",
+              "GET /api/v1/applications/{id}/releases/{releaseId}"
+            ]
+          },
+          {
+            "group": "Deployments",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "directory": "api-reference",
+              "overlays": [
+                "api-reference/overlay.yaml"
+              ]
+            },
+            "pages": [
+              "GET /api/v1/deployments",
+              "GET /api/v1/deployments/{id}",
+              "POST /api/v1/deployments/{id}/deploy",
+              "POST /api/v1/deployments/{id}/restart",
+              "POST /api/v1/deployments/{id}/rollback"
+            ]
+          },
+          {
+            "group": "Operations",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "directory": "api-reference",
+              "overlays": [
+                "api-reference/overlay.yaml"
+              ]
+            },
+            "pages": [
+              "GET /api/v1/deployments/{id}/jobs/{jobId}"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "Changelog",
         "pages": [
           "changelog"
@@ -188,6 +261,19 @@
     },
     "body": {
       "family": "Inter"
+    }
+  },
+  "api": {
+    "playground": {
+      "display": "simple"
+    },
+    "examples": {
+      "languages": [
+        "bash",
+        "javascript",
+        "python"
+      ],
+      "defaults": "required"
     }
   }
 }

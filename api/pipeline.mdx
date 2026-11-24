@@ -1,0 +1,152 @@
+---
+title: "Build and deploy from your pipeline"
+sidebarTitle: "Deploy from your pipeline"
+description: "Build a release from a commit and deploy it to a customer's deployment from GitHub Actions or another CI system."
+keywords: ["CI", "CD", "GitHub Actions", "pipeline", "deploy", "release", "automation"]
+---
+
+{/* Last checked against deployz commit e6bcaf73 on 2026-11-24 */}
+
+This guide shows how your CI pipeline builds a release from the commit it's running on and deploys it to a customer's deployment. It does the same as [Create a release](/releases/create) and [Deploy an update](/operate/deploy-update) in the dashboard.
+
+**Who:** you (the vendor), in your CI system.
+
+## Before you start
+
+- Your application is set up in Deployz, and a release built from the dashboard works. The API builds releases with the same settings. See [Create a release](/releases/create).
+- The customer's deployment is installed. The API deploys updates to existing deployments. It doesn't install a new deployment.
+- You have an API key with **Deploy** permission, stored in your CI secrets. See [Create and manage API keys](/api/authentication).
+- Your CI runner has `curl` and `jq`. GitHub-hosted Ubuntu runners have both.
+
+## Find the ids
+
+The API identifies the application and the deployment by id. Look them up once with your key, then store them as CI variables.
+
+List your applications:
+
+```bash
+curl -s https://api.deployz.dev/api/v1/applications \
+  -H "Authorization: Bearer $DEPLOYZ_API_KEY" \
+  | jq '.data.applications[] | {id, name}'
+```
+
+List the deployments of one application:
+
+```bash
+curl -s "https://api.deployz.dev/api/v1/deployments?applicationId=$APPLICATION_ID" \
+  -H "Authorization: Bearer $DEPLOYZ_API_KEY" \
+  | jq '.data.deployments[] | {id, customerName, state}'
+```
+
+## How the pipeline works
+
+<Steps>
+  <Step title="Create a release">
+    Send the release's version and the commit to [Create a release](/api-reference/releases/create). Deployz starts the build and answers with the release. Its `status` is `building`.
+  </Step>
+  <Step title="Wait for the build">
+    Read the release with [Read one release](/api-reference/releases/get) until `status` is no longer `building`. Deploy only when it's `ready`. If it's `failed`, `failureReason` says why. See [Fix build failures](/releases/build-failures).
+  </Step>
+  <Step title="Deploy the release">
+    Send the release id to [Deploy a release](/api-reference/deployments/deploy). Deployz answers `202` with a `jobId` for the deploy operation.
+  </Step>
+  <Step title="Wait for the deploy">
+    Read the operation with [Read one operation](/api-reference/operations/get) until `state` is `succeeded`, `failed`, or `cancelled`. If it's `failed`, `failureCode` names the cause. See [Failure codes](/reference/failure-codes).
+  </Step>
+</Steps>
+
+## Example: GitHub Actions
+
+This workflow builds a release on every push to `main` and deploys it to one deployment. Add these to your repository settings first:
+
+- A secret `DEPLOYZ_API_KEY` with your **Deploy** key.
+- Variables `DEPLOYZ_APPLICATION_ID` and `DEPLOYZ_DEPLOYMENT_ID` with the ids you looked up.
+
+```yaml .github/workflows/deployz.yml
+name: Release and deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build a release and deploy it
+        env:
+          DEPLOYZ_API_KEY: ${{ secrets.DEPLOYZ_API_KEY }}
+          API: https://api.deployz.dev/api/v1
+          APPLICATION_ID: ${{ vars.DEPLOYZ_APPLICATION_ID }}
+          DEPLOYMENT_ID: ${{ vars.DEPLOYZ_DEPLOYMENT_ID }}
+          VERSION: 1.0.${{ github.run_number }}
+        run: |
+          set -euo pipefail
+          api() {
+            curl --silent --show-error --fail-with-body \
+              -H "Authorization: Bearer $DEPLOYZ_API_KEY" \
+              -H "Content-Type: application/json" "$@"
+          }
+
+          # 1. Build a release from this commit.
+          release=$(api -d "{\"version\":\"$VERSION\",\"gitSha\":\"$GITHUB_SHA\"}" \
+            "$API/applications/$APPLICATION_ID/releases" | jq -r .data.id)
+
+          # 2. Wait for the build.
+          while status=$(api "$API/applications/$APPLICATION_ID/releases/$release" | jq -r .data.status) \
+            && [ "$status" = building ]; do sleep 10; done
+          if [ "$status" != ready ]; then echo "The release build ended with status $status"; exit 1; fi
+
+          # 3. Deploy the release.
+          job=$(api -d "{\"releaseId\":\"$release\"}" \
+            "$API/deployments/$DEPLOYMENT_ID/deploy" | jq -r .data.jobId)
+
+          # 4. Wait for the deploy.
+          while state=$(api "$API/deployments/$DEPLOYMENT_ID/jobs/$job" | jq -r .data.state) \
+            && { [ "$state" = queued ] || [ "$state" = running ]; }; do sleep 10; done
+          echo "The deploy ended with state $state"
+          [ "$state" = succeeded ]
+```
+
+The step fails if a request fails, the build fails, or the deploy doesn't succeed. `--fail-with-body` prints the error response, including its `code` and `request_id`. See [Errors and rate limits](/api/errors).
+
+A version can contain letters, digits, `.`, `_`, and `-`. This example uses the workflow's run number. Use your own versioning scheme if you have one, such as a Git tag.
+
+## Retry safely
+
+A pipeline can repeat a step after a timeout or a rerun without doing the work twice:
+
+- **Create a release** with the same version and commit answers `200` with the existing release instead of building again. Rerunning a GitHub Actions workflow keeps its run number and commit, so the example above reuses the release. The same version with another commit answers `409 RELEASE_VERSION_EXISTS`.
+- **Deploy**, **restart**, and **rollback** that find the same operation already queued or running answer `200` with the same `jobId`. To control this yourself, send an `Idempotency-Key` header with a value your pipeline chooses, such as the run id. A repeat with the same key and release returns the same operation. The same key with another release answers `409 IDEMPOTENCY_KEY_REUSED`.
+
+## One operation at a time
+
+A deployment runs one operation at a time. While a deploy, restart, rollback, or another operation runs, a new request answers `409 DEPLOYMENT_BUSY`. Wait for the running operation to finish, then try again.
+
+Only one release of an application builds at a time. A second **Create a release** while a build runs answers `409 RELEASE_BUILD_IN_PROGRESS`.
+
+## Deploy to several customers
+
+Send one deploy request for each deployment. Each deployment runs its own operation, so you can start them one after another and then wait for each. To deploy one release to every deployment of an application, list them with `GET /api/v1/deployments?applicationId=<id>` and send a deploy for each installed one. Have your script record a refused deploy and continue with the next deployment.
+
+A deploy can't start when a deployment isn't installed, its connector is offline, or the release needs infrastructure the deployment doesn't have. The API answers `409` with a code that says why. See [When an update is unavailable](/operate/deploy-update#when-an-update-is-unavailable).
+
+## Restart or roll back
+
+[Restart](/api-reference/deployments/restart) takes no body:
+
+```bash
+curl -s -X POST "https://api.deployz.dev/api/v1/deployments/$DEPLOYMENT_ID/restart" \
+  -H "Authorization: Bearer $DEPLOYZ_API_KEY"
+```
+
+[Roll back](/api-reference/deployments/rollback) takes the id of the earlier release:
+
+```bash
+curl -s "https://api.deployz.dev/api/v1/deployments/$DEPLOYMENT_ID/rollback" \
+  -H "Authorization: Bearer $DEPLOYZ_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"releaseId": "<earlier-release-id>"}'
+```
+
+Both answer with a `jobId`. Wait for it the same way as a deploy. A rollback doesn't run database migrations. Read [Roll back a deployment](/operate/rollback) before you automate one.

@@ -1,0 +1,83 @@
+---
+title: "Errors and rate limits"
+description: "What Deployz API error responses contain, what each error code means, and how many requests a key can make."
+keywords: ["API errors", "error codes", "401", "403", "404", "409", "429", "rate limit", "Retry-After"]
+---
+
+{/* Last checked against deployz commit e6bcaf73 on 2026-11-24 */}
+
+When a request fails, the [Deployz API](/api/overview) answers with an HTTP status code and a JSON body that says why. Use the `code` to decide what your pipeline does next.
+
+## Error responses
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "DEPLOYMENT_BUSY",
+    "message": "Another deployment operation is already in progress."
+  },
+  "request_id": "8c5d4c68-b488-41c7-934f-6f9e9ce83d7b"
+}
+```
+
+| Field | Meaning |
+| --- | --- |
+| `error.code` | A stable code in capital letters. Match on this value in your scripts. |
+| `error.message` | A readable explanation. The wording can change, so don't match on it. |
+| `error.details` | Extra information. Present only for some errors. |
+| `request_id` | The id of the request, also in the `X-Request-Id` header. Include it when you [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). |
+
+## Key and request errors
+
+| Status | Code | Meaning | What to do |
+| --- | --- | --- | --- |
+| `400` | `VALIDATION_ERROR` | A field or parameter is missing or has the wrong format. | Fix the request. The message names the field. |
+| `401` | `API_KEY_INVALID` | No key, a malformed key, an unknown key, or a revoked key. | Check the `Authorization: Bearer` header and the secret in your CI. |
+| `401` | `API_KEY_EXPIRED` | The key is past its expiry date. | [Create a new key](/api/authentication#create-a-key). |
+| `401` | `KEY_CREATOR_INACTIVE` | The person who created the key is no longer an owner or an admin. | [Replace the key](/api/authentication#replace-a-key). |
+| `403` | `INSUFFICIENT_KEY_PERMISSION` | A **Read** key called an endpoint that needs **Deploy**. | Use a key with **Deploy** permission. |
+| `404` | `NOT_FOUND` | The path doesn't exist, or the resource doesn't exist in your organization. | Check the id and the path. |
+| `429` | `RATE_LIMITED` | The key made too many requests. | Wait for the number of seconds in `Retry-After`. See [Rate limits](#rate-limits). |
+
+A resource in another organization answers `404`, the same as one that doesn't exist.
+
+## Release errors
+
+These come from [Create a release](/api-reference/releases/create).
+
+| Status | Code | Meaning | What to do |
+| --- | --- | --- | --- |
+| `409` | `RELEASE_VERSION_EXISTS` | A release with this version was built from another commit. | Use a new version. The same version and commit return the existing release. |
+| `409` | `RELEASE_BUILD_IN_PROGRESS` | Another release of this application is building. | Wait for that build to finish, then try again. |
+| `422` | `BUILD_CONFIGURATION_MISSING` | The application is missing a build setting that a release needs. | Complete the application's build settings in the dashboard. See [Create a release](/releases/create). |
+
+A build that starts but fails doesn't return an error code. The release's `status` changes to `failed`, and `failureReason` says why. See [Fix build failures](/releases/build-failures).
+
+## Deploy, restart, and rollback errors
+
+| Status | Code | Meaning | What to do |
+| --- | --- | --- | --- |
+| `409` | `DEPLOYMENT_BUSY` | Another operation is running on this deployment. | Wait for it to finish, then try again. |
+| `409` | `DEPLOYMENT_NOT_DEPLOYABLE` | The deployment can't take this operation in its current state, for example while it isn't installed or is being removed. | Check the deployment in the dashboard. The message says why. |
+| `409` | `RELAY_NOT_CONNECTED` | No Deployz connector is connected to this deployment. | See [The Deployz connector](/operate/connector). |
+| `409` | `RELAY_DISCONNECTED` | The Deployz connector is offline. | See [When a connector goes offline](/operate/connector#when-a-connector-goes-offline). |
+| `409` | `RELEASE_NOT_READY` | The release hasn't finished building, or its build failed. | Deploy a release whose `status` is `ready`. |
+| `409` | `RELEASE_UNAVAILABLE` | The release's container image is no longer available. | Build a new release. |
+| `409` | `RELEASE_DEPRECATED` | The release is deprecated. | Deploy another release. |
+| `409` | `INFRASTRUCTURE_CHANGE_REQUIRED` | The release needs infrastructure the deployment doesn't have. Deploy only. | See [Check for infrastructure changes](/releases/create#check-for-infrastructure-changes). |
+| `409` | `IDEMPOTENCY_KEY_REUSED` | The `Idempotency-Key` was already used with another release. | Use a new key for each release. |
+
+An operation that starts but fails doesn't return an error code. The operation's `state` changes to `failed`, and `failureCode` names the cause. Look up the code in [Failure codes](/reference/failure-codes).
+
+## Rate limits
+
+Each API key can make 120 requests a minute. The next request in that minute answers `429` with the code `RATE_LIMITED` and a `Retry-After` header with the number of seconds to wait.
+
+To stay under the limit:
+
+- Check a release or an operation about every 10 seconds, not in a tight loop.
+- Use a separate key for each pipeline, so one busy pipeline doesn't slow down another.
+- When you get a `429`, wait for `Retry-After` before you retry.
+
+Deployz also limits the total rate of API requests across all keys. A request over that limit answers `429` with a body that has no `error.code`. Retry it after a short wait.

@@ -1,0 +1,91 @@
+---
+title: "Deployz API overview"
+sidebarTitle: "Overview"
+description: "Build releases and deploy them to your customers from your own pipeline with the Deployz API."
+keywords: ["API", "REST", "CI", "pipeline", "automation", "OpenAPI"]
+---
+
+{/* Last checked against deployz commit e6bcaf73 on 2026-11-24 */}
+
+The Deployz API lets your CI pipeline do what you'd otherwise do in the Deployz dashboard after you push a commit: build a release, deploy it, and follow the result. This section is for you, the vendor. Your customers don't use the API.
+
+## What you can do with the API
+
+| Task | Endpoint |
+| --- | --- |
+| Find your applications and their ids | [List applications](/api-reference/applications/list) |
+| Build a release from a commit | [Create a release](/api-reference/releases/create) |
+| Wait for the build to finish | [Read one release](/api-reference/releases/get) |
+| Find a customer's deployment | [List deployments](/api-reference/deployments/list) |
+| Deploy a release to one deployment | [Deploy a release](/api-reference/deployments/deploy) |
+| Restart the application | [Restart](/api-reference/deployments/restart) |
+| Roll back to an earlier release | [Roll back](/api-reference/deployments/rollback) |
+| Wait for a deploy, restart, or rollback to finish | [Read one operation](/api-reference/operations/get) |
+
+For a complete pipeline, see [Build and deploy from your pipeline](/api/pipeline).
+
+Everything else, such as connecting GitHub, inviting customers, changing configuration, removing a deployment, and billing, stays in the dashboard. The API doesn't deploy to several deployments in one request. Deploy to each deployment separately.
+
+## Base URL
+
+Send every request to:
+
+```text
+https://api.deployz.dev/api/v1
+```
+
+`v1` is the API version. The endpoint reference lists the paths below it.
+
+## Authentication
+
+Send an API key in the `Authorization` header of every request:
+
+```bash
+curl https://api.deployz.dev/api/v1/applications \
+  -H "Authorization: Bearer $DEPLOYZ_API_KEY"
+```
+
+An owner or an admin creates keys on the **API keys** page of the dashboard. A key can only read, or it can also build and deploy. See [Create and manage API keys](/api/authentication).
+
+## Responses
+
+Every response is JSON with the same envelope. The result is in `data`:
+
+```json
+{
+  "success": true,
+  "message": "Applications retrieved successfully",
+  "data": {
+    "applications": [
+      {
+        "id": "3f1c2a9e-7b4d-4e8a-9c21-5d6f7a8b9c0d",
+        "name": "acme-crm",
+        "repoFullName": "acme/acme-crm",
+        "defaultBranch": "main",
+        "createdAt": "2026-10-02T09:15:00.000Z",
+        "updatedAt": "2026-11-20T14:02:11.000Z"
+      }
+    ]
+  },
+  "request_id": "8c5d4c68-b488-41c7-934f-6f9e9ce83d7b"
+}
+```
+
+An error has `success: false` and an `error` object with a `code` and a `message`. See [Errors and rate limits](/api/errors).
+
+`request_id` identifies the request. The same value is in the `X-Request-Id` response header. Include it when you [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur) about a request.
+
+Times are in UTC, in ISO 8601 format. Ids are UUIDs.
+
+## Operations run in the background
+
+A build, a deploy, a restart, and a rollback take minutes, so the API starts them and answers right away:
+
+- **Create a release** answers with the release. Its `status` is `building`. Read the release until its status is `ready` or `failed`.
+- **Deploy**, **restart**, and **rollback** answer `202 Accepted` with a `jobId` for the operation, and a `Location` header with the path to read it. Read the operation until its `state` is `succeeded`, `failed`, or `cancelled`.
+
+Check about every 10 seconds. Each check counts toward the [rate limit](/api/errors#rate-limits).
+
+## OpenAPI document
+
+The endpoint reference is built from the API's OpenAPI 3.1 document. You can also download it from `https://api.deployz.dev/api/v1/openapi.json` to generate a client. It doesn't need a key.

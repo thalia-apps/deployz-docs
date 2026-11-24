@@ -31,6 +31,8 @@ The dialog notes that the current release keeps serving until the new release pa
 
 The deployment changes to **Updating**, and the detail page shows **Updating your application** with the running job and how long it has taken. **Recent activity** records each step.
 
+To deploy updates from your CI pipeline instead, see [Build and deploy from your pipeline](/api/pipeline).
+
 ## What happens during an update
 
 1. **The database migration runs first.** If your application has a separate migration step, Deployz runs it after the infrastructure and database are ready and before any service changes. The migration must finish with exit code `0`. **Retry update** starts a new update, so a migration that succeeded in a failed attempt runs again. See [When a migration runs again](/prepare/migrations#when-a-migration-runs-again).

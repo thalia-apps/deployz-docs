@@ -1,0 +1,72 @@
+# Docs-only changes to the vendor API OpenAPI document (OpenAPI Overlay 1.0).
+# Wording, examples and error codes belong in the app spec
+# (apps/api/src/public-api-spec.ts), not here. This file only hides the
+# document route and sets each endpoint page's URL and sidebar title.
+# The guide pages in api/ link to these URLs: keep them stable.
+overlay: 1.0.0
+info:
+  title: Deployz docs overlay
+  version: 1.0.0
+actions:
+  - target: "$.paths['/api/v1/openapi.json'].get"
+    description: The OpenAPI document route is not an endpoint page.
+    update:
+      x-excluded: true
+  - target: "$.paths['/api/v1/applications'].get"
+    update:
+      x-mint:
+        href: /api-reference/applications/list
+  - target: "$.paths['/api/v1/applications/{id}'].get"
+    update:
+      x-mint:
+        href: /api-reference/applications/get
+  - target: "$.paths['/api/v1/applications/{id}/releases'].post"
+    update:
+      x-mint:
+        href: /api-reference/releases/create
+        metadata:
+          sidebarTitle: Create a release
+  - target: "$.paths['/api/v1/applications/{id}/releases'].get"
+    update:
+      x-mint:
+        href: /api-reference/releases/list
+        metadata:
+          sidebarTitle: List releases
+  - target: "$.paths['/api/v1/applications/{id}/releases/{releaseId}'].get"
+    update:
+      x-mint:
+        href: /api-reference/releases/get
+  - target: "$.paths['/api/v1/deployments'].get"
+    update:
+      x-mint:
+        href: /api-reference/deployments/list
+        metadata:
+          sidebarTitle: List deployments
+  - target: "$.paths['/api/v1/deployments/{id}'].get"
+    update:
+      x-mint:
+        href: /api-reference/deployments/get
+        metadata:
+          sidebarTitle: Read one deployment
+  - target: "$.paths['/api/v1/deployments/{id}/deploy'].post"
+    update:
+      x-mint:
+        href: /api-reference/deployments/deploy
+        metadata:
+          sidebarTitle: Deploy a release
+  - target: "$.paths['/api/v1/deployments/{id}/restart'].post"
+    update:
+      x-mint:
+        href: /api-reference/deployments/restart
+        metadata:
+          sidebarTitle: Restart
+  - target: "$.paths['/api/v1/deployments/{id}/rollback'].post"
+    update:
+      x-mint:
+        href: /api-reference/deployments/rollback
+        metadata:
+          sidebarTitle: Roll back
+  - target: "$.paths['/api/v1/deployments/{id}/jobs/{jobId}'].get"
+    update:
+      x-mint:
+        href: /api-reference/operations/get

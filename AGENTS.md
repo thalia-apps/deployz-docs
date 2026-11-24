@@ -143,7 +143,8 @@ The content plan is in `planning/content-strategy.md`, which `.mintignore` keeps
 
 - Document what vendors and their customers see and do.
 - Don't document Deployz-internal operations: Team Admin, control-plane deploys, CI, configuration keys, or test harnesses.
-- Don't document internal API routes. Deployz has no public API.
+- Document the vendor API only through the operations in its OpenAPI document (`api-reference/openapi.json`, synced from the app with `scripts/sync-openapi.mjs`). Don't document the dashboard routes under `/api/`, or `/api/v1` routes that the OpenAPI document doesn't list.
+- Change API wording, examples, and error codes in the app's `apps/api/src/public-api-spec.ts`, then sync. Use `api-reference/overlay.yaml` only for docs-only settings, such as page URLs and sidebar titles.
 - Don't document the legacy deploy link.
 - Keep the customer guide (`customers/*`) vendor-neutral until vendor branding is added.
 - Treat page URLs and failure-code anchors as stable: the Deployz app may link to them. Don't rename or move a page without adding a redirect in `docs.json`.

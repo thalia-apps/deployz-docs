@@ -15,6 +15,8 @@ The terms Deployz uses in the dashboard, on the install page, and in this docume
 
 **Application:** The software you deploy with Deployz, connected to a GitHub repository. Each application has releases, and each release can run in many deployments. See [Key concepts](/concepts).
 
+**API key:** A secret your CI pipeline sends to the Deployz API. An owner or an admin creates it on the **API keys** page, with **Read** or **Deploy** permission. It works only while its creator is an owner or an admin. See [Create and manage API keys](/api/authentication).
+
 **Application stack:** The AWS CloudFormation stack that holds one deployment's application, with its network, load balancer, and any database, cache, and file storage it needs. Its name starts with `deployz-app-`. The connector has CloudFormation create it in the customer's AWS account. See [AWS resources Deployz creates](/reference/aws-resources#application-stack).
 
 ## B
@@ -87,6 +89,8 @@ As an application status, **Needs attention** means at least one customer deploy
 **Not analyzed:** An application status that means analysis hasn't started yet. Select **Analyze application** to start it.
 
 ## O
+
+**Operation (job):** A deploy, restart, rollback, or other task Deployz runs on a deployment. The Deployz API returns its `jobId`, and you read it until it succeeds or fails. A deployment runs one operation at a time. See [Build and deploy from your pipeline](/api/pipeline).
 
 **Organization:** Your company's account in Deployz. It holds your applications, customers, deployments, and billing. Each person in it has a role: owner, admin, or member. See [Organization and team](/account/organization-and-team).
 
