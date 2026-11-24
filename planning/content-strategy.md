@@ -12,7 +12,7 @@ This plan covers what the public Deployz documentation site (this Mintlify repos
 
 **The app has no links to documentation.** `apps/web` links to no docs or help pages, and the deployment page has a **Contact Deployz support** action with no support URL behind it. Nothing in the product sends users to the docs yet. That's an opportunity: failure-code anchors and page URLs are ready for the app to link to.
 
-**There is no public API.** Sign-in uses session cookies only. There are no API keys, no personal access tokens and no OpenAPI spec. The only bearer-token routes belong to the connector. **Don't add an API reference section.** Routes such as `PATCH /api/applications/:id` and bulk deploy exist, but the dashboard uses them internally. Documenting them would create an unsupported public contract.
+**The vendor API covers the release pipeline only.** Owners and admins create API keys on the **API keys** page. The **API reference** tab documents the operations in the app's OpenAPI document (`apps/api/openapi.json`, copied to `api-reference/openapi.json`): list and read applications, releases, deployments, and operations; create a release; deploy, restart, and roll back. Other routes under `/api/v1` and the dashboard routes under `/api/` aren't in the OpenAPI document. Documenting them would create an unsupported public contract. See `planning/vendor-api-docs-plan.md`.
 
 ## 2. What Deployz is, in the reader's terms
 

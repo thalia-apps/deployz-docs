@@ -1,0 +1,91 @@
+---
+title: "Create and manage API keys"
+sidebarTitle: "API keys"
+description: "Create an API key for your pipeline, choose its permission and expiry, and revoke or replace it."
+keywords: ["API key", "token", "authentication", "bearer", "revoke", "rotate"]
+---
+
+{/* Last checked against deployz commit 58426011 on 2026-11-24 */}
+
+Every request to the [Deployz API](/api/overview) needs an API key. A key belongs to your organization and reaches only its applications and deployments.
+
+## Before you create a key
+
+- **Who:** an owner or an admin, in the Deployz dashboard. A member can see the list of keys but can't create or revoke one. See [Organization and team](/account/organization-and-team).
+- **The key depends on you.** A key works only while the person who created it is an owner or an admin of the organization. If you leave the organization or become a member, every key you created stops working. See [If the key creator changes role](#if-the-key-creator-changes-role).
+- **Limit:** an organization can have 10 active keys. Revoked and expired keys don't count. To create another, revoke one first.
+
+## Choose a permission
+
+| Permission | What the key can do |
+| --- | --- |
+| **Read** | List and read applications, releases, deployments, and operations |
+| **Deploy** | Everything **Read** can do, and build releases, deploy, restart, and roll back |
+
+Use a **Read** key for a status check or a report. Use a **Deploy** key for a pipeline that releases your application. A request that needs **Deploy** with a **Read** key answers `403` with the code `INSUFFICIENT_KEY_PERMISSION`.
+
+## Create a key
+
+**Who:** an owner or an admin, in the Deployz dashboard.
+
+1. In the sidebar, select **API keys**.
+2. Select **Create API key**.
+3. In **Name**, enter a name that says where you'll use the key, for example `GitHub Actions`.
+4. In **Permission**, select **Read** or **Deploy**.
+5. In **Expires after**, select **30 days**, **90 days**, or **365 days**. The default is 90 days. A key can't be set to never expire.
+6. Select **Create key**.
+7. In **Copy your API key**, select **Copy**, then store the key in your CI secrets, for example as a GitHub Actions secret named `DEPLOYZ_API_KEY`.
+8. Select **Done**.
+
+<Warning>
+Deployz shows the key only once. It stores a hash of the key, not the key itself, so nobody can show it to you again. If you lose the key, revoke it and create a new one.
+</Warning>
+
+Treat the key like a password. Keep it in a secret store, not in your repository or in logs.
+
+## Send the key
+
+Send the key as a bearer token in the `Authorization` header:
+
+```bash
+curl https://api.deployz.dev/api/v1/applications \
+  -H "Authorization: Bearer $DEPLOYZ_API_KEY"
+```
+
+A key starts with `dz_`. The API doesn't accept your dashboard sign-in, and the dashboard doesn't accept a key.
+
+## Check your keys
+
+The **API keys** page lists every key with its **Permission**, who created it, when it expires, when it was last used, and its **Status**:
+
+| Status | Meaning |
+| --- | --- |
+| **Active** | The key works. |
+| **Expired** | The key is past its expiry date. Requests answer `401` with `API_KEY_EXPIRED`. Create a new key. |
+| **Revoked** | Someone revoked the key. Requests answer `401` with `API_KEY_INVALID`. |
+| **Inactive creator** | The person who created the key is no longer an owner or an admin. Requests answer `401` with `KEY_CREATOR_INACTIVE`. |
+
+## Revoke a key
+
+Revoke a key when you no longer need it or if it might have leaked. The key stops working on the next request, and this can't be undone.
+
+**Who:** an owner or an admin, in the Deployz dashboard.
+
+1. In the sidebar, select **API keys**.
+2. In the key's row, select **Revoke**.
+3. In **Revoke `<name>`?**, select **Revoke key**.
+
+## Replace a key
+
+To replace a key before it expires, or when the person who created it is leaving:
+
+1. Create a new key with the same permission.
+2. Update the secret in your pipeline with the new key.
+3. Run the pipeline once, or check **Last used** on the new key.
+4. Revoke the old key.
+
+## If the key creator changes role
+
+When the person who created a key leaves the organization or becomes a member, the key answers `401 KEY_CREATOR_INACTIVE`, and its status changes to **Inactive creator**. Deployz doesn't revoke the key. It works again if that person becomes an owner or an admin again.
+
+Before an owner or an admin leaves, have someone who stays create new keys and update your pipelines.
