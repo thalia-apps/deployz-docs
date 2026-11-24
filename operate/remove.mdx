@@ -3,7 +3,7 @@ title: "Remove a deployment"
 description: "Remove a deployment from a customer's AWS account, then delete the data it leaves behind."
 ---
 
-{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
+{/* Last checked against deployz commit 8f612be8 on 2026-11-24 */}
 
 Removing a deployment takes the application down in your customer's AWS account. It happens in up to three steps, and each one is separate on purpose so data is never deleted by accident:
 
@@ -43,7 +43,7 @@ Billing for the deployment stops when Deployz accepts the removal. If it was a l
 
 1. In **Deployments**, open the customer's deployment.
 2. Open the **More actions** menu (the three-dot button next to the actions), then select **Remove deployment**.
-3. In **Remove `<application>` for `<customer>`?**, wait for the removal plan to load. Review **Will be removed** and **Will be retained**.
+3. In **Remove `<application>` for `<customer>`?**, wait for the removal plan to load. Review **Removed** and **Kept after removal**.
 4. Type the customer's name exactly as shown, to confirm.
 5. Select **Remove deployment**.
 
@@ -57,7 +57,7 @@ If the connector has never connected, for example the deployment still shows **W
 
 ## While the deployment is being removed
 
-The deployment shows **Removing**, and the detail page shows **Removing deployment** with the connector's status and a list of the deployment's parts. The label next to each part says what the removal plan does with it: **Removing**, **Retained**, **Snapshot retained**, or **Retained conditionally**. The labels don't change as the removal progresses, so a part marked **Removing** may already be gone. Other actions are unavailable until removal finishes.
+The deployment shows **Removing**, and the detail page shows **Removing deployment** with the connector's status and a list of the deployment's parts. The label next to each part says what the removal plan does with it: **Removing**, **Kept after removal**, **Kept as snapshot**, or **Kept if configured**. The labels don't change as the removal progresses, so a part marked **Removing** may already be gone. Other actions are unavailable until removal finishes.
 
 When removal finishes, the deployment shows **Removed**, and the detail page shows **Deployment removed**.
 
@@ -65,17 +65,17 @@ When removal finishes, the deployment shows **Removed**, and the detail page sho
 
 The detail page shows **Removal failed** and what went wrong. Select **Retry removal** to try again. It opens the same confirmation dialog. Until a removal succeeds, Deployz refuses to deploy, roll back, or restart the deployment. If it keeps failing, see [Find your problem](/troubleshooting/overview).
 
-If removal has failed at least twice, [contact Deployz support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). Support can complete the removal in Deployz. As with **Complete removal anyway**, that doesn't remove anything that's left in your customer's AWS account.
+If removal has failed at least twice, [contact Deployz support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). Support can complete the removal in Deployz. As with **Mark as removed without cleanup**, that doesn't remove anything that's left in your customer's AWS account.
 
 ### If the connector is offline
 
-Deployz can only remove resources through the connector. If the connector is offline and removal has been waiting for an hour or more, the detail page shows **The Deployz connector is offline.** and a **Complete removal anyway** button.
+Deployz can only remove resources through the connector. If the connector is offline and removal has been waiting for an hour or more, the detail page shows **The Deployz connector is offline.** and a **Mark as removed without cleanup** button.
 
 <Warning>
-Only an owner or admin can select **Complete removal anyway**. It finishes the removal in Deployz only. Deployz can't verify or remove anything in your customer's AWS account, so everything there may remain and keep costing money. Try to [reconnect the connector](/operate/connector) first.
+Only an owner or admin can select **Mark as removed without cleanup**. It finishes the removal in Deployz only, and you can't undo it. Deployz can't verify or remove anything in your customer's AWS account, so everything there may remain and keep costing money. Try to [reconnect the connector](/operate/connector) first.
 </Warning>
 
-After you complete removal anyway, the deployment shows **Removed**, with **Resources may remain in the customer AWS account**. Your customer may need to delete those resources in their AWS console. See [Remove the application from your AWS account](/customers/remove).
+To go ahead, select **Mark as removed without cleanup**, then select **Mark as removed** in the confirmation dialog. The deployment shows **Removed**, with **Resources may remain in `<customer>`'s AWS account**. Your customer may need to delete those resources in their AWS console. See [Remove the application from your AWS account](/customers/remove).
 
 ## Delete retained data
 
@@ -85,15 +85,37 @@ When your customer no longer needs the data, delete what removal kept. If they n
 Deleting retained data can't be undone. Deployz deletes the database without a final snapshot, together with its automated backups. It also deletes the database credentials and any other secret of this deployment that's still in the account, the storage bucket and its files, any remaining cache, task-definition revisions, and the remaining network. If a removal was interrupted, it also deletes leftover certificates.
 </Warning>
 
-**Who:** you (an owner or admin), in the Deployz dashboard. The connector must be online, because the deletion runs through it.
+**Who:** you (an owner or admin), in the Deployz dashboard. The deletion runs through the connector, so the connector must be online. If it isn't, see [If the connector is gone](#if-the-connector-is-gone).
 
 1. Open the removed deployment. You can find it with the **Removed** filter in **Deployments**.
 2. Under the note about retained resources, select **Delete retained data**.
-3. In **Delete `<application>`'s retained data?**, review **This deletes**.
-4. Type the application's name exactly as shown, to confirm.
+3. In **Delete `<customer>`'s retained data?**, review **This deletes**.
+4. Type the customer's name exactly as shown, to confirm.
 5. Select **Delete retained data**.
 
-The detail page shows **Deleting retained data** until the deletion finishes. When it completes, the **Deployz connector** row shows **Disconnected · access revoked**, because Deployz no longer has access to the connector.
+The detail page shows **Deleting retained data** until the deletion finishes. When it completes, the **Deployz connector** row shows **Removed · Deployz no longer has access**.
+
+### If the connector is gone
+
+If the connector is offline, for example because your customer already deleted the connector stack, Deployz can't delete the retained data through it. The detail page shows **The Deployz connector is offline** and a **Reconnect AWS** button instead of **Delete retained data**.
+
+**Reconnect AWS** gives your customer a new install link that creates only the connector stack. It doesn't install the application again. When the connector is back, Deployz deletes the retained data.
+
+<Warning>
+Reconnecting AWS can't be undone. When your customer opens the new install link and connects their AWS account, Deployz deletes the retained data without a final database snapshot.
+</Warning>
+
+**Who:** you (an owner or admin), in the Deployz dashboard, then your customer on the install page.
+
+1. Open the removed deployment, then select **Reconnect AWS**.
+2. In **Reconnect AWS and delete retained data?**, type the customer's name exactly as shown, to confirm.
+3. Select **Reconnect AWS**.
+4. Select **Copy install link** and send the link to your customer.
+5. Your customer opens the link. The page is titled **Reconnect `<application>` to delete its retained data**. They select **Connect AWS account** and create the connector stack, as in [Install the application](/customers/install). If the old connector stack is still in their account, the page offers to update it instead.
+
+While Deployz waits, the detail page shows **Waiting for `<customer>`** with the link. The link doesn't change if you reload the page. When the connector is back, Deployz deletes the retained data, and the page shows **Deleting retained data** as usual.
+
+If your customer installed a new connector themselves after the removal, AWS refuses to let it delete the retained data, because that data belongs to the old connector. The connector row shows **Online · cannot delete this data**, and the page says **The connector is online, but it cannot delete this data**. Use **Reconnect AWS** in the same way. The new link installs a connector that can delete the data.
 
 ## Your customer deletes the connector stack
 
@@ -101,4 +123,20 @@ The detail page shows **Deleting retained data** until the deletion finishes. Wh
 
 When the retained data is deleted, the detail page shows **The Deployz connector is still installed in the customer AWS account** and the stack's name. Ask your customer to delete that stack. Their install link shows the same step.
 
-Your customer should delete the connector stack last. After it's gone, Deployz can't change or remove anything in their account, and any remaining resources must be deleted by hand. Send your customer [Remove the application from your AWS account](/customers/remove).
+Your customer should delete the connector stack last. After it's gone, Deployz can delete retained data only after a [Reconnect AWS](#if-the-connector-is-gone) step. Send your customer [Remove the application from your AWS account](/customers/remove).
+
+## Delete an application
+
+When an application has no deployments left, you can delete it from Deployz. Its deployment history stays, and nothing changes in your customers' AWS accounts. Its install links stop working. You can't undo this, but you can add the same repository again later as a new application.
+
+**Who:** you (an owner or admin), in the Deployz dashboard.
+
+You can delete an application only when every deployment of it is removed and the retained data of each removed deployment is deleted. Until then, the **Danger zone** shows **Delete unavailable** with the reason.
+
+1. Open the application and select **Configuration**.
+2. Select the **Settings** tab.
+3. In **Danger zone**, select **Delete application**.
+4. Type the repository name exactly as shown, for example `owner/repo`, to confirm.
+5. Select **Delete application**.
+
+Deployz returns you to **Applications**.

@@ -3,7 +3,7 @@ title: "Deploy an update"
 description: "Deploy a new release to a customer's deployment, and what happens if the update fails."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit 8f612be8 on 2026-11-24 */}
 
 Deploy an update to move a customer's deployment to a different release of your application. Your customer doesn't need to do anything. The application keeps serving its current release until the new one passes its health checks.
 
@@ -23,11 +23,11 @@ If your application has a separate migration step, the update runs it before any
 
 1. In **Deployments**, open the customer's deployment.
 2. Select **Deploy update**. When a newer release is ready, the button reads **Deploy update to `<version>`**. After a failed update, it reads **Retry update** and opens the same release picker, so you choose the release again.
-3. In **Release to deploy**, choose the release. The list shows releases that built successfully, newest first, except the one already running.
-4. Check the summary. **Current** and **New** show the two versions. **Infrastructure** shows **Unchanged**, or **Requirements changed** if the application now needs different infrastructure than this deployment has.
+3. In **Release to deploy**, select the release (the field reads **Select a release** until you choose). The list shows releases that built successfully, newest first, except the one already running.
+4. Check the summary. **Current release** and **New release** show the two versions. If the application now needs infrastructure this deployment doesn't have, the dialog shows **This release cannot be deployed here** and **Deploy update** stays disabled. See [Changes that need a new deployment](#changes-that-need-a-new-deployment).
 5. Select **Deploy update**.
 
-The dialog warns that the application will restart behind the load balancer. Existing persistent resources, such as the database and stored files, are kept.
+The dialog notes that the current release keeps serving until the new release passes its health checks, and that data is kept.
 
 The deployment changes to **Updating**, and the detail page shows **Updating your application** with the running job and how long it has taken. **Recent activity** records each step.
 
@@ -63,9 +63,9 @@ When **Deploy update** isn't available, the detail page shows the reason under t
 | Reason | What to do |
 | --- | --- |
 | The deployment was removed, or is being removed. | Nothing. These actions no longer apply. |
-| The deployment hasn't completed an install yet. | Wait for the install to finish. If the first install failed, use **Retry deployment** instead. See [Fix install failures](/troubleshooting/install). |
+| The deployment hasn't completed an install yet. The page says **Updates, restarts and rollbacks are available after the first install.** | Wait for the install to finish. If the first install failed, use **Retry install** instead. See [Fix install failures](/troubleshooting/install). |
 | No connector has connected yet, or the connector is offline. | Ask your customer to reconnect the connector. See [Reconnect or update the Deployz connector](/operate/connector). |
-| Another operation is running. | Wait for it to finish. Only one update, rollback, restart, configuration change, or removal runs at a time. |
+| Another operation is running. The page says **Other actions are available after the `<operation>` finishes.** | Wait for it to finish. Only one update, rollback, restart, configuration change, or removal runs at a time. |
 | The installed connector doesn't support the action. | Ask your customer to update the connector. See [Reconnect or update the Deployz connector](/operate/connector). |
 
 If you start an update and Deployz refuses it, the dialog shows why. For example, a release whose build is no longer available can't be deployed. Create a new release instead.
@@ -80,7 +80,7 @@ A deployment keeps the infrastructure it was created with. An update can't add o
 - A different set of queues (**Preview**)
 - A different set of scheduled jobs (**Preview**)
 
-The update dialog warns you first: **Infrastructure** shows **Requirements changed**, and the dialog lists each change and says a new deployment is needed. To apply the change, create a new deployment for the customer, or change the application's requirements back.
+The update dialog stops you first. It shows **This release cannot be deployed here**, lists the infrastructure the deployment is missing, and disables **Deploy update**. To apply the change, create a new deployment for the customer, or change the application's requirements back.
 
 An application that no longer uses its database or cache can still be updated. The unused resource stays in the deployment.
 

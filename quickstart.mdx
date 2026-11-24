@@ -3,7 +3,7 @@ title: "Quickstart"
 description: "Go from a GitHub repository to a working test deployment in your own AWS account."
 ---
 
-{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
+{/* Last checked against deployz commit 8f612be8 on 2026-11-24 */}
 
 This guide takes you from a GitHub repository to your application running in your own AWS account, at a permanent HTTPS address. Along the way you add the application, let Deployz analyze it, build a release, and run a test deployment. Everything in this guide is part of the free evaluation.
 
@@ -31,7 +31,7 @@ You need:
   <Step title="Sign up">
     Go to [app.deployz.dev/sign-up](https://app.deployz.dev/sign-up). Enter your **Name**, **Email**, and a **Password** of at least 12 characters. Selecting **Create account** accepts the Deployz Terms of Service and Privacy Policy, which are linked below the button. Select **Create account**. Deployz sends a verification email to that address. You can use the dashboard before you verify it, but you need a verified email to invite teammates.
 
-    Deployz creates an organization for you, named after the part of your email address before the `@`, and makes you its owner. Customers see the organization name as the publisher on the install page. To change it, open **Settings**, edit **Organization name**, and select **Update Organization**.
+    Deployz creates an organization for you, named after the part of your email address before the `@`, and makes you its owner. Customers see the organization name as the publisher on the install page. To change it, open **Settings**, edit **Organization name**, and select **Save name**.
   </Step>
   <Step title="Connect GitHub">
     In the sidebar, select **Applications**. Under **Connect your code**, select **Connect GitHub**. On GitHub, install the Deployz GitHub App and choose the repositories Deployz can read. Deployz requests read-only access to your code.
@@ -50,7 +50,7 @@ You need:
     | **Needs input** | Deployz needs a change, a decision, or a value before you can deploy. | Select **Review required changes**. |
     | **Analysis failed** | Deployz couldn't read or analyze the repository. | Read the reason on the **Overview**, then select **Re-analyze application**. |
 
-    The **Overview** also shows whether the application can be deployed: **Deployable with Deployz settings**, **Deployable after repository changes**, or **Not deployable on Deployz**. Required changes are grouped under **Set in Deployz**, **Change in your repository**, and **Not supported**. Until a release build passes, **Deployable with Deployz settings** shows "Not yet confirmed by a build."
+    The **Overview** also shows whether the application can be deployed: **Deployable without code changes**, **Deployable after repository changes**, or **Not supported by Deployz**. Required changes are grouped under **Set in Deployz**, **Change in your repository**, and **Not supported**. Until a release builds successfully, **Deployable without code changes** shows "Not yet confirmed by a test deployment."
 
     For help with a result, see [Fix analysis problems](/troubleshooting/analysis).
   </Step>
@@ -69,7 +69,7 @@ You need:
 
     The release shows **Building**, then **Ready** when the build succeeds. If it shows **Build failed**, see [Fix a failed build](/releases/build-failures). Creating a release doesn't update any deployment. For details, see [Create a release](/releases/create).
 
-    You can also skip this step. If the application has no release yet, the **Create test deployment** page offers **Build release from commit `<commit>`**, which builds the first release from the commit the analysis read.
+    You can also skip this step. If the application has no release yet, the **Start test deployment** page offers **Build release from commit `<commit>`**, which builds the first release from the commit the analysis read.
   </Step>
 </Steps>
 
@@ -83,12 +83,12 @@ You need:
 
 <Steps>
   <Step title="Start the test deployment">
-    On the application's **Overview**, select **Start test deployment**. The **Create test deployment** page opens.
+    On the application's **Overview**, select **Start test deployment**. The **Start test deployment** page opens.
 
     If the **Overview** shows **Building a release** instead, wait for the build to finish. If it shows **No release to test**, the last build failed or no release can be deployed. Select **Review failed build** or **View releases**, and create a release that builds.
   </Step>
   <Step title="Fill in the details">
-    - **Customer:** keep **Create new customer**, then enter a **Customer name** and **Customer email**. **Company (optional)** can stay empty. You can use your own details.
+    - **Customer:** keep **Create new customer**, then enter **Your name** and **Your email**. **Company (optional)** can stay empty. The customer record is for your test, so use your own details.
     - **Application:** the application to deploy.
     - **AWS region:** the Region to install into. See [AWS Regions](/share/regions).
     - **Size:** the size of the deployment. Only sizes at or above the application's minimum size are offered. See [Sizes and AWS cost](/share/sizes-and-cost).
@@ -96,23 +96,23 @@ You need:
     Deployz runs its deployment checks and shows which release it will install, for example **Release `v1.0.0` is ready**.
   </Step>
   <Step title="Build the first release if needed">
-    If the application has no built release, the page says so and offers **Build release from commit `<commit>`**. Select it. The page shows **Building release `<version>`…** and checks the build every 10 seconds. **Run free test deployment** becomes available when the build completes.
+    If the application has no built release, the page says so and offers **Build release from commit `<commit>`**. Select it. The page shows **Building release `<version>`…** and checks the build every 10 seconds. **Start test deployment** becomes available when the build completes.
   </Step>
   <Step title="Create the test deployment">
-    Select **Run free test deployment**. **Deployment created** shows the test deployment's install link.
+    Select **Start test deployment**. **Deployment created** shows the test deployment's install link.
   </Step>
 </Steps>
 
 ### If a deployment check blocks the test deployment
 
-When a deployment check fails, the page lists the check with what it found, and **Run free test deployment** stays unavailable with **Fix the issues above to continue**.
+When a deployment check fails, the page lists the check with what it found, and **Start test deployment** stays unavailable with **Fix the issues above to continue**.
 
 For example, the **Required customer variables** check can show **Missing:** followed by variable names. These are required variables set to **Set by customer**. A test deployment for a new customer has no customer values yet, so these variables have no value.
 
 To continue, open **Configuration** › **Variables** and change each listed variable in one of these ways:
 
-- Set it to **Set by vendor** and enter a value.
-- Set it to **Optional / not needed**, if your application can start without it.
+- Set it to **Set by you** and enter a value.
+- Set it to **Not needed**, if your application can start without it.
 
 Both changes apply to every customer of this application, not only to your test. If customers should enter their own value, change the variable back to **Set by customer** before you share an install link. See [Configure environment variables](/prepare/environment-variables).
 
@@ -122,7 +122,7 @@ Both changes apply to every customer of this application, not only to your test.
 
 <Steps>
   <Step title="Open the install page">
-    Select **Open** next to the install link. The install page shows the Region, the release, what will be deployed, and the **Estimated AWS cost**.
+    Select **Open install link**. The install page shows the Region, the release, what will be deployed, and the **Estimated AWS cost**.
   </Step>
   <Step title="Connect your AWS account">
     Select **Connect AWS account**. The AWS console opens a CloudFormation Quick Create page in a new tab. Nothing is created until you approve it there.

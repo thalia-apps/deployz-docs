@@ -3,7 +3,7 @@ title: "Key concepts"
 description: "Applications, releases, deployments, customers, and the other building blocks of Deployz."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit 8f612be8 on 2026-11-24 */}
 
 Deployz organizes your work around a few objects. Knowing which object owns what tells you where to find a setting or an action in the dashboard.
 
@@ -80,7 +80,7 @@ Your organization's name is shown to customers as the publisher on the install p
 
 ## Install link
 
-An install link is a reusable link for one application. You share the same link with any number of customers. When a customer opens it, they choose an AWS Region and a size, enter any settings you've asked them to provide, enter their name and email, and confirm. Each confirmation creates a new customer record and a new deployment.
+An install link is a reusable link for one application. You share the same link with any number of customers. When a customer opens it, they choose an AWS Region and a size, enter any settings you've asked them to provide, enter their name and email, and confirm. Each confirmation creates a new customer record and a new deployment, unless your organization already has a customer with that email. In that case, Deployz refuses the confirmation, and you send that customer an invitation instead.
 
 Each application has one live install link at a time. You can disable it and enable it again, regenerate it, or revoke it. See [Share an install link](/share/install-links).
 
@@ -88,7 +88,7 @@ Each application has one live install link at a time. You can disable it and ena
 
 An invitation is a link for one specific customer. You create it from the dashboard and can recommend a Region and size, but the customer makes the final choice. An invitation creates one deployment when the customer confirms it, and can't be used again after that.
 
-An invitation expires 7 days after you create it. While it's active, you can revoke it from the customer's page. The invitation link includes a one-time token that Deployz shows only once, when you create it. See [Invite a specific customer](/share/invitations).
+An invitation expires 7 days after you create it. While it's active, you can revoke it from the customer's page. The invitation link includes an access code that Deployz shows only once, when you create it. See [Invite a specific customer](/share/invitations).
 
 ## Deployz connector
 

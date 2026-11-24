@@ -5,7 +5,7 @@ description: "Check your AWS account and choose a Region before you install."
 
 import SupportedRegions from "/snippets/supported-regions.mdx";
 
-{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
+{/* Last checked against deployz commit 8f612be8 on 2026-11-24 */}
 
 Run these checks before you open the install link. An account that can't create the required resources stops the deployment partway, and it then needs a retry.
 
@@ -20,7 +20,7 @@ The application runs in whichever AWS account you approve the connector stack in
 You approve the setup in your own AWS console with a CloudFormation Quick Create link. You need an AWS identity that can create CloudFormation stacks and the resources in the connector stack, including its IAM roles. Creating the connector stack needs permission to:
 
 - Create IAM roles, inline policies, and managed policies, and pass roles to AWS Lambda (`iam:PassRole`)
-- Create AWS Lambda functions, let the EventBridge rule start the connector function (`lambda:AddPermission`), and start the helper functions while the stack is created (`lambda:InvokeFunction`)
+- Create AWS Lambda functions, let the EventBridge rule start the connector function (`lambda:AddPermission`), and start the setup functions while the stack is created (`lambda:InvokeFunction`)
 - Create an Amazon EventBridge rule and its target (`events:PutRule` and `events:PutTargets`)
 - Create an AWS Secrets Manager secret
 
@@ -65,7 +65,7 @@ If the application has a database, it runs as a single instance in one of the Re
 You choose the AWS Region on the install page. Your software provider may recommend one.
 
 <Warning>
-  You can't change the Region or the size after you continue to setup. Moving the application to another Region or size later needs a new deployment, which your software provider sets up.
+  You can't change the Region or the size after you select **Continue** on the install page. Moving the application to another Region or size later needs a new deployment, which your software provider sets up.
 </Warning>
 
 When you choose, consider where your users are, any data residency requirements, and cost. AWS prices differ by Region, and the estimate on the install page reflects the Region you select. See [Costs in your AWS account](/customers/costs).

@@ -4,7 +4,7 @@ sidebarTitle: "Analysis"
 description: "Resolve failed analyses, open questions, required changes, and capabilities Deployz doesn't support."
 ---
 
-{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
+{/* Last checked against deployz commit 8f612be8 on 2026-11-24 */}
 
 When you add an application, Deployz analyzes its repository to work out how to build, start, and host it. This page covers what to do when the analysis fails, asks you a question, or finds something you need to change. All of it happens in the Deployz dashboard, before any customer is involved.
 
@@ -29,7 +29,7 @@ Large repositories don't cause a failure. Deployz reads a limited set of files a
 
 ## The analysis is taking longer than usual
 
-**Symptom:** The application shows **Analyzing** with the message "Taking longer than usual. Wait, or restart the analysis." An analysis usually takes about a minute. The message appears after about two minutes.
+**Symptom:** The application shows **Analyzing** with the message "Taking longer than usual. Wait, or re-analyze." An analysis usually takes about a minute. The message appears after about two minutes.
 
 **Fix:** Wait a little longer. If nothing changes, select **Re-analyze application** on the **Overview** card to start again. The card offers it once the message appears. The **Re-analyze application** item in **More actions** stays unavailable while an analysis is running.
 
@@ -37,7 +37,7 @@ Large repositories don't cause a failure. Deployz reads a limited set of files a
 
 ## The result changes after a release build
 
-**Symptom:** The **Overview** shows **Deployable with Deployz settings** with "Not yet confirmed by a build." Or the result changed to **Deployable after repository changes** with "The release build failed."
+**Symptom:** The **Overview** shows **Deployable without code changes** with "Not yet confirmed by a test deployment." Or the result changed to **Deployable after repository changes** with "The release build failed."
 
 **Cause:** The analysis reads your repository without building it, so it can't predict every build failure. If release builds failed and none has passed, the result changes to **Deployable after repository changes**.
 
@@ -47,7 +47,7 @@ Large repositories don't cause a failure. Deployz reads a limited set of files a
 
 ## The application needs input
 
-**Symptom:** The application shows **Needs input**. The **Overview** shows either a count of changes required before you can deploy, or **Configuration needs review**, with **Review required changes**.
+**Symptom:** The application shows **Needs input**. The **Overview** shows either a count of changes required before you can deploy, or **Variables need input**, with **Review required changes**.
 
 **Cause:** Deployz found something it can't decide for you. The **Overview** groups the required changes into **Set in Deployz**, **Change in your repository**, and **Not supported**. For what each group means, see [Required and recommended findings](/prepare/analysis#required-and-recommended-findings).
 
@@ -56,7 +56,7 @@ Large repositories don't cause a failure. Deployz reads a limited set of files a
 
 Two other kinds of input can also be open:
 
-- **Questions about your application.** For example, which command runs a background worker. These rows are marked **Needs input** or **Blocking** on the **Configuration** screen.
+- **Questions about your application.** For example, which command runs a background worker. These rows are marked **Needs input** when they block a deployment, or **Optional question** when they don't, on the **Configuration** screen.
 - **Environment variable decisions.** A variable shows **Needs a decision** when nobody has said who provides it, or **Needs a value** when you provide it but haven't entered a value. See [Configure environment variables](/prepare/environment-variables).
 
 **Fix:**
@@ -71,11 +71,11 @@ Open environment variable decisions block a test deployment and customer deploym
 
 ## The application needs an unsupported capability
 
-**Symptom:** The **Overview** shows **Not deployable on Deployz** and lists one or more items under **Not supported**.
+**Symptom:** The **Overview** shows **Not supported by Deployz** and lists one or more items under **Not supported**.
 
 **Cause:** The application clearly needs something Deployz doesn't provide. Examples are MongoDB, SQLite as the only database, Elasticsearch, Redis features beyond a standard single-node cache, its own message broker, a GPU, or its own infrastructure code.
 
-**Fix:** A setting can't resolve this. If the item is a false positive and the application doesn't use it in production, select **Not used in production** on its row. See [Mark a blocker as not used in production](/prepare/analysis#mark-a-blocker-as-not-used-in-production). This isn't available for a GPU, your own infrastructure code, a missing Dockerfile, or a `.git` copy. Otherwise, change the application so it no longer needs the unsupported part, push the change, and re-analyze. For the full list and the alternatives, see [What Deployz doesn't support](/prepare/not-supported).
+**Fix:** A setting can't resolve this. If the item is a false positive and the application doesn't use it in production, select **Mark as not used** on its row. See [Mark a blocker as not used in production](/prepare/analysis#mark-a-blocker-as-not-used-in-production). This isn't available for a GPU, your own infrastructure code, a missing Dockerfile, or a `.git` copy. Otherwise, change the application so it no longer needs the unsupported part, push the change, and re-analyze. For the full list and the alternatives, see [What Deployz doesn't support](/prepare/not-supported).
 
 **Who acts:** you.
 
@@ -117,7 +117,7 @@ One recommended finding is **Background job runner**. It appears when the applic
 
 1. On the **Configuration** screen, find the finding.
 2. If the fix is a setting, such as the port, health check path, or migration choice, edit it and save. You don't need to re-analyze.
-3. If the fix is a repository change, select **Get fix instructions**. The **Fix deployment issues with your coding agent** dialog gives instructions you can copy into a coding agent or follow yourself.
+3. If the fix is a repository change, select **Get fix instructions**. The **Fix required changes with your coding agent** dialog gives instructions you can copy into a coding agent or follow yourself.
 4. Push the change to GitHub, then select **Re-analyze application**.
 
 ## A migration command is set but no database is required
@@ -132,7 +132,7 @@ One recommended finding is **Background job runner**. It appears when the applic
 
 ## Re-analyze the application
 
-**Symptom:** You pushed a change or fixed GitHub access, but the result hasn't changed. Or the application shows **Checks updated** with "Re-analyze to apply the latest checks."
+**Symptom:** You pushed a change or fixed GitHub access, but the result hasn't changed. Or the application shows **New analysis checks available** with "Re-analyze to see the current results."
 
 **Cause:** Deployz analyzes the repository only when you add the application or start a new analysis. A push doesn't start one.
 

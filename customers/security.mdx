@@ -3,7 +3,7 @@ title: "Security and AWS access"
 description: "What Deployz creates in your AWS account, what it can access, and how to revoke access."
 ---
 
-{/* Last checked against deployz commit a40d82f7 on 2026-10-27 */}
+{/* Last checked against deployz commit 8f612be8 on 2026-11-24 */}
 
 This page is for the person who reviews this deployment for security. It describes the Deployz connector, the AWS permissions it holds, the data Deployz receives, and how to revoke access. For a list of every AWS resource, see [AWS resources Deployz creates](/reference/aws-resources).
 
@@ -31,13 +31,13 @@ The connector stack, named `deployz-bootstrap-` followed by an identifier, creat
 - A CloudFormation execution role for your application stack
 - A permissions boundary for the IAM roles in your application stack
 - An AWS Secrets Manager secret that holds the connector's Deployz credential
-- Helper functions that create the installation ID and set the connector logs' one-week retention
+- Setup functions that create the installation ID and set the connector logs' one-week retention
 
-Each helper function has its own IAM role. Each role has the AWS managed policy `AWSLambdaBasicExecutionRole`, which lets it write logs. In addition, one role can start the installation ID function, and one can set or remove the retention period of log groups in the account. They have no other permissions.
+Each setup function has its own IAM role. Each role has the AWS managed policy `AWSLambdaBasicExecutionRole`, which lets it write logs. In addition, one role can start the installation ID function, and one can set or remove the retention period of log groups in the account. They have no other permissions.
 
-When the stack is created, the helper functions also create the CloudWatch Logs log groups for the connector and the helpers. These log groups aren't part of the stack. At run time, the connector writes AWS Systems Manager parameters under `/deployz/<installation ID>/` to track unfinished commands.
+When the stack is created, the setup functions also create the CloudWatch Logs log groups for the connector and the setup functions. These log groups aren't part of the stack. At run time, the connector writes AWS Systems Manager parameters under `/deployz/<installation ID>/` to track unfinished commands.
 
-The installation ID is created inside your account when the stack is created. It isn't part of the Quick Create link.
+The installation ID is created inside your account when the stack is created. It isn't part of the Quick Create link. The one exception is a link to reconnect a removed deployment, so that Deployz can delete the data the removal kept. That link passes the removed deployment's installation ID in the `ExistingInstallationId` parameter. The new connector then has the same tag-scoped permissions as the old one, and no others. The installation ID isn't a secret.
 
 ## IAM roles and permissions
 
@@ -197,11 +197,11 @@ You can revoke Deployz access at any time by deleting the Deployz connector stac
 1. In the CloudFormation console, in the application's Region, select the connector stack (its name starts with `deployz-bootstrap-`).
 2. Delete the stack. This deletes the connector function, its schedule, and its roles.
 
-The connector stops. Because Deployz has no inbound path into your account, it can't reconnect. Deployz shows the connector as disconnected when it stops receiving check-ins.
+The connector stops. Because Deployz has no inbound path into your account, it can't reconnect. Deployz shows the connector as offline when it stops receiving check-ins.
 
 Deleting the stack doesn't delete:
 
-- The CloudWatch Logs log groups of the connector and its helper functions. Their entries expire after one week.
+- The CloudWatch Logs log groups of the connector and its setup functions. Their entries expire after one week.
 - Systems Manager parameters under `/deployz/<installation ID>/`, if a command was still unfinished
 - Any application resources that are still in your account
 

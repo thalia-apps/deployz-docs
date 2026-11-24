@@ -3,7 +3,7 @@ title: "Update the connector stack"
 description: "Reconnect the Deployz connector with new values, or update it to a newer template, without creating a second stack."
 ---
 
-{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
+{/* Last checked against deployz commit 8f612be8 on 2026-11-24 */}
 
 The Deployz connector stack is the CloudFormation stack you created during the install. Its name starts with `deployz-bootstrap-`. Each deployment has one connector stack, so you always update the existing stack. Don't create a second one: a new stack with the same name fails to create, and a second connector stack for the same deployment isn't supported.
 
@@ -103,4 +103,4 @@ After the update, an application that's already installed keeps the roles it was
 - **The install page still shows Still connecting after a reconnect.** Check that you entered the values from the page you have open now. If your software provider sent a newer link, open it and update the stack again with its values.
 - **You created a second connector stack by mistake.** Delete the extra stack in CloudFormation, then update the original one as described above.
 
-If none of these help, contact your software provider and quote the **Installation reference** from **Technical details** on the install page.
+If none of these help, contact your software provider and quote the **Reference** from **Technical details** on the install page.

@@ -3,7 +3,7 @@ title: "AWS resources Deployz creates"
 description: "The AWS resources in a customer's account, and which ones remain after removal."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit 8f612be8 on 2026-11-24 */}
 
 Each deployment creates two AWS CloudFormation stacks in the customer's AWS account, in the Region chosen for the deployment:
 
@@ -35,13 +35,13 @@ Most of the connector's changes are limited to this deployment's resources: to r
 | Connector credential | AWS Secrets Manager secret | Stores the credential the connector uses to identify itself to Deployz. |
 | Installation ID functions | AWS Lambda, and a CloudFormation custom resource | Generate the installation ID when the stack is created. |
 | Log retention function | AWS Lambda | Sets one-week retention on the log groups of the connector and the other functions. |
-| Helper roles | AWS IAM roles | One for each helper function, with the AWS managed policy `AWSLambdaBasicExecutionRole` for writing logs. One can also start the installation ID function, and one can set log retention. |
+| Setup function roles | AWS IAM roles | One for each setup function, with the AWS managed policy `AWSLambdaBasicExecutionRole` for writing logs. One can also start the installation ID function, and one can set log retention. |
 
-The stack's parameters are `ControlPlaneUrl`, `EnrollmentCode`, and `RelayCredential`.
+The stack's parameters are `ControlPlaneUrl`, `EnrollmentCode`, `RelayCredential`, and `ExistingInstallationId`. `ExistingInstallationId` is empty unless the stack comes from a link to reconnect a removed deployment. Then it holds that deployment's installation ID, so the new connector can delete the data the removal kept. See [If the connector is gone](/operate/remove#if-the-connector-is-gone).
 
 Two kinds of resources are created outside the stack, so deleting the stack doesn't delete them:
 
-- **Log groups.** The CloudWatch Logs log groups of the connector and the helper functions are created when the stack is created. Entries are kept for one week.
+- **Log groups.** The CloudWatch Logs log groups of the connector and the setup functions are created when the stack is created. Entries are kept for one week.
 - **Progress records.** The connector stores its progress in AWS Systems Manager parameters under `/deployz/<installation ID>/`, and deletes each one when its command finishes.
 
 ## Application stack

@@ -3,7 +3,7 @@ title: "Reconnect or update the Deployz connector"
 description: "Restore or update the connection between Deployz and a customer's AWS account."
 ---
 
-{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
+{/* Last checked against deployz commit 8f612be8 on 2026-11-24 */}
 
 The Deployz connector runs in your customer's AWS account. It reports the application's health to Deployz and carries out the actions you start, such as updates, restarts, and removal. Your customer creates its stack during the install. For how the connector works, see [The Deployz connector](/how-it-works#the-deployz-connector).
 
@@ -45,11 +45,12 @@ A new install link keeps the same address, but Deployz replaces the connection c
 
 1. In **Deployments**, open the customer's deployment.
 2. In the **Install link** card, select **Issue new install link**.
-3. Select **Copy install link**, and send the link to your customer.
+3. In **Issue a new install link?**, select **Issue new install link** to confirm. The current link stops working, and a setup in progress with the old link fails.
+4. Select **Copy install link**, and send the link to your customer.
 
 A deployment's install link is valid for 7 days after the deployment is created. Issuing a new install link makes it valid for 7 more days from that time. The **Install link** card shows the date, for example **This link expires on `<date>`**. After that date, the link can't start an install, and the card says the link expired. Issue a new install link to make it work again. Once the connector has connected, the link keeps working so your customer can follow the install progress.
 
-Deployz also offers **Issue new install link** in the **Retry deployment** dialog when a failed first install can't be retried because the connector is disconnected.
+Deployz also offers **Issue new install link** in the **Retry install** dialog when a failed first install can't be retried because the connector is offline.
 
 Issuing a new link gives the connector a new credential. What your customer does next depends on whether the connector stack already exists in their account:
 
@@ -77,7 +78,7 @@ A connector that was online can go offline because:
 1. Ask your customer to check that the connector stack still exists in their AWS account, and that the account can still reach Deployz over HTTPS.
 2. Wait for the connector to check in. When it does, Deployz marks it **Online** without any action from you.
 
-If the connector stays offline, the dashboard can't issue new connector values for an installed deployment, because the **Install link** card isn't available after the install. Updating the connector stack, as described in [Update the connector](#update-the-connector), installs a newer connector template with the existing credential. It doesn't replace a lost credential, and it can't restore a deleted stack.
+If the connector stays offline, the dashboard can't issue new connector values for an installed deployment, because the **Install link** card isn't available after the install. Updating the connector stack, as described in [Update the connector](#update-the-connector), installs a newer connector template with the existing credential. It doesn't replace a lost credential, and it can't restore a deleted stack. For a removed deployment, **Reconnect AWS** issues a link that creates only the connector stack, so Deployz can delete the retained data. See [If the connector is gone](/operate/remove#if-the-connector-is-gone).
 
 [Contact Deployz support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur) when:
 
@@ -94,7 +95,7 @@ If a removal is waiting on an offline connector, see [Remove a deployment](/oper
 
 Deployz occasionally publishes a newer connector. Updating it is your customer's decision, because the connector runs in their account.
 
-When an update exists, the deployment detail page shows **Connector update available**. If the deployment needs the update before Deployz can verify releases, it shows **Connector update required to verify releases** instead. If an action you need isn't supported, the detail page says **This action is not supported by the currently installed Deployz connector.**, and updating the connector adds it.
+When an update exists, the deployment detail page shows **Connector update available**. If the deployment needs the update before you can deploy the next update, it shows **Connector update required before the next update** instead. If an action you need isn't supported, the detail page says **This action is not supported by the currently installed Deployz connector.**, and updating the connector adds it.
 
 **Who:** you send the instructions; your customer updates the stack in their AWS console.
 

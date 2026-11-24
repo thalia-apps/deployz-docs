@@ -3,7 +3,7 @@ title: "Failure codes"
 description: "Every Deployz failure code, what it means, and who needs to act."
 ---
 
-{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
+{/* Last checked against deployz commit 8f612be8 on 2026-11-24 */}
 
 When a deployment fails, Deployz assigns it one failure code. The code tells you what went wrong and who needs to act. Deployz has 24 codes.
 
@@ -23,18 +23,18 @@ In the recovery panel, "you" means the vendor. Your customer sees a simpler vers
 
 What "retry" means depends on whether the deployment has ever been installed:
 
-- **A failed first install:** select **Retry deployment** on the deployment. Deployz offers it for every code except the **Needs Deployz** codes, where the dashboard shows the text **Contact Deployz support** instead. If the Deployz connector is disconnected, the **Retry deployment** dialog asks you to issue a new install link first. Your customer can't retry a failed install from the install page. See [Retry a failed install](/troubleshooting/install#retry-a-failed-install).
+- **A failed first install:** select **Retry install** on the deployment. Deployz offers it for every code except the **Needs Deployz** codes, where the dashboard shows the text **Contact Deployz support** instead. If the Deployz connector is offline, the **Retry install** dialog asks you to issue a new install link first. Your customer can't retry a failed install from the install page. See [Retry a failed install](/troubleshooting/install#retry-a-failed-install).
 - **After a successful install:** deploy again with **Retry update** or **Deploy update**. See [Deploy an update](/operate/deploy-update). For a **Can be temporary** failure on a deployment with a running release, the deployment also returns to its normal status on its own when the connector reports the application healthy again.
 
-For some codes, the **How to fix it** text in the dashboard says to run the install link again, or to retry the disconnect. On a failed first install, **Retry deployment** does this for you, and for a failed removal, **Retry removal** does. Your customer doesn't need to open the install link again.
+For some codes, the **How to fix it** text in the dashboard says to run the install link again, or to retry the disconnect. On a failed first install, **Retry install** does this for you, and for a failed removal, **Retry removal** does. Your customer doesn't need to open the install link again.
 
 ### What your customer sees
 
 Your customer's install page shows a short description of the failure. Below it, the page says who needs to act:
 
-- For the six application startup codes (`CONTAINER_START_FAILED`, `IMAGE_HEALTH_CHECK_FAILED`, `PORT_MISMATCH`, `MISSING_SECRET`, `MIGRATION_FAILED`, and `DATABASE_CONNECTION_FAILED`), the page shows **Application couldn't start** and "No action is required from you."
-- For the other **Needs a change** codes (`AWS_SCP_BLOCKED`, `AWS_PERMISSION_DENIED`, `QUOTA_EXCEEDED`, `STACK_CREATE_FAILED`, `STACK_DELETE_FAILED`, `RDS_AZ_CAPACITY`, `DATABASE_CREATE_FAILED`, and `ECS_DEPLOYMENT_FAILED`), the page says that something in the AWS account or setup must change before a retry can succeed, and asks your customer to contact you. For some of these codes, nothing in your customer's account needs to change. The entries below say when.
-- For every other code, the page says that no action is required and that you can retry the deployment.
+- For the six application startup codes (`CONTAINER_START_FAILED`, `IMAGE_HEALTH_CHECK_FAILED`, `PORT_MISMATCH`, `MISSING_SECRET`, `MIGRATION_FAILED`, and `DATABASE_CONNECTION_FAILED`), the page shows **Application couldn't start** and "Your software provider must fix this. No action is needed from you." Below it, the page says your provider will retry the deployment after the fix.
+- For the other **Needs a change** codes (`AWS_SCP_BLOCKED`, `AWS_PERMISSION_DENIED`, `QUOTA_EXCEEDED`, `STACK_CREATE_FAILED`, `STACK_DELETE_FAILED`, `RDS_AZ_CAPACITY`, `DATABASE_CREATE_FAILED`, and `ECS_DEPLOYMENT_FAILED`), the page says "Make the change described above in your AWS account. Then ask `<provider>` to retry." For some of these codes, nothing in your customer's account needs to change. The entries below say when.
+- For every other code, the page says "Contact your software provider and ask them to retry the deployment." It never says Deployz notified you.
 
 ## Customer AWS account
 
@@ -48,7 +48,7 @@ These failures come from the policies, permissions, or limits of your customer's
 
 **Why it happens:** A service control policy (SCP), an organization-wide AWS policy, restricts what can be created in this account or Region.
 
-**What to do:** Ask your customer to allow the Deployz setup in this account, or to use an account without that restriction. Then select **Retry deployment**. See [An AWS organization policy blocks the setup](/troubleshooting/install#an-aws-organization-policy-blocks-the-setup).
+**What to do:** Ask your customer to allow the Deployz setup in this account, or to use an account without that restriction. Then select **Retry install**. See [An AWS organization policy blocks the setup](/troubleshooting/install#an-aws-organization-policy-blocks-the-setup).
 
 ### `AWS_PERMISSION_DENIED`
 
@@ -90,7 +90,7 @@ These failures come from the policies, permissions, or limits of your customer's
 
 **Why it happens:** One of the resources being created failed, so AWS rolled back the whole setup. Deployz also uses this code when the connector refuses to start the setup, for example when the application template predates the role boundary.
 
-**What to do:** Open **Technical details** to find the failed resource and its reason. Resolve the cause with your customer, then select **Retry deployment**. Deployz removes the failed resources from the previous attempt before it installs again. See [The setup failed and was rolled back](/troubleshooting/install#the-setup-failed-and-was-rolled-back).
+**What to do:** Open **Technical details** to find the failed resource and its reason. Resolve the cause with your customer, then select **Retry install**. Deployz removes the failed resources from the previous attempt before it installs again. See [The setup failed and was rolled back](/troubleshooting/install#the-setup-failed-and-was-rolled-back).
 
 ### `STACK_DELETE_FAILED`
 
@@ -122,7 +122,7 @@ These failures come from the policies, permissions, or limits of your customer's
 
 **Why it happens:** The account has enough quota, but the zones where the database would run have no room for a new database server right now. This is an AWS capacity limit, not a permissions or quota problem.
 
-**What to do:** Wait until the previous attempt has finished rolling back, then select **Retry deployment**. If it keeps failing, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). Nothing in your customer's account needs to change, although their install page says that something must change. See [AWS has no database capacity](/troubleshooting/install#aws-has-no-database-capacity).
+**What to do:** Wait until the previous attempt has finished rolling back, then select **Retry install**. If it keeps failing, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). Nothing in your customer's account needs to change, although their install page says that something must change. See [AWS has no database capacity](/troubleshooting/install#aws-has-no-database-capacity).
 
 ### `DATABASE_CREATE_FAILED`
 
@@ -132,7 +132,7 @@ These failures come from the policies, permissions, or limits of your customer's
 
 **Why it happens:** Your customer's account rejected the database this application needs. A common cause is an AWS free plan, which accepts fewer days of automated backups than the default of 7.
 
-**What to do:** If the account is on an AWS free plan, choose a lower **Backup retention period** on the failed deployment's page, then select **Retry deployment**. Otherwise, ask your customer whether their account limits databases in this Region, for example with a policy or a quota. After they resolve it, retry. See [Database creation failed](/troubleshooting/install#database-creation-failed).
+**What to do:** If the account is on an AWS free plan, choose a lower **Backup retention period** on the failed deployment's page, then select **Retry install**. Otherwise, ask your customer whether their account limits databases in this Region, for example with a policy or a quota. After they resolve it, retry. See [Database creation failed](/troubleshooting/install#database-creation-failed).
 
 ### `DATABASE_CONNECTION_FAILED`
 
@@ -152,7 +152,7 @@ These failures come from the policies, permissions, or limits of your customer's
 
 **Why it happens:** A limit was reached, or the cache was rejected, in your customer's AWS account while it was being created.
 
-**What to do:** [Contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). Your customer can also check their account's service limits for caches in this Region. On a failed first install, the dashboard shows the text **Contact Deployz support** instead of **Retry deployment**. See [Cache setup failed](/troubleshooting/install#cache-setup-failed).
+**What to do:** [Contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). Your customer can also check their account's service limits for caches in this Region. On a failed first install, the dashboard shows the text **Contact Deployz support** instead of **Retry install**. See [Cache setup failed](/troubleshooting/install#cache-setup-failed).
 
 ### `REDIS_CONNECTION_FAILED`
 
@@ -240,7 +240,7 @@ These failures come from the application itself. You fix them. Your customer has
 
 **Why it happens:** The container image is missing, or the account isn't allowed to download it.
 
-**What to do:** [Contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). The deployment can't continue until the release can be downloaded again. On a failed first install, the dashboard shows the text **Contact Deployz support** instead of **Retry deployment**.
+**What to do:** [Contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). The deployment can't continue until the release can be downloaded again. On a failed first install, the dashboard shows the text **Contact Deployz support** instead of **Retry install**.
 
 ## Deployz connector
 
@@ -254,7 +254,7 @@ See [Fix connector problems](/troubleshooting/connector).
 
 **Why it happens:** The connector was removed, it lost its credential, or the account can no longer reach Deployz. Operations wait for an offline connector. Deployz reports this code only after the connector has been silent for about a day.
 
-**What to do:** Ask your customer to update the existing connector stack in their AWS account. After a failed first install, the **Retry deployment** dialog asks you to issue a new install link first. If your customer can't reconnect the connector, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). See [The connector is offline](/troubleshooting/connector#the-connector-is-offline) and [Reconnect or update the Deployz connector](/operate/connector).
+**What to do:** Ask your customer to update the existing connector stack in their AWS account. After a failed first install, the **Retry install** dialog asks you to issue a new install link first. If your customer can't reconnect the connector, [contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). See [The connector is offline](/troubleshooting/connector#the-connector-is-offline) and [Reconnect or update the Deployz connector](/operate/connector).
 
 ### `RELAY_STATE_WRITE_FAILED`
 
@@ -264,7 +264,7 @@ See [Fix connector problems](/troubleshooting/connector).
 
 **Why it happens:** The Deployz connector couldn't save its own progress.
 
-**What to do:** [Contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). The setup may have finished on its own, so check the deployment's status first. The dashboard shows the text **Contact Deployz support** instead of **Retry deployment** for this code.
+**What to do:** [Contact support](https://share.hsforms.com/1dOsn_DJtRhq47DXIaRjeLw5auur). The setup may have finished on its own, so check the deployment's status first. The dashboard shows the text **Contact Deployz support** instead of **Retry install** for this code.
 
 ## Custom domains
 
