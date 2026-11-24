@@ -3,7 +3,7 @@ title: "Glossary"
 description: "Definitions of the terms used in Deployz and its documentation."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit 8f612be8 on 2026-11-24 */}
 
 The terms Deployz uses in the dashboard, on the install page, and in this documentation, in alphabetical order. Status labels are in bold, as they appear in the dashboard.
 
@@ -19,7 +19,7 @@ The terms Deployz uses in the dashboard, on the install page, and in this docume
 
 ## B
 
-**Billing paused:** A production deployment that was live, but has now failed or lost contact with its connector, isn't counted toward your bill. Billing resumes when the deployment is live again. See [Pricing and billing](/account/billing).
+**Billing paused:** A production deployment that was live, but has now failed or lost contact with its connector, isn't counted toward your bill. Its page shows **Not counted while it is failed or offline**. Billing resumes when the deployment is live again. See [Pricing and billing](/account/billing).
 
 ## C
 
@@ -34,6 +34,8 @@ The terms Deployz uses in the dashboard, on the install page, and in this docume
 ## D
 
 **Default address:** The permanent HTTPS address every deployment gets, in the form `https://d-<deployment-id>.deployz.dev`. Traffic to it passes through the Deployz Cloudflare network. See [Application traffic](/customers/security#application-traffic).
+
+**Delete an application:** Removing an application from Deployz after all its deployments are removed and their retained data is deleted. Its deployment history stays. See [Delete an application](/operate/remove#delete-an-application).
 
 **Delete retained data:** The action that deletes the resources a removed deployment left behind: the database, without a final snapshot, the file storage bucket, application secrets, certificates, and the remaining network. It runs through the connector, so the connector must be online. It can't be undone. See [Remove a deployment](/operate/remove).
 
@@ -57,12 +59,12 @@ The terms Deployz uses in the dashboard, on the install page, and in this docume
 
 **Install link:** A link that lets a customer install your application in their AWS account. There are two kinds:
 
-- **The application's install link** is reusable. You share the same link with any number of customers, and each confirmation creates a new customer record and a new deployment. Each application has one live install link at a time, which you can disable, enable, regenerate, or revoke. See [Share an install link](/share/install-links).
+- **The application's install link** is reusable. You share the same link with any number of customers, and each confirmation creates a new customer record and a new deployment. A customer whose email your organization already has can't confirm it. Send them an invitation instead. Each application has one live install link at a time, which you can disable, enable, regenerate, or revoke. See [Share an install link](/share/install-links).
 - **A deployment's own install link** is on its deployment page. It's valid for 7 days. When you issue a new install link, the address stays the same, but the connection code and the connector credential change, and the link is valid for 7 more days. A connector stack or Quick Create link started with the old values stops working. See [Reconnect or update the Deployz connector](/operate/connector).
 
 **Install page:** The page your customer opens from an install link or invitation. On it, they review what will be created and the estimated AWS cost, choose a Region and size, enter any settings you asked for, verify their email with an emailed code, and connect their AWS account. It then shows the install's progress. See [Install the application](/customers/install).
 
-**Installation ID:** An identifier created inside your customer's AWS account when they create the connector stack. Deployz uses it to tag and name the deployment's resources, which keeps them apart from other deployments in the same account. It isn't part of the Quick Create link. See [Security and AWS access](/customers/security).
+**Installation ID:** An identifier created inside your customer's AWS account when they create the connector stack. Deployz uses it to tag and name the deployment's resources, which keeps them apart from other deployments in the same account. It isn't part of the Quick Create link, except in a link to reconnect a removed deployment. See [Security and AWS access](/customers/security).
 
 **Invitation:** A private, single-use install link for one specific customer. It expires 7 days after you create it, and you can revoke it while it's active. See [Invite a specific customer](/share/invitations).
 
@@ -109,6 +111,8 @@ As an application status, **Needs attention** means at least one customer deploy
 **Recovery panel:** This documentation's name for the panel at the top of a deployment page when something fails. The dashboard doesn't label it. It shows what happened, the impact, the cause and fix, and **Technical details**. See [Troubleshooting](/troubleshooting/overview).
 
 **Region:** The AWS Region a deployment runs in. You can't change it after the deployment is created. See [AWS Regions](/share/regions).
+
+**Reconnect AWS:** The action on a removed deployment whose connector is gone. It gives your customer a link that creates only the connector stack, so Deployz can delete the retained data. See [If the connector is gone](/operate/remove#if-the-connector-is-gone).
 
 **Release:** A built, versioned copy of your application, created from your repository. The version is its label. You deploy releases to customers. A release can later show **Unavailable** when its build is no longer available. See [Create a release](/releases/create).
 

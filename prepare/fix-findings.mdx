@@ -4,7 +4,7 @@ sidebarTitle: "Fix findings with a coding agent"
 description: "Get instructions for the findings the analysis reported, give them to your coding agent, and re-analyze."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit 8f612be8 on 2026-11-24 */}
 
 Some findings need a change in your repository, such as adding a Dockerfile or moving file writes to S3. Deployz can write instructions for these changes that you paste into your coding agent, or follow yourself. Deployz doesn't change your repository.
 
@@ -21,10 +21,10 @@ Deployz builds the instructions from the analysis results, using AI to add detai
 **Who:** you (the vendor), in the Deployz dashboard.
 
 1. Open the application, select **Configuration**, then select **Resources**.
-2. Find a row marked **Change required**, **Recommended**, or **Needs input**.
+2. Find a row marked **Change required**, **Recommended**, **Needs input**, or **Optional question**.
 3. Select **Get fix instructions** on the row. For a recommended finding on a setting row, select the row's information button first, then **Get fix instructions**.
 
-The **Fix deployment issues with your coding agent** dialog opens and shows "Generating instructions…" while Deployz writes the document.
+The **Fix required changes with your coding agent** dialog opens and shows "Generating instructions…" while Deployz writes the document.
 
 ## Use the instructions
 
@@ -43,7 +43,7 @@ If copying fails, select the text in the dialog and copy it manually.
 
 ### Reused and regenerated instructions
 
-Deployz reuses a document it already wrote for the same commit and the same findings. A reused document shows "Reused from earlier. Regenerate for a new version." next to its date.
+Deployz reuses a document it already wrote for the same commit and the same findings. A reused document shows "Generated earlier. Regenerate to get new instructions." next to its date.
 
 To get a new version, select **Regenerate**. The current instructions stay on screen until the new version is ready. A new analysis always produces a new document.
 

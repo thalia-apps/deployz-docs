@@ -3,7 +3,7 @@ title: "Pricing and billing"
 description: "What's free, what you pay for, and how billing works."
 ---
 
-{/* Last checked against deployz commit e4c2dff8 on 2026-11-07 */}
+{/* Last checked against deployz commit 8f612be8 on 2026-11-24 */}
 
 You can evaluate Deployz for free, with no card and no time limit. You pay once you subscribe to install your application for customers: a $49/month platform fee, plus $19/month for each customer deployment while it runs for your customer. A subscription always includes at least one customer deployment, so it starts at $68/month.
 
@@ -44,7 +44,7 @@ A customer deployment is charged only while it runs for your customer.
 
 A test deployment is never charged.
 
-While a deployment is paused, its page in the dashboard shows **Billing paused — not counted while it is failed or disconnected**.
+While a deployment is paused, its page in the dashboard shows **Not counted while it is failed or offline**.
 
 After removal, retained data that you haven't deleted can keep costing money in your customer's AWS account, but it doesn't add to your Deployz bill. See [Remove a deployment](/operate/remove).
 
@@ -64,9 +64,11 @@ Only the owner and admins of your organization can start, restart, or cancel a s
 
 1. Select **Billing** in the sidebar. You can also start from the **Invite customer** page: select **Invite customer** in **Customers**, then go to **Start your subscription**.
 2. Select **Start subscription**. If your subscription has ended, the button is **Restart subscription**.
-3. In the Polar checkout, which opens in a new tab, enter your payment details and complete the payment. If you have a discount code, enter it in the checkout.
+3. In the checkout, which opens over the Deployz page, enter your payment details and complete the payment. If you have a discount code, enter it in the checkout.
 
-While you pay, the Deployz page says "Complete the payment in the new tab. This page updates when your subscription starts." When the payment goes through, it shows "Payment received. Activating your subscription…". Activation can take a minute. After that, your customers can confirm install links and invitations.
+When the payment goes through, the page shows "Payment received. Activating your subscription…". Activation can take a minute. If it takes longer, the page says "Payment received. It can take a minute for your subscription to show here." with a **Refresh** button. After activation, your customers can confirm install links and invitations.
+
+If you close the checkout without paying, nothing is charged and **Start subscription** appears again.
 
 Deployz sets the number of customer deployments in the checkout, so you can't change it there. Deployz updates the number for you as customer deployments start and stop.
 
@@ -79,24 +81,35 @@ The **Start your subscription** section appears on the **Invite customer** page 
 Select **Billing** in the sidebar.
 
 - **During evaluation**, the page shows **You are evaluating Deployz — free**, what's always free, the prices, and **Start subscription**.
-- **With a subscription**, the page shows **Next payment, before tax** and your **Payment method**. **Current charges** shows your subscription status, the next billing date, the platform fee, the number of active, paused, included, and billed production deployments, the deployments by customer, and your monthly total. Paused deployments appear only when you have any. **Invoices** lists the payments for your current subscription, each with a PDF to download. Earlier invoices are in the billing portal.
+- **With a subscription**, the page shows **Next payment, before tax** and your **Payment method**. **Current charges** shows your subscription status, the next billing date, the platform fee, the number of active, paused, included, and billed production deployments, the deployments by customer, and your **Monthly rate before discounts**. Paused deployments appear only when you have any. **Invoices** lists the payments for your current subscription with their date, number, status, and amount. Select **PDF** to download an invoice. Earlier invoices are in the billing portal.
 - **After your subscription ends**, the page shows **Your subscription has ended**, with **Restart subscription**. A banner across the dashboard says **Your subscription has ended**.
 
 If your last payment failed, a banner across the dashboard says **Your last payment did not go through**, with **Update payment details**. A paused subscription shows no banner.
+
+An invoice can show one of these statuses: **Paid**, **Due**, **Refunded**, **Partly refunded**, or **Credit**. A **Credit** row is money credited back to you, for example when a customer deployment stops partway through a billing period.
 
 ## Manage payment details and invoices
 
 **Who:** an owner or admin, in the Deployz dashboard.
 
-Deployz uses a billing partner, Polar, for payments. Polar is the merchant of record for your subscription: it processes your payments and handles your card, invoices and receipts, tax, and cancellation. Prices are shown before tax, and Polar adds any tax that applies.
+Deployz uses a billing partner, Polar, for payments. Polar is the merchant of record for your subscription: it processes your payments and handles your card, invoices and receipts, and tax. Prices are shown before tax, and Polar adds any tax that applies.
 
 1. Select **Billing** in the sidebar.
 2. Select one of these. Each one opens the Polar billing portal in a new tab.
    - **Update payment details** to change your card.
-   - **Open billing portal** to see all your invoices.
-   - **Cancel subscription** to cancel.
+   - **Open billing portal** to see all your invoices, including invoices from earlier subscriptions.
 
-When you cancel, your subscription stays active until the end of the period you paid for. Until then, the **Billing** page shows **Your subscription ends on** that date. To keep your subscription, open the billing portal before that date.
+## Cancel your subscription
+
+**Who:** an owner or admin, in the Deployz dashboard.
+
+When you cancel, your subscription stays active until the end of the period you paid for, then ends. You aren't refunded for the current period. Your existing customer deployments keep running. From the moment you cancel, you can't add customer deployments, and customers can't confirm invitations, unless you resume the subscription.
+
+1. Select **Billing** in the sidebar.
+2. Select **Cancel subscription**.
+3. In **Cancel your subscription?**, select **Cancel subscription** to confirm, or **Keep subscription** to go back.
+
+Until the end date, the **Billing** page shows **Your subscription ends on** that date. To keep your subscription, select **Open billing portal** and resume it there before that date. You can subscribe again later with **Restart subscription**.
 
 If you own several organizations and pay for each with the same email address, the billing portal lists all the subscriptions paid with that email.
 

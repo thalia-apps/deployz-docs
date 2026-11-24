@@ -3,7 +3,7 @@ title: "Configure environment variables"
 description: "Decide who provides each environment variable and how its value reaches each deployment."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit 8f612be8 on 2026-11-24 */}
 
 Your application reads settings from environment variables. For each one, you decide who provides the value: Deployz, you, or each customer. Deployz then delivers the right value to every deployment.
 
@@ -24,7 +24,7 @@ Values in sample files like `.env.example` are treated as evidence of the name o
 
 Detection isn't complete for every pattern. A variable your application reads only indirectly, for example through a dynamic key or a configuration file loaded at runtime, may not appear. You can add it by hand.
 
-Before you have any customer deployments, the application **Overview** shows **Configuration needs review** while variables still need a decision or a value. Select **Review required changes** to open the variables.
+Before you have any customer deployments, the application **Overview** shows **Variables need input** while variables still need a decision or a value. Select **Review required changes** to open the variables.
 
 ## Review and save your variables
 
@@ -35,20 +35,20 @@ Before you have any customer deployments, the application **Overview** shows **C
     Open your application, select **Configuration**, then select **Variables**.
   </Step>
   <Step title="Find the variables that need you">
-    The list opens on the **Vendor & customer** filter. Select **Needs input** to see only variables that need a decision or a value. The other filters are **Managed**, **Optional**, and **All**.
+    The list opens on the **You & customer** filter. Select **Needs input** to see only variables that need a decision or a value. The other filters are **Managed**, **Optional**, and **All**.
   </Step>
   <Step title="Review each variable">
     Each detected variable starts with a suggestion, marked **Suggested**, and the reason for it. A suggestion with weak evidence, such as a name found only in a sample file, is also marked **Uncertain**. See [How Deployz suggests a setting](#how-deployz-suggests-a-setting). Select **Review** or **Edit** on a row to change its settings. To take every remaining suggestion as it is, select the accept button above the list, for example **Accept 4 suggested decisions**.
   </Step>
   <Step title="Enter your values">
-    For each variable you provide, enter the value in **Value**.
+    For each variable you provide, enter the value in **Value**. As soon as you type a value, the row stops showing **Needs a value**, before you save.
   </Step>
   <Step title="Save">
     Select **Save changes**. Nothing is saved until you do.
   </Step>
 </Steps>
 
-To change several rows at once, select their checkboxes, then select **Mark optional**, **Set by vendor**, or **Set by customer**.
+To change several rows at once, select their checkboxes, then select **Not needed**, **Set by you**, or **Set by customer**.
 
 Each row shows a status:
 
@@ -68,8 +68,8 @@ Deployz never saves a suggestion on its own. It suggests **Who provides** from w
 | --- | --- |
 | A value Deployz can supply, such as a database connection or a generated secret | **Managed by Deployz** |
 | The code reads the variable with no default, and the name looks like a credential | **Set by customer** |
-| The code reads the variable with no default, and the name doesn't look like a credential | **Set by vendor** |
-| The code reads the variable with a default, or the name appears only in a sample file | **Optional / not needed** |
+| The code reads the variable with no default, and the name doesn't look like a credential | **Set by you** |
+| The code reads the variable with a default, or the name appears only in a sample file | **Not needed** |
 
 A suggestion is marked **Uncertain** when the evidence is weak, for example when the only evidence is a sample file such as `.env.example`. For **When used**, see [Build or runtime](#build-or-runtime).
 
@@ -80,9 +80,9 @@ In **Who provides**, choose one option for each variable. The table shows the sh
 | Option | Who supplies the value | Use it for |
 | --- | --- | --- |
 | **Managed by Deployz** (Deployz) | Deployz, at install | Connection details for the database, cache, bucket, and queues (**Preview**) Deployz creates; the deployment's own public URL; and internal secrets Deployz can generate, such as a signing key |
-| **Set by vendor** (Vendor) | You, once for all customers | API keys and settings that are the same for every customer |
+| **Set by you** (You) | You, once for all customers | API keys and settings that are the same for every customer |
 | **Set by customer** (Customer) | Each customer, on the install page | Values that differ per customer, or credentials the customer owns |
-| **Optional / not needed** | Nobody | Variables your application can run without |
+| **Not needed** | Nobody | Variables your application can run without |
 
 **Managed by Deployz** is available only for values Deployz can supply. When it generates a secret, Deployz creates a new random value for each deployment. For the variables Deployz sets in every deployment, see [Variables Deployz sets](/prepare/data-services#variables-deployz-sets).
 
@@ -100,7 +100,7 @@ Your application might read a database or cache setting under a name the analysi
 
 **Who:** you (the vendor), in the Deployz dashboard, on **Configuration** › **Variables**.
 
-Select **Add value** for a plain value or **Add secret** for a secret, enter the name and value, then select **Save changes**. Variables you add are provided by you.
+Select **Add value** for a plain value or **Add secret** for a secret, enter the name and value, then select **Save changes**. Variables you add are set by you.
 
 ## Build or runtime
 
@@ -146,7 +146,8 @@ The row shows a preview. On the install page, the customer sees these fields in 
 ## How values are protected
 
 - Deployz encrypts saved secret values with AWS Key Management Service (KMS). Secret values aren't shown in the dashboard, written to logs, or sent to AI features.
-- Each deployment's runtime values, including your secrets, are stored in the customer's AWS account so the application can read them. The account owner can read them there. Don't use a vendor secret for a value your customer must not see.
+- Each deployment's runtime values, including values you set and your secrets, are stored in the customer's AWS account so the application can read them. Customers can read them there. Don't put a secret in a value that customers must not see.
+- Build values become part of the release's container image, so anyone who can pull the image can read them.
 
 ## What happens when you change a value later
 

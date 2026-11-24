@@ -3,7 +3,7 @@ title: "Remove the application from your AWS account"
 description: "What removal deletes, what remains in your AWS account, and how to delete it."
 ---
 
-{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
+{/* Last checked against deployz commit 8f612be8 on 2026-11-24 */}
 
 Removing the application happens in up to three parts: your software provider removes the deployment, the data it kept is deleted, and you delete the Deployz connector stack. Do them in that order.
 
@@ -18,7 +18,7 @@ Removing the application happens in up to three parts: your software provider re
 
 Ask your software provider to remove the deployment. The connector then removes the application and most of its networking, including the HTTPS certificates for the default address and any custom domain. It removes only resources tagged for this deployment.
 
-While this runs, the install page shows **Removing deployment**. When it finishes, it shows **Deployment removed** and lists **What can remain in your AWS account**. You need to be signed in to see it. See [Verify your email](/customers/install#verify-your-email).
+While this runs, the install page shows **Removing deployment**. When it finishes, it shows **Deployment removed** and lists **What can remain in your AWS account**. You need to be signed in to see it. See [Sign in with your email](/customers/install#sign-in-with-your-email).
 
 ### What remains after removal
 
@@ -57,13 +57,20 @@ After your software provider deletes the retained data, the install page heading
 
 **Delete retained data** is a separate step your software provider confirms explicitly. It deletes the database, the bucket, the application's secrets, any cache or certificates that removal didn't delete, the task-definition revisions the connector registered, and the remaining network. It runs through the connector, so keep the connector stack until it finishes.
 
+If you already deleted the connector stack, your software provider can send you a new install link. Its page is titled **Reconnect `<application>` to delete its retained data**. It creates only the Deployz connector stack and doesn't install the application again.
+
+1. Open the link and sign in with your email.
+2. Select **Connect AWS account** and create the stack, as during the install. If the page shows that the old connector stack is still in your account, update that stack instead of creating a new one. See [Update the connector stack](/customers/update-connector).
+3. Wait while Deployz deletes the retained data.
+4. Delete the connector stack, as in [Delete the connector stack](#3-delete-the-connector-stack).
+
 ### Delete it yourself
 
 **Who:** you, in your AWS console.
 
 The retained resources carry the `deployz:installation` tag with your deployment's installation ID. You can find them with the Tag Editor in AWS Resource Groups, in the application's Region.
 
-1. Turn off deletion protection on the database, then delete the database. The Amazon RDS console asks whether to create a final snapshot and whether to keep the automated backups. Choose based on whether you still need the data. Kept backups remain for the rest of their 7-day retention period.
+1. Turn off deletion protection on the database, then delete the database. The Amazon RDS console asks whether to create a final snapshot and whether to keep the automated backups. Choose based on whether you still need the data. Kept backups remain for the rest of their retention period, which is 7 days unless your software provider chose a shorter one.
 2. Empty the storage bucket, then delete it.
 3. Delete the database's secrets in Secrets Manager.
 4. Delete any certificates tagged with your installation ID that remain in AWS Certificate Manager. Removal normally deletes them, but one can remain if the removal didn't finish.
@@ -79,11 +86,11 @@ Delete the connector stack last. The connector stack holds the role that CloudFo
 2. Select the connector stack. Its name starts with `deployz-bootstrap-`, and the install page shows the exact name.
 3. Delete the stack.
 
-This deletes the connector function, its schedule, and its roles. Your software provider sees the connector as disconnected once it stops checking in. For more on what this revokes, see [Security and AWS access](/customers/security#revoke-access).
+This deletes the connector function, its schedule, and its roles. Your software provider sees the connector as offline once it stops checking in. For more on what this revokes, see [Security and AWS access](/customers/security#revoke-access).
 
 These remain after you delete the stack. You can delete them in the AWS console:
 
-- The CloudWatch Logs log groups of the connector and its helper functions, whose names start with `/aws/lambda/deployz-bootstrap-`. Their entries expire after one week.
+- The CloudWatch Logs log groups of the connector and its setup functions, whose names start with `/aws/lambda/deployz-bootstrap-`. Their entries expire after one week.
 - Systems Manager parameters under `/deployz/<installation ID>/`, if a command was still unfinished
 
 ## If you delete the connector first

@@ -3,13 +3,13 @@ title: "What Deployz doesn't support"
 description: "What Deployz doesn't provide, what needs a change in your repository before Deployz can deploy it, and what to do instead."
 ---
 
-{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
+{/* Last checked against deployz commit 8f612be8 on 2026-11-24 */}
 
 Deployz supports one architecture, described in [Application requirements](/prepare/requirements). This page lists what falls outside it, so you can decide early whether Deployz fits your application.
 
 There are three kinds of limits:
 
-- **Capabilities Deployz doesn't provide.** Your application needs something Deployz can't run, such as MongoDB or a GPU. The **Overview** shows **Not deployable on Deployz**, and the item is listed under **Not supported**.
+- **Capabilities Deployz doesn't provide.** Your application needs something Deployz can't run, such as MongoDB or a GPU. The **Overview** shows **Not supported by Deployz**, and the item is listed under **Not supported**.
 - **Patterns that need a repository change.** Deployz can't run the repository as it is, but a known change fixes it, such as removing a `.git` copy from the Dockerfile or moving files from the local disk to S3. The **Overview** shows **Deployable after repository changes**, and the item is listed under **Change in your repository**.
 - **Platform limits.** Things Deployz doesn't provide for any application, whatever your repository contains.
 

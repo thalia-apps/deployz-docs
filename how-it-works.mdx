@@ -24,7 +24,7 @@ In short: Deployz reads your GitHub repository, analyzes it, and builds releases
    1. Chooses an AWS Region and a size. The page shows what will be created and the estimated monthly AWS cost.
    2. Enters any **Application settings** you asked them to provide.
    3. Enters their name and email under **Your details**. Only an install link asks for these, because an invitation already names the customer.
-   4. Selects **Continue to setup**, then **Connect AWS account**. A CloudFormation Quick Create page opens in their AWS console. Nothing is created in their account until they approve it there.
+   4. Selects **Continue**, signs in with a code sent to their email, then selects **Connect AWS account**. A CloudFormation Quick Create page opens in their AWS console. Nothing is created in their account until they approve it there.
 6. **The Deployz connector sets up the application.** The Quick Create stack creates the Deployz connector in the customer's account. The connector checks in with Deployz and has AWS CloudFormation create the application's infrastructure. It then starts your newest ready release.
 7. **The deployment goes live.** Deployz checks that the application is healthy and gives it a permanent address in the form `https://d-<deployment-id>.deployz.dev`, where `<deployment-id>` is the deployment's ID. You can add a [custom domain](/operate/custom-domains) later.
 8. **You operate it from the dashboard.** When you deploy an update, roll back, restart, or change configuration, the connector picks up the request on its next check-in and carries it out in the customer's account.

@@ -3,9 +3,37 @@ title: "Changelog"
 description: "Changes to Deployz and its documentation that affect vendors and their customers."
 ---
 
-{/* Last checked against deployz commit e4c2dff8 on 2026-11-07 */}
+{/* Last checked against deployz commit 8f612be8 on 2026-11-24 */}
 
 {/* Add an <Update> entry for each user-visible change: new Regions, features leaving Preview, pricing changes, removed flows. Newest entry first. */}
+
+<Update label="2026-11-24" description="Billing in the dashboard, Reconnect AWS, deleting applications, and clearer labels" tags={["Billing", "Deployments", "Applications", "Customers", "GitHub"]}>
+  **Billing**
+
+  - The checkout now opens over the Deployz page instead of in a new tab. See [Start a subscription](/account/billing#start-a-subscription).
+  - You can cancel your subscription in Deployz with **Cancel subscription** on the **Billing** page, and download invoice PDFs there. See [Cancel your subscription](/account/billing#cancel-your-subscription).
+
+  **Removal and retained data**
+
+  - If a removed deployment's connector is gone, **Reconnect AWS** gives your customer a link that creates only the connector stack, so Deployz can delete the retained data. See [If the connector is gone](/operate/remove#if-the-connector-is-gone).
+  - You can delete an application once all its deployments are removed and their retained data is deleted. See [Delete an application](/operate/remove#delete-an-application).
+  - **Complete removal anyway** is now **Mark as removed without cleanup**, and it asks you to confirm.
+
+  **Customers**
+
+  - Deployz no longer creates a second customer with an email your organization already has. A returning customer can't confirm the application's reusable install link. Send them an invitation instead. See [Share an install link](/share/install-links).
+  - **Issue new install link** now asks you to confirm, because the current link stops working.
+
+  **GitHub**
+
+  - Only owners and admins can connect GitHub. Installing the Deployz GitHub App on a GitHub organization requires an owner of that GitHub organization. When connecting fails, Deployz now says why. See [If connecting GitHub fails](/account/github#if-connecting-github-fails).
+  - **Settings** shows your GitHub connections, with **Manage access**, **Disconnect**, and **Reconnect**. See [See and change your GitHub connections](/account/github#see-and-change-your-github-connections).
+
+  **Clearer labels**
+
+  - Many dashboard labels changed. For example, **Retry deployment** is now **Retry install**, **Deployable with Deployz settings** is now **Deployable without code changes**, **Set by vendor** is now **Set by you**, and the customer's sign-in step is now **Sign in with your email**. The documentation uses the new labels.
+  - You can send feedback to the Deployz team with **Send feedback** in the dashboard sidebar.
+</Update>
 
 <Update label="2026-11-07" description="Polar billing, two-factor sign-in, and cost estimates" tags={["Billing", "Team", "Analysis", "Deployments", "Customers"]}>
   **Billing**
@@ -35,7 +63,7 @@ description: "Changes to Deployz and its documentation that affect vendors and t
 <Update label="2026-10-27" description="Customer sign-in, connector updates, and false blockers" tags={["Customers", "Connector", "Analysis", "Team"]}>
   **Customer install page**
 
-  - Your customer now verifies their email with an 8-digit code before they connect their AWS account. Deployz sends the code to the email on the customer record, so check that it's correct. Without the code, the page shows only the application and publisher names. See [Verify your email](/customers/install#verify-your-email).
+  - Your customer now verifies their email with an 8-digit code before they connect their AWS account. Deployz sends the code to the email on the customer record, so check that it's correct. Without the code, the page shows only the application and publisher names. See [Sign in with your email](/customers/install#sign-in-with-your-email).
   - After the install, your customer can return to the same address to see the connector, the AWS location of the deployment, and recent activity. Signed in to the dashboard, you open the page without a code.
   - Invitations and a deployment's install link now expire after 7 days instead of 30. **Issue new install link** makes the link valid for 7 more days. See [Limits](/reference/limits).
   - An application install link accepts up to 50 new deployments in any 24 hours.

@@ -4,7 +4,7 @@ sidebarTitle: "HTTPS and domains"
 description: "Resolve problems with the default HTTPS address or a custom domain."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit 8f612be8 on 2026-11-24 */}
 
 Each deployment gets a default HTTPS address on `deployz.dev`. You can also add a custom domain on your customer's own hostname. This page covers problems with either one. For how custom domains work, see [Add a custom domain](/operate/custom-domains).
 
@@ -57,7 +57,7 @@ While the domain is **Waiting for DNS** or **Connecting**, the card can also sho
 | --- | --- |
 | **Verification record not found** | Your customer checks that the **Verify ownership** record exists and matches the card exactly. |
 | **Domain isn't pointing to this deployment** | Your customer updates the **Route traffic** record to the value on the card. |
-| **HTTPS isn't reachable yet** | Wait. The load balancer may still be setting up, or the deployment may not be running. |
+| **HTTPS isn't reachable yet** | Wait. The application may still be starting, or it may be stopped. Deployz checks again automatically. |
 | **This deployment isn't running** | Domain setup continues once the deployment is running again. Fix the deployment first. |
 | **We couldn't connect this domain** | Check the DNS records, then select **Check now**. This message also appears after a domain change timed out. See [A custom domain update timed out](#a-custom-domain-update-timed-out). |
 

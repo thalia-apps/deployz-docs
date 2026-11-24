@@ -6,7 +6,7 @@ description: "Choose deployment sizes and understand what each costs in AWS."
 import BaselineCosts from "/snippets/baseline-costs.mdx";
 import RegionCostFactors from "/snippets/region-cost-factors.mdx";
 
-{/* Last checked against deployz commit ea4c0408 on 2026-10-27 */}
+{/* Last checked against deployz commit 8f612be8 on 2026-11-24 */}
 
 Every deployment uses one of three sizes: Small, Medium, or Large. The size sets the capacity of your application's containers, database, and cache. It's chosen when the deployment is created and can't be changed afterward.
 
@@ -31,7 +31,7 @@ Each application has two size settings, and each install link and invitation has
 
 - **Default size** is an application setting. It's the size Deployz preselects whenever you create an install link, an invitation, or a test deployment for the application.
 - **Minimum allowed size** is an application setting. It's the smallest size anyone can choose. Customers don't see sizes below it.
-- **Recommended size** belongs to one install link or invitation. It starts at the default size, and you can change it when you create the link or invitation. Your customer sees it preselected on the install page, labeled **Vendor recommended**.
+- **Recommended size** belongs to one install link or invitation. It starts at the default size, and you can change it when you create the link or invitation. Your customer sees it preselected on the install page, labeled **Recommended**.
 
 ## Set the default and minimum size
 
@@ -51,7 +51,7 @@ Changes apply only to install links, invitations, and deployments you create aft
 | Deployment | Who chooses |
 | --- | --- |
 | [Test deployment](/share/test-deployment) | You |
-| [Install link](/share/install-links) or [invitation](/share/invitations) | Your customer, at or above the minimum. Your recommended size is preselected and labeled **Vendor recommended**. |
+| [Install link](/share/install-links) or [invitation](/share/invitations) | Your customer, at or above the minimum. Your recommended size is preselected and labeled **Recommended**. |
 
 <Warning>
   A deployment's size can't be changed after it's created. Updates, rollbacks, and restarts keep the same size. To use a different size, create a new deployment.
@@ -66,8 +66,8 @@ Deployz shows an estimated monthly AWS cost on **Size presets** and on the custo
 | What you see | Meaning |
 | --- | --- |
 | A range, such as `$80–$110 + usage` on **Size presets** | The baseline monthly cost of the resources Deployz can price. **+ usage** means some costs depend on how much the application is used, and aren't in the range. See [What the estimate leaves out](#what-the-estimate-leaves-out). |
-| “Some resources could not be priced” | The deployment includes a resource that Deployz has no price for. The real cost is higher than the range. On **Size presets**, this note is under **Estimate details**. On the install page, it reads "Estimate is incomplete". |
-| **Estimate unavailable** | Deployz couldn't produce an estimate. On the install page, this happens when the selected Region isn't available for installs. |
+| “Some resources could not be priced” | The deployment includes a resource that Deployz has no price for. The real cost is higher than the range. On **Size presets**, this note is under **Estimate details**. On the install page, it reads "Estimate incomplete: some resources could not be priced." |
+| **Estimate unavailable** | Deployz couldn't produce an estimate. On the install page, this happens when the selected Region isn't available for installs, and the page says "Cost estimate unavailable for this Region. AWS still bills your account for what runs." |
 
 ### Baseline cost by resource
 

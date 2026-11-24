@@ -4,7 +4,7 @@ sidebarTitle: "Startup and health"
 description: "Resolve an application that doesn't start or never becomes healthy."
 ---
 
-{/* Last checked against deployz commit 0c21c52e on 2026-10-21 */}
+{/* Last checked against deployz commit 8f612be8 on 2026-11-24 */}
 
 These failures come from the application itself: how it starts, which port it listens on, how it answers health checks, and how it reads its configuration. You fix them. Your customer has nothing to do, and their install page tells them so.
 
@@ -14,7 +14,7 @@ These failures come from the application itself: how it starts, which port it li
 
 **In Technical details:** look for the failure code and, when available, the container's **Exit code**, **Stop code**, **Restart count**, and **Stopped reason**. The stopped reason often names the problem directly, for example a missing file or a failed command.
 
-**On your customer's install page:** your customer sees **Application couldn't start** and "No action is required from you."
+**On your customer's install page:** your customer sees **Application couldn't start** and "Your software provider must fix this. No action is needed from you."
 
 How long Deployz waits: each new web container gets five minutes after it starts before failed health checks count against it. If the deployment still isn't healthy about 30 minutes after the last install or deploy finished, Deployz marks it as failed.
 
@@ -149,7 +149,7 @@ For the full explanation, see [Health check path](/prepare/requirements#health-c
 
 **Who:** you (the vendor), in the Deployz dashboard.
 
-- **First install failed:** select **Retry deployment**. See [Fix install failures](/troubleshooting/install).
+- **First install failed:** select **Retry install**. See [Fix install failures](/troubleshooting/install).
 - **Install finished but the deployment never became healthy, or an update failed:** select **Deploy update** or **Retry update**, and choose the release to deploy. See [Deploy an update](/operate/deploy-update).
 
 A code change needs a new release first. See [Create a release](/releases/create).
