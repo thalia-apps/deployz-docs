@@ -3,7 +3,7 @@
   "info": {
     "title": "Deployz vendor API",
     "version": "1.0.0",
-    "description": "Build releases and deploy them to your customers from your own pipeline. Send an API key from Settings > API keys in the header `Authorization: Bearer <key>`. A key has read or deploy permission and works only while the person who created it is an owner or an admin. Deploy, restart and rollback answer 202 with a job. Poll the job until its state is succeeded, failed or cancelled. Every answer is `{ success, message, data, request_id }`, except this document. Every error is `{ success: false, error: { code, message }, request_id }`. The `request_id` is also the `X-Request-Id` header: quote it when you ask for support. A key can make 120 requests a minute. Over the limit the answer is 429 with a `Retry-After` header."
+    "description": "Build releases and deploy them to your customers from your own pipeline. Create an API key on the API keys page of the Deployz dashboard, and send it in the header `Authorization: Bearer <key>`. A key has read or deploy permission and works only while the person who created it is an owner or an admin. Deploy, restart and rollback answer 202 with a job. Poll the job until its state is succeeded, failed or cancelled. Every answer is `{ success, message, data, request_id }`, except this document. Every error is `{ success: false, error: { code, message }, request_id }`. The `request_id` is also the `X-Request-Id` header: quote it when you ask for support. A key can make 120 requests a minute. Over the limit the answer is 429 with a `Retry-After` header."
   },
   "servers": [
     {
@@ -283,7 +283,7 @@
           "Releases"
         ],
         "summary": "Start a release build from a commit",
-        "description": "Needs deploy permission. Only one release of an application builds at a time. Send the same version and commit again to get the same release (200). The same version with another commit answers 409 RELEASE_VERSION_EXISTS.",
+        "description": "Needs deploy permission. Only one release of an application builds at a time. Send the same version and commit again to get the same release (200). The same version with another commit answers 409 RELEASE_VERSION_EXISTS. Send the full 40-character commit SHA: Deployz looks up a shorter SHA on GitHub, which can answer 404 COMMIT_NOT_FOUND, 429 GITHUB_RATE_LIMITED or 502 GITHUB_COMMITS_FETCH_FAILED.",
         "parameters": [
           {
             "name": "id",
@@ -426,7 +426,7 @@
             "$ref": "#/components/responses/NotFound"
           },
           "409": {
-            "description": "The request conflicts with the current state. Codes: RELEASE_VERSION_EXISTS, RELEASE_BUILD_IN_PROGRESS.",
+            "description": "The request conflicts with the current state. Codes: RELEASE_VERSION_EXISTS, RELEASE_BUILD_IN_PROGRESS, GITHUB_NOT_CONNECTED.",
             "content": {
               "application/json": {
                 "schema": {
@@ -436,7 +436,7 @@
             }
           },
           "422": {
-            "description": "The application is missing a build setting that a release needs. Code: BUILD_CONFIGURATION_MISSING. Complete the build settings in the Deployz dashboard.",
+            "description": "A required build value has no value. Code: BUILD_CONFIGURATION_MISSING. `error.details.keys` lists the variable names. Enter the values in the configuration of the application in the Deployz dashboard.",
             "content": {
               "application/json": {
                 "schema": {
@@ -892,7 +892,7 @@
         },
         "responses": {
           "200": {
-            "description": "The same deploy is already queued or running.",
+            "description": "The same deploy already exists: it is queued or running, or it was started with the same Idempotency-Key.",
             "headers": {
               "Location": {
                 "description": "The path of the job to poll.",
@@ -1044,7 +1044,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The same restart is already queued or running.",
+            "description": "The same restart already exists: it is queued or running, or it was started with the same Idempotency-Key.",
             "headers": {
               "Location": {
                 "description": "The path of the job to poll.",
@@ -1216,7 +1216,7 @@
         },
         "responses": {
           "200": {
-            "description": "The same rollback is already queued or running.",
+            "description": "The same rollback already exists: it is queued or running, or it was started with the same Idempotency-Key.",
             "headers": {
               "Location": {
                 "description": "The path of the job to poll.",
@@ -1810,7 +1810,7 @@
         }
       },
       "ValidationError": {
-        "description": "The request is not valid. Code: VALIDATION_ERROR.",
+        "description": "The request is not valid. Code: VALIDATION_ERROR. `error.details` lists each field and the problem.",
         "content": {
           "application/json": {
             "schema": {

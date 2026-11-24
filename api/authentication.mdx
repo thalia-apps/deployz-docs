@@ -5,15 +5,15 @@ description: "Create an API key for your pipeline, choose its permission and exp
 keywords: ["API key", "token", "authentication", "bearer", "revoke", "rotate"]
 ---
 
-{/* Last checked against deployz commit e6bcaf73 on 2026-11-24 */}
+{/* Last checked against deployz commit 58426011 on 2026-11-24 */}
 
 Every request to the [Deployz API](/api/overview) needs an API key. A key belongs to your organization and reaches only its applications and deployments.
 
 ## Before you create a key
 
-- **Who:** an owner or an admin, in the Deployz dashboard. A member can see the list of keys but can't create or revoke one. See [Roles and permissions](/account/organization-and-team).
+- **Who:** an owner or an admin, in the Deployz dashboard. A member can see the list of keys but can't create or revoke one. See [Organization and team](/account/organization-and-team).
 - **The key depends on you.** A key works only while the person who created it is an owner or an admin of the organization. If you leave the organization or become a member, every key you created stops working. See [If the key creator changes role](#if-the-key-creator-changes-role).
-- **Limit:** an organization can have 10 active keys. To create another, revoke one first.
+- **Limit:** an organization can have 10 active keys. Revoked and expired keys don't count. To create another, revoke one first.
 
 ## Choose a permission
 

@@ -5,7 +5,7 @@ description: "Build a release from a commit and deploy it to a customer's deploy
 keywords: ["CI", "CD", "GitHub Actions", "pipeline", "deploy", "release", "automation"]
 ---
 
-{/* Last checked against deployz commit e6bcaf73 on 2026-11-24 */}
+{/* Last checked against deployz commit 58426011 on 2026-11-24 */}
 
 This guide shows how your CI pipeline builds a release from the commit it's running on and deploys it to a customer's deployment. It does the same as [Create a release](/releases/create) and [Deploy an update](/operate/deploy-update) in the dashboard.
 
@@ -42,7 +42,7 @@ curl -s "https://api.deployz.dev/api/v1/deployments?applicationId=$APPLICATION_I
 
 <Steps>
   <Step title="Create a release">
-    Send the release's version and the commit to [Create a release](/api-reference/releases/create). Deployz starts the build and answers with the release. Its `status` is `building`.
+    Send the release's version and the full 40-character commit SHA to [Create a release](/api-reference/releases/create). Deployz starts the build and answers with the release. Its `status` is `building`.
   </Step>
   <Step title="Wait for the build">
     Read the release with [Read one release](/api-reference/releases/get) until `status` is no longer `building`. Deploy only when it's `ready`. If it's `failed`, `failureReason` says why. See [Fix build failures](/releases/build-failures).
@@ -57,7 +57,7 @@ curl -s "https://api.deployz.dev/api/v1/deployments?applicationId=$APPLICATION_I
 
 ## Example: GitHub Actions
 
-This workflow builds a release on every push to `main` and deploys it to one deployment. Add these to your repository settings first:
+This workflow builds a release on every push to `main` and deploys it to one deployment. `workflow_dispatch` also lets you start a new run from the **Actions** tab. Add these to your repository settings first:
 
 - A secret `DEPLOYZ_API_KEY` with your **Deploy** key.
 - Variables `DEPLOYZ_APPLICATION_ID` and `DEPLOYZ_DEPLOYMENT_ID` with the ids you looked up.
@@ -68,6 +68,7 @@ name: Release and deploy
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -116,8 +117,8 @@ A version can contain letters, digits, `.`, `_`, and `-`. This example uses the 
 
 A pipeline can repeat a step after a timeout or a rerun without doing the work twice:
 
-- **Create a release** with the same version and commit answers `200` with the existing release instead of building again. Rerunning a GitHub Actions workflow keeps its run number and commit, so the example above reuses the release. The same version with another commit answers `409 RELEASE_VERSION_EXISTS`.
-- **Deploy**, **restart**, and **rollback** that find the same operation already queued or running answer `200` with the same `jobId`. To control this yourself, send an `Idempotency-Key` header with a value your pipeline chooses, such as the run id. A repeat with the same key and release returns the same operation. The same key with another release answers `409 IDEMPOTENCY_KEY_REUSED`.
+- **Create a release** with the same version and commit answers `200` with the existing release instead of building again. Rerunning a GitHub Actions workflow keeps its run number and commit, so the example above reuses the release. If that release's build failed, a rerun fails again. Fix the cause, then start a new run, which gets a new version. The same version with another commit answers `409 RELEASE_VERSION_EXISTS`.
+- **Deploy**, **restart**, and **rollback** that find the same operation already queued or running answer `200` with the same `jobId`. To control this yourself, send an `Idempotency-Key` header with a value your pipeline chooses, such as the run id. A repeat with the same key and release returns the same operation, even after it finished. The same key with another release answers `409 IDEMPOTENCY_KEY_REUSED`.
 
 ## One operation at a time
 

@@ -4,7 +4,7 @@ description: "What Deployz API error responses contain, what each error code mea
 keywords: ["API errors", "error codes", "401", "403", "404", "409", "429", "rate limit", "Retry-After"]
 ---
 
-{/* Last checked against deployz commit e6bcaf73 on 2026-11-24 */}
+{/* Last checked against deployz commit 58426011 on 2026-11-24 */}
 
 When a request fails, the [Deployz API](/api/overview) answers with an HTTP status code and a JSON body that says why. Use the `code` to decide what your pipeline does next.
 
@@ -32,7 +32,7 @@ When a request fails, the [Deployz API](/api/overview) answers with an HTTP stat
 
 | Status | Code | Meaning | What to do |
 | --- | --- | --- | --- |
-| `400` | `VALIDATION_ERROR` | A field or parameter is missing or has the wrong format. | Fix the request. The message names the field. |
+| `400` | `VALIDATION_ERROR` | A field or parameter is missing or has the wrong format. | Fix the request. `error.details` lists each field and the problem. |
 | `401` | `API_KEY_INVALID` | No key, a malformed key, an unknown key, or a revoked key. | Check the `Authorization: Bearer` header and the secret in your CI. |
 | `401` | `API_KEY_EXPIRED` | The key is past its expiry date. | [Create a new key](/api/authentication#create-a-key). |
 | `401` | `KEY_CREATOR_INACTIVE` | The person who created the key is no longer an owner or an admin. | [Replace the key](/api/authentication#replace-a-key). |
@@ -50,7 +50,10 @@ These come from [Create a release](/api-reference/releases/create).
 | --- | --- | --- | --- |
 | `409` | `RELEASE_VERSION_EXISTS` | A release with this version was built from another commit. | Use a new version. The same version and commit return the existing release. |
 | `409` | `RELEASE_BUILD_IN_PROGRESS` | Another release of this application is building. | Wait for that build to finish, then try again. |
-| `422` | `BUILD_CONFIGURATION_MISSING` | The application is missing a build setting that a release needs. | Complete the application's build settings in the dashboard. See [Create a release](/releases/create). |
+| `409` | `GITHUB_NOT_CONNECTED` | The application's GitHub connection isn't active, so Deployz can't read the repository. | An owner or an admin reconnects GitHub. See [See and change your GitHub connections](/account/github#see-and-change-your-github-connections). |
+| `422` | `BUILD_CONFIGURATION_MISSING` | A build value the application needs has no value. `error.details.keys` lists the variable names. | Enter the values in the application's configuration, then try again. See [Create a release](/releases/create). |
+
+Send the full 40-character commit SHA. Deployz looks up a shorter SHA on GitHub, which can fail with `404 COMMIT_NOT_FOUND`, `429 GITHUB_RATE_LIMITED`, or `502 GITHUB_COMMITS_FETCH_FAILED`.
 
 A build that starts but fails doesn't return an error code. The release's `status` changes to `failed`, and `failureReason` says why. See [Fix build failures](/releases/build-failures).
 
