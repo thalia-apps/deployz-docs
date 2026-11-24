@@ -83,10 +83,16 @@ jobs:
           VERSION: 1.0.${{ github.run_number }}
         run: |
           set -euo pipefail
+          # Call the API. On an error, print the response to the log and fail.
           api() {
-            curl --silent --show-error --fail-with-body \
+            local body
+            if ! body=$(curl --silent --show-error --fail-with-body \
               -H "Authorization: Bearer $DEPLOYZ_API_KEY" \
-              -H "Content-Type: application/json" "$@"
+              -H "Content-Type: application/json" "$@"); then
+              echo "$body" >&2
+              return 1
+            fi
+            echo "$body"
           }
 
           # 1. Build a release from this commit.
@@ -109,7 +115,7 @@ jobs:
           [ "$state" = succeeded ]
 ```
 
-The step fails if a request fails, the build fails, or the deploy doesn't succeed. `--fail-with-body` prints the error response, including its `code` and `request_id`. See [Errors and rate limits](/api/errors).
+The step fails if a request fails, the build fails, or the deploy doesn't succeed. When a request fails, the `api` function prints the error response to the log, including its `code` and `request_id`. See [Errors and rate limits](/api/errors).
 
 A version can contain letters, digits, `.`, `_`, and `-`. This example uses the workflow's run number. Use your own versioning scheme if you have one, such as a Git tag.
 

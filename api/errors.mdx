@@ -75,7 +75,7 @@ An operation that starts but fails doesn't return an error code. The operation's
 
 ## Rate limits
 
-Each API key can make 120 requests a minute. The next request in that minute answers `429` with the code `RATE_LIMITED` and a `Retry-After` header with the number of seconds to wait.
+Each API key can make 120 requests in each clock minute. Further requests in that minute answer `429` with the code `RATE_LIMITED`. The `Retry-After` header and `error.details.retryAfterSeconds` give the number of seconds until the next minute starts.
 
 To stay under the limit:
 
